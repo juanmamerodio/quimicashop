@@ -1,35 +1,47 @@
-import Link from 'next/link';
+import Link from "next/link";
 
-export default function NavBar({ dict }: { dict: any }) {
+export default function NavBar({ lang }: { lang: string }) {
+  // Nota: Más adelante usaremos el diccionario real. Por ahora, textos fijos.
   return (
-    <nav className="border-b border-white/10 bg-[#0a0f1e]/80 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          
-          {/* Logo del Departamento */}
-          <div className="flex-shrink-0">
-            <Link href="/" className="font-bold text-xl tracking-wider transition-opacity hover:opacity-80">
-              <span className="text-[#00d9a0]">E.E.S.T N°1</span> <span className="text-[#f1f5f9]">QUÍMICA</span>
-            </Link>
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-lab-bg/80 backdrop-blur-md">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        
+        {/* Logo / Título */}
+        <Link href={`/${lang}`} className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded bg-lab-surface border border-lab-primary/30 flex items-center justify-center group-hover:border-lab-primary transition-colors">
+            <span className="text-lab-primary font-mono font-bold">Q1</span>
+          </div>
+          <span className="font-semibold tracking-wide">
+            EEST N°1 <span className="text-lab-primary">Shop</span>
+          </span>
+        </Link>
+
+        {/* Acciones (Idioma y Carrito) */}
+        <div className="flex items-center gap-6">
+          <div className="flex gap-2 text-sm font-mono text-lab-muted">
+            <Link href="/es" className={lang === 'es' ? 'text-lab-primary' : 'hover:text-lab-text transition-colors'}>ES</Link>
+            <span>/</span>
+            <Link href="/en" className={lang === 'en' ? 'text-lab-primary' : 'hover:text-lab-text transition-colors'}>EN</Link>
           </div>
 
-          {/* Enlaces de navegación */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-6">
-              <Link href="/" className="text-[#64748b] hover:text-[#00d9a0] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150">
-                {dict?.nav?.home || "Inicio"}
-              </Link>
-              <Link href="/cart" className="text-[#64748b] hover:text-[#00d9a0] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150">
-                {dict?.nav?.cart || "Carrito"}
-              </Link>
-              <Link href="/admin" className="text-[#7c3aed] hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium border border-white/10 transition-colors duration-150">
-                {dict?.nav?.admin || "Panel Admin"}
-              </Link>
-            </div>
-          </div>
-
+          <Link 
+            href={`/${lang}/cart`} 
+            className="relative p-2 rounded-md hover:bg-lab-surface transition-colors border border-transparent hover:border-white/10"
+          >
+            {/* Icono de carrito SVG simple */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+            </svg>
+            
+            {/* Badge simulado */}
+            <span className="absolute top-0 right-0 -mt-1 -mr-1 flex h-4 w-4 items-center justify-center rounded-full bg-lab-secondary text-[10px] font-bold text-white">
+              3
+            </span>
+          </Link>
         </div>
+
       </div>
-    </nav>
+    </header>
   );
 }
