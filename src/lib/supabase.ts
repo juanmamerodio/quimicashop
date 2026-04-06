@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * TIPOS DE DATOS DE LA BASE DE DATOS
@@ -49,7 +49,7 @@ export interface Pedido {
   nombre_cliente: string;
   email: string;
   telefono?: string | null;
-  items: Json; // Changed from CartItem[] to Json for database compatibility
+  items: Json; 
   total_ars: number;
   estado?: OrderStatus;
   comprobante_url?: string | null;
@@ -135,9 +135,6 @@ export interface VerificacionUpdate {
   created_at?: string;
 }
 
-/**
- * DEFINICIÓN DEL ESQUEMA PARA EL CLIENTE DE SUPABASE
- */
 export interface Database {
   public: {
     Tables: {
@@ -165,34 +162,43 @@ export interface Database {
 }
 
 /**
- * VALIDACIÓN DE VARIABLES DE ENTORNO
+ * SINGLETON LAZY INITIALIZATION
+ * Deferimos la creación del cliente hasta que se necesite.
+ * Esto evita errores durante el build en Vercel si las variables no están disponibles.
  */
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Faltan las variables de entorno NEXT_PUBLIC_SUPABASE_URL o NEXT_PUBLIC_SUPABASE_ANON_KEY'
-  );
-}
+let supabaseInstance: SupabaseClient<Database> | null = null;
+let serviceSupabaseInstance: SupabaseClient<Database> | null = null;
 
-/**
- * INSTANCIA DEL CLIENTE
- * Exportamos el cliente tipado para asegurar que todas las queries 
- * respeten la estructura de la base de datos.
- */
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
-
-/**
- * CLIENTE DE SERVICIO (Service Role)
- * Usado solo en el backend para operaciones que requieren saltarse RLS.
- */
-export const getServiceSupabase = () => {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceKey) {
+const checkEnv = (name: string, value: string | undefined): string => {
+  if (!value || value === 'undefined' || value === '') {
     throw new Error(
-      'Faltan las variables NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY'
+      `Falta la variable de entorno ${name}. Asegúrate de configurarla en el panel de Vercel (Settings > Environment Variables) y crear un nuevo despliegue.`
     );
   }
-  return createClient<Database>(supabaseUrl, serviceKey);
+  return value;
+};
+
+/**
+ * getSupabase() — Para uso en el cliente y componentes de servidor públicos.
+ */
+export const getSupabase = (): SupabaseClient<Database> => {
+  if (!supabaseInstance) {
+    const url = checkEnv('NEXT_PUBLIC_SUPABASE_URL', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    const key = checkEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    supabaseInstance = createClient<Database>(url, key);
+  }
+  return supabaseInstance;
+};
+
+/**
+ * getServiceSupabase() — Solo para API routes o Server Actions que requieran Service Role (bypass RLS).
+ */
+export const getServiceSupabase = (): SupabaseClient<Database> => {
+  if (!serviceSupabaseInstance) {
+    const url = checkEnv('NEXT_PUBLIC_SUPABASE_URL', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    const key = checkEnv('SUPABASE_SERVICE_ROLE_KEY', process.env.SUPABASE_SERVICE_ROLE_KEY);
+    serviceSupabaseInstance = createClient<Database>(url, key);
+  }
+  return serviceSupabaseInstance;
 };

@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { supabase, getServiceSupabase } from '@/lib/supabase';
+import { getSupabase, getServiceSupabase } from '@/lib/supabase';
 
 // GET: Obtener todos los pedidos (para el panel admin o GAS)
 export async function GET() {
   try {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('pedidos')
       .select('*')
@@ -29,6 +30,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 });
     }
 
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('pedidos')
       .insert([{ nombre_cliente, email, telefono, items, total_ars, estado: 'pendiente' }])
