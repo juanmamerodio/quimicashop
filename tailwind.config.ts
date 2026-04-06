@@ -1,3 +1,4 @@
+// tailwind.config.ts
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -9,20 +10,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg:          '#f7f7f5',   // blanco neutro cálido (base de página)
-        surface:     '#ffffff',   // blanco puro (cards, modales)
-        glass:       'rgba(255, 255, 255, 0.62)', // superficies translúcidas iOS
-        accent:      '#3d8c6e',   // verde salvia / química orgánica
-        'accent-lt': '#e8f3ef',   // verde muy suave (fondos de badges, chips)
-        gray:        '#6b7280',   // gris neutro (texto secundario, bordes)
-        'gray-lt':   '#f0f0ee',   // gris casi blanco (fondos alternativos)
-        text:        '#1c1c1e',   // negro suave (no puro)
-        muted:       '#8e8e93',   // gris iOS (placeholder, labels)
-        border:      'rgba(0, 0, 0, 0.08)', // borde translúcido universal
+        bg: "#f7f7f5",
+        surface: "#ffffff",
+        glass: "rgba(255, 255, 255, 0.62)",
+        accent: {
+          DEFAULT: "#3d8c6e",
+          lt: "#e8f3ef",
+        },
+        text: "#1c1c1e",
+        gray: {
+          DEFAULT: "#6b7280",
+          lt: "#f0f0ee",
+        },
+        muted: "#8e8e93",
+        border: "rgba(0, 0, 0, 0.08)",
       },
       fontFamily: {
-        sans: ['var(--font-dm-sans)', 'sans-serif'],
-        mono: ['var(--font-dm-mono)', 'monospace'],
+        sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-dm-mono)", "ui-monospace", "monospace"],
+      },
+      boxShadow: {
+        'soft': '0 2px 12px rgba(0, 0, 0, 0.06)',
       },
     },
   },

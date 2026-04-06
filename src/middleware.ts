@@ -1,24 +1,35 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { match } from '@formatjs/intl-localematcher';
+import Negotiator from 'negotiator';
 
-// 1. Configuramos los idiomas soportados
 const locales = ['es', 'en'];
 const defaultLocale = 'es';
+
+function getLocale(request: NextRequest) {
+  const negotiatorHeaders: Record<string, string> = {};
+  request.headers.forEach((value, key) => (negotiatorHeaders[key] = value));
+
+  const negotiator = new Negotiator({ headers: negotiatorHeaders });
+  const languages = negotiator.languages();
+
+  return match(languages, locales, defaultLocale);
+}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // --- REGLA 1: RUTAS DEL SISTEMA (No tocarlas) ---
-  // Ignoramos las rutas de la API, imágenes, y archivos internos de Next.js (_next)
+  // --- REGLA 1: RUTAS DEL SISTEMA (Exclusiones) ---
   if (
     pathname.startsWith('/api') ||
     pathname.startsWith('/_next') ||
-    pathname.includes('.') // Ignora archivos como favicon.ico, .css, .js
+    pathname.includes('.')
   ) {
     return NextResponse.next();
   }
 
-  // --- REGLA 2: PROTECCIÓN DEL PANEL DE ADMIN ---
+  // --- REGLA 2: PROTECCIÓN DEL PANEL DE ADMIN (Basic Auth) ---
+  // Mantenemos tu lógica de Basic Auth porque es la más eficiente para este caso
   if (pathname.startsWith('/admin')) {
     const basicAuth = request.headers.get('authorization');
 
@@ -31,7 +42,6 @@ export function middleware(request: NextRequest) {
       }
     }
 
-    // Require Basic Auth
     return new NextResponse('Auth required', {
       status: 401,
       headers: {
@@ -40,30 +50,27 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  // --- REGLA 3: SISTEMA DE IDIOMAS (i18n) ---
-  // Verificamos si la ruta actual ya tiene un idioma válido (ej: /es/cart o /en/checkout)
+  // --- REGLA 3: SISTEMA DE IDIOMAS (i18n Inteligente) ---
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
   if (pathnameHasLocale) {
-    return NextResponse.next(); // Ya tiene idioma, dejamos que siga su curso
+    return NextResponse.next();
   }
 
-  // Si llegamos acá, significa que el usuario entró a la raíz (ej: localhost:3000 o localhost:3000/cart)
-  // Lo redirigimos al idioma por defecto (español).
-  // Nota: Más adelante podemos leer el header 'Accept-Language' del navegador para ser más inteligentes.
-  
-  // Construimos la nueva URL añadiendo el idioma
-  request.nextUrl.pathname = `/${defaultLocale}${pathname}`;
-  
-  // Hacemos la redirección (ej: de "/" pasa a "/es")
-  return NextResponse.redirect(request.nextUrl);
+  // En lugar de mandar a todos a /es, detectamos el idioma del navegador
+  const locale = getLocale(request);
+
+  // Construimos la URL de redirección
+  const response = NextResponse.redirect(
+    new URL(`/${locale}${pathname === '/' ? '' : pathname}`, request.url)
+  );
+
+  return response;
 }
 
-// 2. Le decimos a Next.js en qué rutas exactas debe ejecutarse este middleware
 export const config = {
-  // Coincide con todas las rutas EXCEPTO /api, /_next/static, /_next/image, y favicon.ico
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
