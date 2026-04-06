@@ -16,7 +16,7 @@ function getLocale(request: NextRequest) {
   return match(languages, locales, defaultLocale);
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // --- REGLA 1: RUTAS DEL SISTEMA (Exclusiones) ---
@@ -29,7 +29,6 @@ export function middleware(request: NextRequest) {
   }
 
   // --- REGLA 2: PROTECCIÓN DEL PANEL DE ADMIN (Basic Auth) ---
-  // Mantenemos tu lógica de Basic Auth porque es la más eficiente para este caso
   if (pathname.startsWith('/admin')) {
     const basicAuth = request.headers.get('authorization');
 
