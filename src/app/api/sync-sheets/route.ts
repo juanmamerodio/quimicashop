@@ -19,12 +19,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Faltan parámetros' }, { status: 400 });
     }
 
-    const serviceClient = getServiceSupabase();
+    const serviceClient = getServiceSupabase() as any;
     
     // Actualizamos el pedido
     const { data: order, error } = await serviceClient
       .from('pedidos')
-      .update({ estado: nuevoEstado })
+      .update({ estado: nuevoEstado } as any)
       .eq('id', orderId)
       .select()
       .single();

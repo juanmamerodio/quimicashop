@@ -11,7 +11,7 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    
+
     return NextResponse.json({ orders: data });
   } catch (error) {
     console.error("Error GET orders:", error);
@@ -30,16 +30,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 });
     }
 
-    const supabase = getSupabase();
-    const { data, error } = await supabase
+    const serviceClient = getServiceSupabase() as any;
+    const { data: orderData, error: orderError } = await serviceClient
       .from('pedidos')
-      .insert([{ nombre_cliente, email, telefono, items, total_ars, estado: 'pendiente' }])
+      .insert({ 
+        nombre_cliente, 
+        email, 
+        telefono: telefono || null, 
+        items: items as any, // Cast as many-to-Json
+        total_ars: Number(total_ars), 
+        estado: 'pendiente' 
+      } as any)
       .select()
       .single();
 
-    if (error) throw error;
+    if (orderError) throw orderError;
 
-    return NextResponse.json({ order: data }, { status: 201 });
+    return NextResponse.json({ order: orderData }, { status: 201 });
   } catch (error) {
     console.error("Error POST orders:", error);
     return NextResponse.json({ error: 'Error interno al crear el pedido' }, { status: 500 });
@@ -56,17 +63,17 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Falta id o status' }, { status: 400 });
     }
 
-    const serviceClient = getServiceSupabase();
-    const { data, error } = await serviceClient
+    const serviceClient = getServiceSupabase() as any;
+    const { data: updatedOrder, error: updateError } = await serviceClient
       .from('pedidos')
-      .update({ estado: status })
+      .update({ estado: status } as any)
       .eq('id', id)
       .select()
       .single();
 
-    if (error) throw error;
+    if (updateError) throw updateError;
 
-    return NextResponse.json({ order: data });
+    return NextResponse.json({ order: updatedOrder });
   } catch (error) {
     console.error("Error PATCH order:", error);
     return NextResponse.json({ error: 'Error interno al actualizar el pedido' }, { status: 500 });

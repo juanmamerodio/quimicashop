@@ -21,6 +21,11 @@
     "titleAccent": "Cart",
     "empty": "Your cart is empty.",
     "goToCatalog": "Go to catalog",
+    "continueShopping": "Continue shopping",
+    "emptyTitle": "The flask is empty",
+    "emptyDescription": "It seems you haven't added any reagents or equipment yet. Explore our catalog to start your order.",
+    "exploreProducts": "Explore Products",
+    "emptyNotice": "Add products to continue",
     "each": "ea.",
     "remove": "Remove",
     "summary": {

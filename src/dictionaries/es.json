@@ -21,6 +21,11 @@
     "titleAccent": "Carrito",
     "empty": "Tu carrito está vacío.",
     "goToCatalog": "Ir al catálogo",
+    "continueShopping": "Continuar comprando",
+    "emptyTitle": "El matraz está vacío",
+    "emptyDescription": "Parece que no has añadido ningún reactivo o equipo todavía. Explora nuestro catálogo para empezar tu pedido.",
+    "exploreProducts": "Explorar Productos",
+    "emptyNotice": "Agregá productos para continuar",
     "each": "c/u",
     "remove": "Eliminar",
     "summary": {
