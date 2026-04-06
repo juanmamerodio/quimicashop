@@ -1,0 +1,18 @@
+src/app/api/orders/route.ts(34,8): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "pedidos", never, "POST">', gave the following error.
+    Argument of type '{ nombre_cliente: any; email: any; telefono: any; items: any; total_ars: any; estado: string; }[]' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "pedidos", never, "POST">', gave the following error.
+    Type '{ nombre_cliente: any; email: any; telefono: any; items: any; total_ars: any; estado: string; }' is not assignable to type 'never'.
+src/app/api/orders/route.ts(60,15): error TS2345: Argument of type '{ estado: any; }' is not assignable to parameter of type 'never'.
+src/app/api/sync-sheets/route.ts(27,15): error TS2345: Argument of type '{ estado: any; }' is not assignable to parameter of type 'never'.
+src/app/api/verify-payment/route.ts(42,15): error TS2345: Argument of type '{ estado: string; comprobante_url: string; }' is not assignable to parameter of type 'never'.
+src/app/api/verify-payment/route.ts(79,50): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "verificaciones", never, "POST">', gave the following error.
+    Argument of type '{ pedido_id: any; respuesta_gemini: { valid: boolean; amount_matches: boolean; recipient_matches: boolean; date_ok: boolean; amount_found: any; reason: string; }; verificado: boolean; }[]' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "verificaciones", never, "POST">', gave the following error.
+    Type '{ pedido_id: any; respuesta_gemini: { valid: boolean; amount_matches: boolean; recipient_matches: boolean; date_ok: boolean; amount_found: any; reason: string; }; verificado: boolean; }' is not assignable to type 'never'.
+src/app/api/verify-payment/route.ts(89,17): error TS2345: Argument of type '{ estado: string; log_ia: { valid: boolean; amount_matches: boolean; recipient_matches: boolean; date_ok: boolean; amount_found: any; reason: string; }; }' is not assignable to parameter of type 'never'.
+src/app/api/verify-payment/route.ts(99,23): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/api/verify-payment/route.ts(102,35): error TS2339: Property 'nombre_cliente' does not exist on type 'never'.
+src/app/api/verify-payment/route.ts(103,35): error TS2339: Property 'nombre_cliente' does not exist on type 'never'.
+src/app/api/verify-payment/route.ts(114,30): error TS2339: Property 'email' does not exist on type 'never'.
