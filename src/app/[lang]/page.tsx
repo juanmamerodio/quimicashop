@@ -1,78 +1,89 @@
-import NavBar from "@/components/NavBar";
 import ProductCard from "@/components/ProductCard";
+import { getDictionary, type Locale } from "@/lib/i18n";
 
-interface PageProps {
-  params: {
-    lang: string;
-  };
-}
-
-// MOCK DATA: Productos de prueba para mostrarle a los profes
+// ⚠️ MOCK DATA: Solo para la demostración inicial.
+// Cuando Supabase esté configurado, esto se reemplaza por fetch a /api/products
 const MOCK_PRODUCTS = [
   {
     id: "uuid-1",
-    name: "Vaso de Precipitados 250ml",
-    description: "Vaso de vidrio borosilicato resistente a altas temperaturas. Graduado.",
-    priceArs: 4500,
-    category: "materiales"
+    nombre_es: "Vaso de Precipitados 250ml",
+    nombre_en: "Beaker 250ml",
+    descripcion_es: "Vaso de vidrio borosilicato resistente a altas temperaturas. Graduado.",
+    descripcion_en: "Borosilicate glass beaker resistant to high temperatures. Graduated.",
+    precio_ars: 4500,
+    categoria: "materiales" as const,
   },
   {
     id: "uuid-2",
-    name: "Ácido Clorhídrico 37% (1L)",
-    description: "Reactivo grado analítico. Venta exclusiva con autorización docente.",
-    priceArs: 12800,
-    category: "reactivos"
+    nombre_es: "Ácido Clorhídrico 37% (1L)",
+    nombre_en: "Hydrochloric Acid 37% (1L)",
+    descripcion_es: "Reactivo grado analítico. Venta exclusiva con autorización docente.",
+    descripcion_en: "Analytical grade reagent. Sale only with teacher authorization.",
+    precio_ars: 12800,
+    categoria: "reactivos" as const,
   },
   {
     id: "uuid-3",
-    name: "Microscopio Binocular",
-    description: "Aumentos 40x a 1000x. Iluminación LED regulable.",
-    priceArs: 350000,
-    category: "equipos"
+    nombre_es: "Microscopio Binocular",
+    nombre_en: "Binocular Microscope",
+    descripcion_es: "Aumentos 40x a 1000x. Iluminación LED regulable.",
+    descripcion_en: "40x to 1000x magnification. Adjustable LED illumination.",
+    precio_ars: 350000,
+    categoria: "equipos" as const,
   },
   {
     id: "uuid-4",
-    name: "Tubos de Ensayo (x10)",
-    description: "Pack de 10 tubos de vidrio neutro 16x150mm sin borde.",
-    priceArs: 2100,
-    category: "materiales"
-  }
+    nombre_es: "Tubos de Ensayo (x10)",
+    nombre_en: "Test Tubes (x10)",
+    descripcion_es: "Pack de 10 tubos de vidrio neutro 16x150mm sin borde.",
+    descripcion_en: "Pack of 10 neutral glass tubes 16x150mm without rim.",
+    precio_ars: 2100,
+    categoria: "materiales" as const,
+  },
 ];
 
-export default function CatalogPage({ params }: PageProps) {
-  const { lang } = params;
+export default async function CatalogPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  const dict = await getDictionary(lang as Locale);
 
   return (
     <>
-      <NavBar lang={lang} />
-      
-      <main className="container mx-auto px-4 py-8 flex-grow">
-        <div className="mb-8 border-b border-white/10 pb-6">
-          <h1 className="text-3xl font-bold text-lab-text mb-2">
-            Catálogo de <span className="text-lab-primary">Insumos</span>
-          </h1>
-          <p className="text-lab-muted">
-            Seleccioná los materiales necesarios para tus prácticas de laboratorio.
-          </p>
-        </div>
+      {/* Cabecera del catálogo */}
+      <div className="mb-8 border-b border-border pb-6">
+        <h1 className="text-3xl font-bold text-text mb-2">
+          {dict.catalog.title} <span className="text-accent">{dict.catalog.titleAccent}</span>
+        </h1>
+        <p className="text-muted">
+          {dict.catalog.subtitle}
+        </p>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {MOCK_PRODUCTS.map((product) => (
+      {/* Grilla de Productos */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {MOCK_PRODUCTS.map((product) => {
+          const name = lang === 'en' ? product.nombre_en : product.nombre_es;
+          const description = lang === 'en' ? product.descripcion_en : product.descripcion_es;
+          const categoryLabel =
+            dict.catalog.categories[product.categoria] ?? product.categoria;
+
+          return (
             <ProductCard
               key={product.id}
               id={product.id}
-              name={product.name}
-              description={product.description}
-              priceArs={product.priceArs}
-              category={product.category}
+              name={name}
+              description={description}
+              priceArs={product.precio_ars}
+              category={product.categoria}
+              categoryLabel={categoryLabel}
+              addToCartText={dict.catalog.addToCart}
             />
-          ))}
-        </div>
-      </main>
-      
-      <footer className="border-t border-white/10 bg-lab-surface py-6 mt-12 text-center text-sm text-lab-muted">
-        <p>E.E.S.T N°1 Luciano Reyes - Departamento de Química © 2026</p>
-      </footer>
+          );
+        })}
+      </div>
     </>
   );
 }

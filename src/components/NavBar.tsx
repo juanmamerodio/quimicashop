@@ -1,42 +1,77 @@
-import Link from "next/link";
+'use client';
 
-export default function NavBar({ lang }: { lang: string }) {
-  // Nota: Más adelante usaremos el diccionario real. Por ahora, textos fijos.
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ShoppingCart } from "lucide-react";
+import esDict from "@/dictionaries/es.json";
+import enDict from "@/dictionaries/en.json";
+import type { Dictionary } from "@/lib/types";
+
+const dicts: Record<string, Dictionary> = { es: esDict, en: enDict };
+
+export default function NavBar() {
+  const pathname = usePathname();
+
+  // Detectar idioma desde la URL: /es/..., /en/...
+  const segments = pathname.split('/').filter(Boolean);
+  const lang = (segments[0] === 'en') ? 'en' : 'es';
+  const dict = dicts[lang] ?? dicts.es;
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-lab-bg/80 backdrop-blur-md">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        
+    <header className="fixed top-0 z-50 w-full border-b border-border bg-bg/80 backdrop-blur-3xl saturate-150 transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+
         {/* Logo / Título */}
-        <Link href={`/${lang}`} className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded bg-lab-surface border border-lab-primary/30 flex items-center justify-center group-hover:border-lab-primary transition-colors">
-            <span className="text-lab-primary font-mono font-bold">Q1</span>
+        <Link
+          href={`/${lang}`}
+          className="flex items-center gap-3 group transition-opacity hover:opacity-80"
+        >
+          <div className="w-9 h-9 rounded-xl bg-accent text-surface flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">
+            <span className="font-mono font-bold text-sm">Q1</span>
           </div>
-          <span className="font-semibold tracking-wide">
-            EEST N°1 <span className="text-lab-primary">Shop</span>
-          </span>
+          <div className="flex flex-col leading-tight">
+            <span className="font-semibold text-text tracking-tight">
+              {dict.nav.title} <span className="text-accent">{dict.nav.titleAccent}</span>
+            </span>
+          </div>
         </Link>
 
         {/* Acciones (Idioma y Carrito) */}
-        <div className="flex items-center gap-6">
-          <div className="flex gap-2 text-sm font-mono text-lab-muted">
-            <Link href="/es" className={lang === 'es' ? 'text-lab-primary' : 'hover:text-lab-text transition-colors'}>ES</Link>
-            <span>/</span>
-            <Link href="/en" className={lang === 'en' ? 'text-lab-primary' : 'hover:text-lab-text transition-colors'}>EN</Link>
+        <div className="flex items-center gap-4">
+          {/* Selector de Idioma - Estilo M3 Chip */}
+          <div className="hidden sm:flex items-center gap-1 p-1 bg-gray-lt rounded-full border border-border">
+            <Link
+              href="/es"
+              className={`px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+                lang === 'es'
+                  ? 'bg-surface text-accent shadow-sm'
+                  : 'text-muted hover:text-text'
+              }`}
+            >
+              ES
+            </Link>
+            <Link
+              href="/en"
+              className={`px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+                lang === 'en'
+                  ? 'bg-surface text-accent shadow-sm'
+                  : 'text-muted hover:text-text'
+              }`}
+            >
+              EN
+            </Link>
           </div>
 
-          <Link 
-            href={`/${lang}/cart`} 
-            className="relative p-2 rounded-md hover:bg-lab-surface transition-colors border border-transparent hover:border-white/10"
+          {/* Botón Carrito - Estilo iOS Glass */}
+          <Link
+            href={`/${lang}/cart`}
+            className="relative p-2.5 rounded-full bg-surface/50 border border-border text-text hover:bg-surface hover:shadow-sm transition-all duration-200 group"
           >
-            {/* Icono de carrito SVG simple */}
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
-              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-            </svg>
-            
-            {/* Badge simulado */}
-            <span className="absolute top-0 right-0 -mt-1 -mr-1 flex h-4 w-4 items-center justify-center rounded-full bg-lab-secondary text-[10px] font-bold text-white">
-              3
+            <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+
+            {/* Badge de cantidad */}
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-surface text-[10px] font-bold shadow-sm border-2 border-bg">
+              0
             </span>
           </Link>
         </div>

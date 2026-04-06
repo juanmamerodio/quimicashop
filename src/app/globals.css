@@ -1,25 +1,111 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* NOTA PARA EL EDITOR (VS Code):
-  Para quitar el error "Unknown at rule @tailwind", puedes hacer una de dos cosas:
-  1. Instalar la extensión "Tailwind CSS IntelliSense" en VS Code.
-  2. O agregar esto en la configuración de VS Code (settings.json):
-     "css.customData": [".vscode/tailwind.json"] (o simplemente ignorar el warning si compila bien).
-*/
+/* ============================================
+   TAILWIND v4 — CSS-First Config
+   Paleta Material 3 Expressive + iOS 26
+   ============================================ */
 
-/* Opcional: Pequeños ajustes globales de scrollbar para mantener la estética oscura */
-::-webkit-scrollbar {
-  width: 8px;
+@theme {
+  /* Paleta de colores institucional */
+  --color-bg: #f7f7f5;
+  --color-surface: #ffffff;
+  --color-glass: rgba(255, 255, 255, 0.62);
+  --color-accent: #3d8c6e;
+  --color-accent-lt: #e8f3ef;
+  --color-gray: #6b7280;
+  --color-gray-lt: #f0f0ee;
+  --color-text: #1c1c1e;
+  --color-muted: #8e8e93;
+  --color-border: rgba(0, 0, 0, 0.08);
+
+  /* Fuentes (variables CSS inyectadas por next/font) */
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, SFMono-Regular, monospace;
 }
-::-webkit-scrollbar-track {
-  background: #0a0f1e; 
+
+/* ============================================
+   Base styles
+   ============================================ */
+body {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
-::-webkit-scrollbar-thumb {
-  background: #111827; 
-  border-radius: 4px;
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.025em;
+  font-weight: 600;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #00d9a0; 
+
+/* ============================================
+   Component classes (M3 + iOS 26)
+   ============================================ */
+
+/* Card base — Elevación 1 (iOS 26 Glassmorphism) */
+.card {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.card:hover {
+  background: #f0f0ee;
+  transform: translateY(-1px);
+}
+
+/* NavBar flotante — iOS 26 Translucency */
+.navbar {
+  background: rgba(247, 247, 245, 0.80);
+  backdrop-filter: blur(32px) saturate(1.6);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Botón primario — M3 Filled Pill */
+.btn-primary {
+  background: #3d8c6e;
+  color: #ffffff;
+  padding: 12px 28px;
+  border-radius: 100px;
+  font-weight: 500;
+  transition: opacity 180ms ease, transform 180ms ease;
+  box-shadow: 0 2px 8px rgba(61, 140, 110, 0.2);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Chip / Badge — M3 Assist chip */
+.chip {
+  background: #e8f3ef;
+  color: #3d8c6e;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(61, 140, 110, 0.20);
+}
+
+/* Inputs Estilo iOS */
+.input-ios {
+  background: #f0f0ee;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #1c1c1e;
+  outline: none;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.input-ios:focus {
+  border-color: #3d8c6e;
+  box-shadow: 0 0 0 2px rgba(61, 140, 110, 0.2);
 }

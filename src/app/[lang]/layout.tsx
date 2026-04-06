@@ -1,12 +1,17 @@
-// Este layout agrupa todas las páginas que están dentro de un idioma (/es o /en)
-export default function LangLayout({
+import type { Locale } from '@/lib/i18n';
+
+// Layout para las rutas con idioma: /es/*, /en/*
+export default async function LangLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ lang: string }>;
 }) {
-  // Simplemente renderiza el contenido de las páginas hijas (page, cart, checkout, etc)
+  const { lang } = await params;
+
   return (
-    <div className="flex flex-col min-h-screen w-full">
+    <div className="flex flex-col min-h-screen w-full" lang={lang as Locale}>
       {children}
     </div>
   );

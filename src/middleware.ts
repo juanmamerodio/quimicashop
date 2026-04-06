@@ -19,10 +19,25 @@ export function middleware(request: NextRequest) {
   }
 
   // --- REGLA 2: PROTECCIÓN DEL PANEL DE ADMIN ---
-  // Si alguien intenta entrar a /admin, por ahora solo lo dejamos pasar.
-  // Más adelante acá leeremos una cookie o header para pedir la ADMIN_PASSWORD.
   if (pathname.startsWith('/admin')) {
-    return NextResponse.next();
+    const basicAuth = request.headers.get('authorization');
+
+    if (basicAuth) {
+      const authValue = basicAuth.split(' ')[1];
+      const [user, pwd] = atob(authValue).split(':');
+
+      if (user === 'admin' && pwd === process.env.ADMIN_PASSWORD) {
+        return NextResponse.next();
+      }
+    }
+
+    // Require Basic Auth
+    return new NextResponse('Auth required', {
+      status: 401,
+      headers: {
+        'WWW-Authenticate': 'Basic realm="Secure Area"',
+      },
+    });
   }
 
   // --- REGLA 3: SISTEMA DE IDIOMAS (i18n) ---

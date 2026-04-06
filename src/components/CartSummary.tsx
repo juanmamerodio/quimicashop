@@ -1,50 +1,57 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import type { Dictionary } from "@/lib/types";
 
-interface CartSummaryProps {
-  subtotal: number;
-  lang: string;
+interface CartItem {
+  id: string;
+  precio_ars: number;
+  cantidad: number;
 }
 
-export default function CartSummary({ subtotal, lang }: CartSummaryProps) {
-  
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+interface CartSummaryProps {
+  items: CartItem[];
+  lang: string;
+  dict: Dictionary;
+}
+
+export default function CartSummary({ items, lang, dict }: CartSummaryProps) {
+  const subtotal = items.reduce((acc, item) => acc + item.precio_ars * item.cantidad, 0);
+  const total = subtotal; // En este proyecto no hay costos de envío adicionales
 
   return (
-    <div className="bg-lab-surface rounded-xl border border-white/10 p-6 sticky top-24">
-      <h2 className="text-xl font-bold text-lab-text mb-6">Resumen del Pedido</h2>
-      
-      <div className="space-y-4 mb-6">
-        <div className="flex justify-between text-lab-muted">
-          <span>Subtotal</span>
-          <span className="font-mono">{formatPrice(subtotal)}</span>
+    <div className="card p-6 sticky top-24 transition-all duration-300">
+      <h2 className="text-xl font-semibold text-text mb-6 tracking-tight">
+        {dict.cart.summary.title}
+      </h2>
+
+      <div className="space-y-4 mb-8">
+        <div className="flex justify-between items-center">
+          <span className="text-muted font-medium">{dict.cart.summary.subtotal}</span>
+          <span className="font-mono font-medium text-text">
+            ${subtotal.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+          </span>
         </div>
-        <div className="flex justify-between text-lab-muted">
-          <span>Envío</span>
-          <span className="text-sm italic">Retiro en EEST N°1</span>
-        </div>
-        <div className="border-t border-white/10 pt-4 flex justify-between items-center">
-          <span className="font-semibold text-lab-text">Total</span>
-          <span className="font-mono text-2xl text-lab-primary font-bold">
-            {formatPrice(subtotal)}
+
+        <div className="h-px bg-border w-full" />
+
+        <div className="flex justify-between items-center">
+          <span className="text-text font-bold text-lg">{dict.cart.summary.total}</span>
+          <span className="font-mono font-bold text-lg text-accent">
+            ${total.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
           </span>
         </div>
       </div>
 
-      <Link 
+      <Link
         href={`/${lang}/checkout`}
-        className="w-full block text-center py-3 px-4 bg-lab-primary text-lab-bg font-bold rounded-lg hover:bg-lab-primary/90 transition-colors shadow-[0_0_15px_rgba(0,217,160,0.2)] hover:shadow-[0_0_20px_rgba(0,217,160,0.4)]"
+        className="btn-primary w-full flex items-center justify-center gap-2 font-semibold transition-transform active:scale-95 hover:shadow-md"
       >
-        Proceder al Pago
+        {dict.cart.summary.cta}
+        <ArrowRight className="w-4 h-4" />
       </Link>
-      
-      <p className="text-xs text-lab-muted text-center mt-4">
-        El pago se realiza mediante transferencia. Se solicitará el comprobante en el siguiente paso.
+
+      <p className="text-center text-[11px] text-muted mt-4 leading-relaxed">
+        {dict.cart.summary.disclaimer}
       </p>
     </div>
   );

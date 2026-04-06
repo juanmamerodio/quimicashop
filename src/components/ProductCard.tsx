@@ -1,45 +1,49 @@
+import { formatPrice } from "@/lib/format";
+import { ShoppingCart } from "lucide-react";
+
 interface ProductCardProps {
   id: string;
   name: string;
   description: string;
   priceArs: number;
   category: string;
+  categoryLabel: string;
+  addToCartText: string;
 }
 
-export default function ProductCard({ id, name, description, priceArs, category }: ProductCardProps) {
-  // Formateador de moneda argentina
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
+export default function ProductCard({
+  id,
+  name,
+  description,
+  priceArs,
+  categoryLabel,
+  addToCartText,
+}: ProductCardProps) {
   return (
-    <div className="group flex flex-col bg-lab-surface rounded-xl border border-white/10 overflow-hidden hover:border-lab-primary/50 transition-all duration-300 hover:shadow-[0_0_15px_rgba(0,217,160,0.1)]">
-      
-      {/* Área de Imagen simulada (Placeholder con gradiente) */}
-      <div className="aspect-square w-full bg-gradient-to-br from-lab-bg to-lab-surface border-b border-white/10 flex items-center justify-center relative">
-        <span className="text-lab-muted text-sm font-mono opacity-50">IMG_{id.substring(0,4)}</span>
-        <div className="absolute top-3 left-3 px-2 py-1 bg-lab-bg/80 backdrop-blur text-xs font-mono rounded text-lab-primary border border-lab-primary/20 uppercase">
-          {category}
+    <div className="card group flex flex-col overflow-hidden">
+
+      {/* Placeholder de imagen */}
+      <div className="aspect-square w-full bg-gradient-to-br from-gray-lt to-surface border-b border-border flex items-center justify-center relative">
+        <span className="text-muted text-sm font-mono opacity-50">IMG_{id.substring(0, 4)}</span>
+        <div className="chip absolute top-3 left-3 uppercase">
+          {categoryLabel}
         </div>
       </div>
 
       {/* Info del Producto */}
       <div className="p-5 flex flex-col flex-grow">
-        <h3 className="text-lg font-semibold text-lab-text mb-1">{name}</h3>
-        <p className="text-sm text-lab-muted line-clamp-2 mb-4 flex-grow">
+        <h3 className="text-base font-semibold text-text mb-1">{name}</h3>
+        <p className="text-sm text-muted line-clamp-2 mb-4 flex-grow">
           {description}
         </p>
-        
+
         <div className="flex items-center justify-between mt-auto">
-          <span className="font-mono text-xl text-lab-text font-medium">
+          <span className="font-mono text-lg text-text font-medium">
             {formatPrice(priceArs)}
           </span>
-          <button className="px-4 py-2 rounded-lg bg-lab-primary/10 text-lab-primary border border-lab-primary/20 hover:bg-lab-primary hover:text-lab-bg font-semibold transition-colors duration-300">
-            Agregar
+          <button className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent-lt text-accent border border-accent/20 hover:bg-accent hover:text-surface font-medium text-sm transition-colors duration-180 cursor-pointer">
+            <ShoppingCart className="w-4 h-4" />
+            {addToCartText}
           </button>
         </div>
       </div>
