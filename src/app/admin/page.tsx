@@ -15,7 +15,8 @@ import {
   AlertCircle,
   Package,
   Eye,
-  ArrowUpRight
+  ArrowUpRight,
+  LucideIcon
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase'; // Usando la instancia exportada
 import { type Pedido } from '@/lib/supabase';
@@ -73,7 +74,7 @@ export default function AdminDashboard() {
     shipped: orders.filter(o => o.estado === 'enviado').length,
   };
 
-  const statusConfig: Record<string, { color: string; icon: any; label: string }> = {
+  const statusConfig: Record<string, { color: string; icon: LucideIcon; label: string }> = {
     'pendiente': { color: 'bg-gray-lt text-gray-600 border-gray-200', icon: Clock, label: 'Pendiente' },
     'comprobante_subido': { color: 'bg-blue-50 text-blue-600 border-blue-100', icon: Eye, label: 'Por Verificar' },
     'pre_aprobado': { color: 'bg-accent-lt text-accent border-accent/20', icon: CheckCircle2, label: 'Aprobado' },

@@ -18,7 +18,7 @@ interface PageProps {
 
 export default async function HomePage({ params }: PageProps) {
   const { lang } = await params;
-  const dict = await getDictionary(lang as any);
+  const dict = await getDictionary(lang as 'es' | 'en');
   const supabase = getSupabase();
 
   // Fetch de productos activos

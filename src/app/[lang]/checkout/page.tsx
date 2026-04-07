@@ -10,7 +10,7 @@ import type { Dictionary } from "@/lib/types";
 import esDict from "@/dictionaries/es.json";
 import enDict from "@/dictionaries/en.json";
 
-const dicts: Record<string, Dictionary> = { es: esDict as any, en: enDict as any };
+const dicts: Record<string, Dictionary> = { es: esDict as Dictionary, en: enDict as Dictionary };
 
 export default function CheckoutPage({
   params,
@@ -82,9 +82,10 @@ export default function CheckoutPage({
       // 3. ÉXITO
       clearCart();
       setShowSuccess(true);
-    } catch (err: any) {
-      console.error("Checkout error:", err);
-      setError(err.message || "Ocurrió un problema procesando tu pedido.");
+    } catch (err) {
+      const error = err as Error;
+      console.error("Checkout error:", error);
+      setError(error.message || "Ocurrió un problema procesando tu pedido.");
     } finally {
       setIsSubmitting(false);
     }

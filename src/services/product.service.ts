@@ -1,4 +1,4 @@
-import { getSupabase } from '@/lib/supabase';
+import { getSupabase, type ProductCategory } from '@/lib/supabase';
 import { ProductSchema, type Product } from '@/lib/schemas';
 
 /**
@@ -36,7 +36,7 @@ export class ProductService {
       .from('productos')
       .select('*')
       .eq('activo', true)
-      .eq('categoria', category as any) // Cast manual para mitigar error de inferencia estricta
+      .eq('categoria', category as ProductCategory)
       .order('nombre_es', { ascending: true });
 
     if (error) {

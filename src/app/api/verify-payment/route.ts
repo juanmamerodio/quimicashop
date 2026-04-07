@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     // Guardamos auditoría
     await serviceClient.from('verificaciones').insert({
       pedido_id: pedidoId,
-      respuesta_gemini: iaResponse as any,
+      respuesta_gemini: iaResponse,
       verificado: iaResponse.valid
     });
 
@@ -142,10 +142,11 @@ export async function POST(req: Request) {
       ia_valid: iaResponse.valid
     });
 
-  } catch (error: any) {
-    console.error("VERIFY_PAYMENT_FAILED:", error);
+  } catch (error) {
+    const err = error as Error;
+    console.error("VERIFY_PAYMENT_FAILED:", err);
     return NextResponse.json(
-      { error: error.message || 'Error en el proceso de verificación' },
+      { error: err.message || 'Error en el proceso de verificación' },
       { status: 500 }
     );
   }

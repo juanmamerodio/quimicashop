@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServiceSupabase } from '@/lib/supabase';
+import { getServiceSupabase, type OrderStatus } from '@/lib/supabase';
 
 // Ruta llamada desde Google Apps Script (GAS) para sincronizar un pedido
 export async function POST(req: Request) {
@@ -19,12 +19,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Faltan parámetros' }, { status: 400 });
     }
 
-    const serviceClient = getServiceSupabase() as any;
+    const serviceClient = getServiceSupabase();
     
     // Actualizamos el pedido
     const { data: order, error } = await serviceClient
       .from('pedidos')
-      .update({ estado: nuevoEstado } as any)
+      .update({ estado: nuevoEstado as OrderStatus })
       .eq('id', orderId)
       .select()
       .single();

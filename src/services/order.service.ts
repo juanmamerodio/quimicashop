@@ -15,11 +15,12 @@ export class OrderService {
     const supabase = getServiceSupabase();
 
     // Llamada a la función RPC definida en PostgreSQL (crear_pedido_con_stock)
-    const { data, error } = await (supabase.rpc as any)('crear_pedido_con_stock', {
+    // @ts-expect-error - RPC no está en el esquema generado pero existe en la DB
+    const { data, error } = await supabase.rpc('crear_pedido_con_stock', {
       p_nombre: input.nombre_cliente,
       p_email: input.email,
       p_telefono: input.telefono || null,
-      p_items: input.items,
+      p_items: JSON.stringify(input.items), // RPC suele esperar JSON como string o obj
       p_total: input.total_ars,
     });
 
@@ -107,10 +108,10 @@ export class OrderService {
   /**
    * Actualiza el estado de un pedido y dispara webhooks si es necesario.
    */
-  static async updateStatus(id: string, status: OrderStatus, extraData: any = {}): Promise<void> {
+  static async updateStatus(id: string, status: OrderStatus, extraData: Record<string, unknown> = {}): Promise<void> {
     const supabase = getServiceSupabase();
     
-    const updatePayload: any = { estado: status, ...extraData };
+    const updatePayload = { estado: status, ...extraData };
     
     const { error } = await supabase
       .from('pedidos')
