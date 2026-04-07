@@ -2,11 +2,13 @@
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileImage, X, Loader2, ScanEye } from 'lucide-react';
-import { cn } from "@/lib/utils"; // Utilidad cn (clsx + tailwind-merge)
+import { Upload, X, Loader2, ScanEye, CheckCircle2, AlertCircle } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
 interface ReceiptUploaderProps {
-  onFileSelect: (base64: string, file: File) => void;
+  pedidoId: string;
+  totalEsperado: number;
+  onSuccess: () => void;
   texts: {
     clickToUpload: string;
     dragHint: string;
@@ -15,51 +17,86 @@ interface ReceiptUploaderProps {
   };
 }
 
-export default function ReceiptUploader({ onFileSelect, texts }: ReceiptUploaderProps) {
+export default function ReceiptUploader({ pedidoId, totalEsperado, onSuccess, texts }: ReceiptUploaderProps) {
   const [preview, setPreview] = useState<string | null>(null);
+  const [fileType, setFileType] = useState<string>('image/jpeg');
   const [isDragging, setIsDragging] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); // Para el efecto visual de escaneo
+  const [isSubmitting, setIsSubmitting] = useState(false); // Para la llamada a la API
+  const [error, setError] = useState<string | null>(null);
 
   const handleFile = useCallback((file: File) => {
     if (!file || !file.type.startsWith('image/')) {
-      alert("Por favor, subí una imagen válida (JPG, PNG).");
+      setError("Por favor, subí una imagen válida (JPG, PNG).");
       return;
     }
 
-    // Validación de tamaño (Máximo 5MB para evitar crashes en la API)
     if (file.size > 5 * 1024 * 1024) {
-      alert("El archivo es demasiado grande. Máximo 5MB.");
+      setError("El archivo es demasiado grande. Máximo 5MB.");
       return;
     }
 
+    setError(null);
+    setFileType(file.type);
     setIsProcessing(true);
 
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
       setPreview(base64String);
-      onFileSelect(base64String, file);
 
-      // Simulamos un pequeño delay de "procesamiento" para el efecto visual
-      setTimeout(() => setIsProcessing(false), 1500);
+      // Efecto visual de escaneo de IA
+      setTimeout(() => setIsProcessing(false), 2000);
     };
     reader.readAsDataURL(file);
-  }, [onFileSelect]);
+  }, []);
 
   const removeFile = (e: React.MouseEvent) => {
     e.preventDefault();
     setPreview(null);
-    // Aquí podrías llamar a una función para limpiar el estado del formulario padre
+    setError(null);
+  };
+
+  const uploadReceipt = async () => {
+    if (!preview) return;
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: preview, // Enviamos el dataURL completo
+          mimeType: fileType,
+          pedidoId,
+          totalEsperado
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.valid) {
+        onSuccess();
+      } else {
+        setError(result.reason || "El comprobante no pudo ser validado. Por favor, revisá el monto y la fecha.");
+      }
+    } catch (err) {
+      setError("Error de conexión con el servidor. Intentá nuevamente.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto space-y-6">
       <motion.div
         layout
         className={cn(
           "relative flex flex-col items-center justify-center w-full min-h-[280px] rounded-[32px] border-2 border-dashed transition-all duration-500 cursor-pointer overflow-hidden",
           isDragging
-            ? "border-accent bg-accent-lt scale-[1.02] shadow-lg shadow-accent/10"
+            ? "border-accent bg-accent-lt scale-[1.01] shadow-lg shadow-accent/10"
             : "border-border bg-gray-lt/50 hover:border-accent/40 hover:bg-gray-lt",
           preview && "border-solid border-border bg-surface"
         )}
@@ -93,7 +130,7 @@ export default function ReceiptUploader({ onFileSelect, texts }: ReceiptUploader
               exit={{ opacity: 0, scale: 0.95 }}
               className="flex flex-col items-center justify-center p-8 text-center space-y-4"
             >
-              <div className="p-4 rounded-full bg-white shadow-soft text-muted group-hover:text-accent transition-colors">
+              <div className="p-4 rounded-full bg-white shadow-soft text-muted transition-colors">
                 <Upload className={cn("w-10 h-10 transition-transform duration-500", isDragging && "translate-y-[-5px]")} />
               </div>
               <div className="space-y-1">
@@ -110,15 +147,10 @@ export default function ReceiptUploader({ onFileSelect, texts }: ReceiptUploader
               animate={{ opacity: 1, scale: 1 }}
               className="relative w-full h-full p-4 flex items-center justify-center"
             >
-              {/* Contenedor de la Imagen */}
               <div className="relative group max-w-xs max-h-64 rounded-2xl overflow-hidden border border-border shadow-sm">
-                <img
-                  src={preview}
-                  alt="Comprobante"
-                  className="max-h-64 w-auto object-contain block"
-                />
+                <img src={preview} alt="Comprobante" className="max-h-64 w-auto object-contain block" />
 
-                {/* EFECTO DE ESCANEO IA (Láser) */}
+                {/* EFECTO DE ESCANEO IA */}
                 <AnimatePresence>
                   {isProcessing && (
                     <motion.div
@@ -130,7 +162,6 @@ export default function ReceiptUploader({ onFileSelect, texts }: ReceiptUploader
                   )}
                 </AnimatePresence>
 
-                {/* Overlay de Cambio */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
                   <span className="text-white text-sm font-bold px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/20">
                     {texts.change}
@@ -138,7 +169,6 @@ export default function ReceiptUploader({ onFileSelect, texts }: ReceiptUploader
                 </div>
               </div>
 
-              {/* Botón de Eliminar (iOS Style) */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -148,7 +178,6 @@ export default function ReceiptUploader({ onFileSelect, texts }: ReceiptUploader
                 <X className="w-5 h-5" />
               </motion.button>
 
-              {/* Badge de Estado */}
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-surface/80 backdrop-blur-md border border-border text-[10px] font-bold text-muted flex items-center gap-2 shadow-sm">
                 {isProcessing ? (
                   <>
@@ -166,6 +195,44 @@ export default function ReceiptUploader({ onFileSelect, texts }: ReceiptUploader
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* ERROR ALERT */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="chip flex items-center gap-3 bg-red-50 text-red-600 border-red-200 p-4 rounded-2xl shadow-sm"
+          >
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <span className="text-sm font-medium">{error}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* SUBMIT BUTTON */}
+      <motion.button
+        whileTap={{ scale: 0.98 }}
+        onClick={uploadReceipt}
+        disabled={!preview || isSubmitting}
+        className={cn(
+          "btn-primary w-full py-4 rounded-full font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300 shadow-lg",
+          (!preview || isSubmitting) && "opacity-50 cursor-not-allowed grayscale"
+        )}
+      >
+        {isSubmitting ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Validando Pago...</span>
+          </>
+        ) : (
+          <>
+            <CheckCircle2 className="w-5 h-5" />
+            <span>Confirmar y Finalizar Pedido</span>
+          </>
+        )}
+      </motion.button>
     </div>
   );
 }

@@ -59,36 +59,25 @@ export default function NavBar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
 
-        {/* LOGO SECTION */}
+        {/* LOGO SECTION - Integración de E.E.S.T N°1 QUÍMICA */}
         <div className="flex items-center gap-8">
           <Link
             href={`/${lang}`}
-            className="flex items-center gap-3 group"
+            className="flex items-center gap-2 group transition-opacity hover:opacity-80"
           >
-            <motion.div
-              whileHover={{ rotate: 5, scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="w-10 h-10 rounded-2xl bg-accent text-surface flex items-center justify-center shadow-lg shadow-accent/20 cursor-pointer"
-            >
-              <span className="font-mono font-bold text-sm">Q1</span>
-            </motion.div>
-
+            <Beaker className="w-6 h-6 text-accent" strokeWidth={2.5} />
             <div className="hidden sm:flex flex-col leading-tight">
-              <motion.span
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="font-bold text-text tracking-tight text-lg"
-              >
-                {dict.nav.title} <span className="text-accent">{dict.nav.titleAccent}</span>
-              </motion.span>
+              <span className="font-bold text-lg tracking-wider">
+                <span className="text-accent">E.E.S.T N°1</span> <span className="text-text">QUÍMICA</span>
+              </span>
             </div>
           </Link>
 
-          {/* NAV LINKS con indicador deslizante */}
+          {/* NAV LINKS - Home, Cart, Admin */}
           <nav className="hidden md:flex items-center gap-1">
             {[
-              { name: dict.catalog.titleAccent, path: `/${lang}/catalog` },
-              { name: "About", path: `/${lang}/about` },
+              { name: dict.nav.title, path: `/${lang}` }, // Home
+              { name: dict.nav.titleAccent, path: `/${lang}/cart` }, // Cart
             ].map((link) => {
               const isActive = pathname === link.path;
               return (
@@ -110,13 +99,24 @@ export default function NavBar() {
                 </Link>
               );
             })}
+
+            {/* Link de Admin Especial - Estilo Pill con Borde */}
+            <Link
+              href="/admin"
+              className={`ml-2 px-4 py-2 rounded-full text-sm font-medium border border-border transition-all duration-300 ${pathname.startsWith('/admin')
+                  ? 'bg-accent text-surface border-accent'
+                  : 'text-accent hover:bg-gray-lt border-accent/20'
+                }`}
+            >
+              Admin
+            </Link>
           </nav>
         </div>
 
         {/* ACTIONS SECTION */}
         <div className="flex items-center gap-4">
 
-          {/* LANGUAGE SWITCHER - Efecto de deslizamiento físico */}
+          {/* LANGUAGE SWITCHER */}
           <div className="relative flex items-center p-1 bg-gray-lt rounded-full border border-border overflow-hidden">
             <motion.div
               className="absolute h-[calc(100%-8px)] top-1 rounded-full bg-white shadow-sm"
@@ -143,7 +143,7 @@ export default function NavBar() {
             </Link>
           </div>
 
-          {/* CART BUTTON - iOS Glassmorphism */}
+          {/* CART BUTTON */}
           <Link
             href={`/${lang}/cart`}
             className="relative p-2.5 rounded-full bg-surface/50 border border-border text-text hover:bg-surface hover:shadow-soft transition-all duration-300 group"

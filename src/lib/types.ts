@@ -1,38 +1,70 @@
-// Tipo inferido del diccionario español (fuente de verdad)
-import type esDict from '@/dictionaries/es.json';
+// src/lib/types.ts
 
-export type Dictionary = typeof esDict;
+export type CategoriaProducto = 'reactivos' | 'materiales' | 'equipos';
+export type EstadoPedido = 'pendiente' | 'comprobante_subido' | 'pre_aprobado' | 'enviado' | 'rechazado';
 
-export interface Product {
+export interface Producto {
   id: string;
   nombre_es: string;
   nombre_en: string;
-  descripcion_es: string | null;
-  descripcion_en: string | null;
+  descripcion_es?: string;
+  descripcion_en?: string;
   precio_ars: number;
   stock: number;
-  categoria: 'reactivos' | 'materiales' | 'equipos';
-  imagen_url: string | null;
+  categoria: CategoriaProducto;
+  imagen_url?: string;
   activo: boolean;
   created_at: string;
 }
 
-export interface OrderItem {
+export interface ItemCarrito {
   producto_id: string;
   cantidad: number;
   precio_unitario: number;
   nombre: string;
 }
 
-export interface Order {
-  id?: string;
+export interface IAResponse {
+  valid: boolean;
+  amount_matches: boolean;
+  recipient_matches: boolean;
+  date_ok: boolean;
+  amount_found: number;
+  reason: string;
+}
+
+export interface Pedido {
+  id: string;
   nombre_cliente: string;
   email: string;
-  telefono: string | null;
-  items: OrderItem[];
+  telefono?: string;
+  items: ItemCarrito;
   total_ars: number;
-  estado: 'pendiente' | 'comprobante_subido' | 'pre_aprobado' | 'enviado' | 'rechazado';
-  comprobante_url?: string | null;
-  log_ia?: any;
-  created_at?: string;
+  estado: EstadoPedido;
+  comprobante_url?: string;
+  log_ia?: IAResponse;
+  created_at: string;
+}
+
+// Resolución del error: Sustitución de any por una interfaz genérica de diccionario
+export interface Diccionario {
+  nav: {
+    home: string;
+    cart: string;
+    admin: string;
+  };
+  common: {
+    loading: string;
+    error: string;
+    success: string;
+  };
+  categories: {
+    reactivos: string;
+    materiales: string;
+    equipos: string;
+  };
+  checkout: {
+    upload_instruction: string;
+    verifying: string;
+  };
 }
