@@ -1,22 +1,24 @@
-@import "tailwindcss";
-
-@theme {
-  --color-bg: #f7f7f5;
-  --color-surface: #ffffff;
-  --color-glass: rgba(255, 255, 255, 0.62);
-  --color-accent: #3d8c6e;
-  --color-accent-lt: #e8f3ef;
-  --color-gray: #6b7280;
-  --color-gray-lt: #f0f0ee;
-  --color-text: #1c1c1e;
-  --color-muted: #8e8e93;
-  --color-border: rgba(0, 0, 0, 0.08);
-
-  --font-sans: var(--font-dm-sans), sans-serif;
-  --font-mono: var(--font-dm-mono), monospace;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
+  :root {
+    --color-bg: #f7f7f5;
+    --color-surface: #ffffff;
+    --color-glass: rgba(255, 255, 255, 0.62);
+    --color-accent: #3d8c6e;
+    --color-accent-lt: #e8f3ef;
+    --color-gray: #6b7280;
+    --color-gray-lt: #f0f0ee;
+    --color-text: #1c1c1e;
+    --color-muted: #8e8e93;
+    --color-border: rgba(0, 0, 0, 0.08);
+
+    --font-sans: var(--font-dm-sans), sans-serif;
+    --font-mono: var(--font-dm-mono), monospace;
+  }
+
   body {
     background-color: var(--color-bg);
     color: var(--color-text);
@@ -70,7 +72,7 @@
     opacity: 0.9;
   }
 
-  /* Añadido un botón secundario basado en las reglas de diseño y el hover global */
+  /* Botón secundario */
   .btn-secondary {
     background: var(--color-surface);
     color: var(--color-text);
@@ -104,7 +106,6 @@
 }
 
 @layer utilities {
-  /* Regla de Focus Ring universal */
   .focus-ring {
     outline: none;
   }

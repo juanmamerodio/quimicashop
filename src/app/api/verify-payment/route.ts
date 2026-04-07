@@ -1,112 +1,152 @@
 import { NextResponse } from 'next/server';
 import { getServiceSupabase } from '@/lib/supabase';
+import { verifyReceiptWithGemini } from '@/lib/gemini';
+import { OrderService } from '@/services/order.service';
+import { VerifyPaymentSchema } from '@/lib/schemas';
+import { Resend } from 'resend';
 
+// RATELIMIT EN MEMORIA (MVP)
+// Para producción se recomienda Upstash Redis (ratelimit)
+const ATTEMPT_LIMIT = 5;
+const WINDOW_MS = 60 * 60 * 1000; // 1 hora
+const rateLimitMap = new Map<string, { count: number, lastAttempt: number }>();
+
+/**
+ * API ROUTE: /api/verify-payment
+ * Flujo Hardened: Rate Limit -> Validation -> Idempotency -> Analysis -> Persistence -> Notification
+ */
 export async function POST(req: Request) {
   try {
+    // 1. VALIDACIÓN CON ZOD
     const body = await req.json();
-    const { imageBase64, mimeType, pedidoId, totalEsperado } = body;
-
-    if (!imageBase64 || !pedidoId || !totalEsperado) {
-      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
+    const result = VerifyPaymentSchema.safeParse(body);
+    
+    if (!result.success) {
+      return NextResponse.json({ 
+        error: 'Datos inválidos', 
+        details: result.error.format() 
+      }, { status: 400 });
     }
 
-    const serviceClient = getServiceSupabase() as any;
+    const { imageBase64, mimeType, pedidoId, totalEsperado } = result.data;
 
-    // 1. Subir la imagen a Supabase Storage (carpeta "comprobantes/")
-    const buffer = Buffer.from(imageBase64, 'base64');
+    // 2. RATE LIMITING (Protección contra DoS de Wallet Gemini)
+    const now = Date.now();
+    const rateData = rateLimitMap.get(pedidoId) || { count: 0, lastAttempt: now };
+    
+    if (now - rateData.lastAttempt > WINDOW_MS) {
+      rateData.count = 0; // Reiniciamos si pasó la ventana
+    }
+
+    if (rateData.count >= ATTEMPT_LIMIT) {
+      return NextResponse.json({ 
+        error: 'Demasiados intentos. Por favor espera una hora.' 
+      }, { status: 429 });
+    }
+    
+    rateLimitMap.set(pedidoId, { count: rateData.count + 1, lastAttempt: now });
+
+    // 3. IDEMPOTENCIA (Protección contra duplicados)
+    const isAlreadyProcessed = await OrderService.isProcessed(pedidoId);
+    if (isAlreadyProcessed) {
+      const order = await OrderService.getById(pedidoId);
+      return NextResponse.json({ 
+        success: true, 
+        estado: order?.estado, 
+        url: order?.comprobante_url, 
+        message: 'Este pedido ya ha sido procesado previamente.' 
+      });
+    }
+
+    const serviceClient = getServiceSupabase();
+
+    // 4. PROCESAMIENTO DE ARCHIVO
+    const cleanBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+    const buffer = Buffer.from(cleanBase64, 'base64');
+
+    if (buffer.length > 4 * 1024 * 1024) {
+      return NextResponse.json({ error: 'La imagen excede el límite de 4MB.' }, { status: 400 });
+    }
+
     const extension = mimeType === 'image/png' ? 'png' : 'jpg';
-    const filename = `comprobantes/${pedidoId}.${extension}`;
+    const filename = `comprobantes/${pedidoId}_${Date.now()}.${extension}`;
 
     const { error: uploadError } = await serviceClient.storage
-      .from('archivos') 
+      .from('comprobantes')
       .upload(filename, buffer, {
         contentType: mimeType,
         upsert: true,
       });
 
-    if (uploadError) {
-      console.error("Error subiendo al storage:", uploadError);
-      return NextResponse.json({ error: 'Error al subir comprobante' }, { status: 500 });
-    }
+    if (uploadError) throw new Error(`Storage Error: ${uploadError.message}`);
 
     const { data: publicUrlData } = serviceClient.storage
-      .from('archivos')
+      .from('comprobantes')
       .getPublicUrl(filename);
-    
+
     const comprobanteUrl = publicUrlData.publicUrl;
 
-    // Actualizar el pedido indicando que el comprobante fue subido
-    await serviceClient
-      .from('pedidos')
-      .update({ estado: 'comprobante_subido', comprobante_url: comprobanteUrl } as any)
-      .eq('id', pedidoId);
+    // 5. ANÁLISIS IA (GEMINI)
+    const iaResponse = await verifyReceiptWithGemini(imageBase64, mimeType, totalEsperado);
 
-    // 2. Mock de Verificación Gemini AI
-    // (Simulamos la respuesta de la IA definida en AGENTS.md)
-    const iaMockResponse = {
-      valid: true,
-      amount_matches: true,
-      recipient_matches: true,
-      date_ok: true,
-      amount_found: totalEsperado,
-      reason: "Comprobante validado correctamente por el sistema."
-    };
-
-    // 3. Guardar en tabla verificaciones
+    // 6. PERSISTENCIA Y CAMBIO DE ESTADO
+    // Guardamos auditoría
     await serviceClient.from('verificaciones').insert({
       pedido_id: pedidoId,
-      respuesta_gemini: iaMockResponse,
-      verificado: iaMockResponse.valid
-    } as any);
+      respuesta_gemini: iaResponse as any,
+      verificado: iaResponse.valid
+    });
 
-    // 4. Actualizar pedido en base al resultado de la IA
-    const nuevoEstado = iaMockResponse.valid ? 'pre_aprobado' : 'rechazado';
-    await serviceClient
-      .from('pedidos')
-      .update({ estado: nuevoEstado, log_ia: iaMockResponse } as any)
-      .eq('id', pedidoId);
+    const nuevoEstado = iaResponse.valid ? 'pre_aprobado' : 'comprobante_subido';
+    await OrderService.updateStatus(pedidoId, nuevoEstado, {
+      comprobante_url: comprobanteUrl,
+      log_ia: iaResponse
+    });
 
-    // 5. Obtener info del pedido para enviar email
-    const { data: pedidoInfo, error: pedidoError } = await serviceClient
-      .from('pedidos')
-      .select('email, nombre_cliente')
-      .eq('id', pedidoId)
-      .single();
+    // 7. NOTIFICACIÓN RESEND
+    try {
+      const pedidoInfo = await OrderService.getById(pedidoId);
+      const apiKey = process.env.RESEND_API_KEY;
 
-    if (pedidoError) {
-      console.error("Error obteniendo info del pedido:", pedidoError);
-    }
+      if (pedidoInfo?.email && apiKey) {
+        const resend = new Resend(apiKey);
+        const isSuccess = iaResponse.valid;
 
-    const pInfo = pedidoInfo as any; // Cast safety for now
-
-    if (pInfo?.email && process.env.RESEND_API_KEY) {
-      const subject = iaMockResponse.valid ? '✅ Pago Pre-Aprobado - QuimicaShop' : '❌ Problema con tu Comprobante - QuimicaShop';
-      const content = iaMockResponse.valid 
-        ? `<p>Hola ${pInfo.nombre_cliente},</p><p>Tu pago por <strong>$${totalEsperado} ARS</strong> ha sido verificado electrónicamente.</p><p>Pronto recibirás tus insumos.</p>` 
-        : `<p>Hola ${pInfo.nombre_cliente},</p><p>Nuestra IA detectó un problema en tu comprobante de <strong>$${totalEsperado} ARS</strong>.</p><p>Motivo: <em>${iaMockResponse.reason}</em></p><p>Un administrador revisará el caso manualmente.</p>`;
-
-      try {
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: process.env.RESEND_FROM_EMAIL || 'quimica@eest1.edu.ar',
-            to: pInfo.email,
-            subject,
-            html: content
-          })
+        await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL || 'quimica@eest1.edu.ar',
+          to: pedidoInfo.email,
+          subject: isSuccess ? '✅ Pago Pre-Aprobado - Química Shop' : '📩 Comprobante Recibido - Química Shop',
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee; border-radius: 16px;">
+              <h2 style="color: ${isSuccess ? '#3d8c6e' : '#1c1c1e'};">${isSuccess ? '¡Pago Validado!' : 'Comprobante Recibido'}</h2>
+              <p>Hola <strong>${pedidoInfo.nombre_cliente}</strong>,</p>
+              <p>${isSuccess
+              ? `Tu comprobante de <strong>$${totalEsperado} ARS</strong> fue validado exitosamente. Tu pedido ha sido pre-aprobado.`
+              : `Recibimos tu comprobante de <strong>$${totalEsperado} ARS</strong>. Un administrador lo revisará manualmente pronto.`
+            }</p>
+              <div style="margin-top: 20px; padding: 15px; background: #f7f7f5; border-radius: 12px; font-size: 12px; color: #8e8e93; text-align: center;">
+                E.E.S.T N°1 Luciano Reyes · Departamento de Química
+              </div>
+            </div>
+          `
         });
-      } catch (emailError) {
-        console.error("Error enviando email:", emailError);
       }
+    } catch (emailErr) {
+      console.error("Non-blocking notification error:", emailErr);
     }
 
-    return NextResponse.json({ success: true, estado: nuevoEstado, url: comprobanteUrl });
-  } catch (error) {
-    console.error("Error en verify-payment:", error);
-    return NextResponse.json({ error: 'Error procesando verificación' }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+      estado: nuevoEstado,
+      url: comprobanteUrl,
+      ia_valid: iaResponse.valid
+    });
+
+  } catch (error: any) {
+    console.error("VERIFY_PAYMENT_FAILED:", error);
+    return NextResponse.json(
+      { error: error.message || 'Error en el proceso de verificación' },
+      { status: 500 }
+    );
   }
 }

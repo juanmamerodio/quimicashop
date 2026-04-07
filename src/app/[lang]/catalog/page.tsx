@@ -1,4 +1,4 @@
-import { getSupabase, type Producto } from "@/lib/supabase";
+import { getSupabase, type Producto, type ProductCategory } from "@/lib/supabase";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import ProductCard from "@/components/ProductCard";
 import { ArrowLeft, Search, SlidersHorizontal } from "lucide-react";
@@ -22,7 +22,7 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
     .eq('activo', true);
 
   if (categoria) {
-    query = query.eq('categoria', categoria);
+    query = query.eq('categoria', categoria as ProductCategory);
   }
 
   const { data: products, error } = await query;
