@@ -15,7 +15,6 @@ import {
   AlertCircle,
   Package,
   Eye,
-  ArrowUpRight,
   LucideIcon
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase'; // Usando la instancia exportada

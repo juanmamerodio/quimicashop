@@ -11,18 +11,16 @@ export class OrderService {
 
   /**
    * Crea un pedido de forma atómica.
-   * Utiliza una función RPC en PostgreSQL para validar stock y crear el pedido en una sola transacción.
    */
   static async createOrder(input: CreateOrderInput): Promise<{ id: string; order: Pedido }> {
     const supabase = getServiceSupabase();
 
-    // Ejecutamos la función RPC 'crear_pedido_con_stock' definida en la DB
     // @ts-expect-error - La función RPC no está en los tipos generados pero existe en PostgreSQL
     const { data, error } = await supabase.rpc('crear_pedido_con_stock', {
       p_nombre: input.nombre_cliente,
       p_email: input.email,
       p_telefono: input.telefono || null,
-      p_items: input.items, // Enviamos el array de items directamente
+      p_items: input.items,
       p_total: input.total_ars,
     });
 
@@ -38,7 +36,6 @@ export class OrderService {
       throw new Error('Pedido creado pero no se pudo recuperar la información.');
     }
 
-    // Disparamos el email de instrucciones en segundo plano (no bloqueamos la respuesta al cliente)
     this.sendInitialEmail(order).catch(err =>
       console.error('[OrderService] Error enviando email inicial:', err)
     );
@@ -58,7 +55,7 @@ export class OrderService {
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') return null; // No encontrado
+      if (error.code === 'PGRST116') return null;
       throw new Error(`Error recuperando pedido: ${error.message}`);
     }
 
@@ -67,15 +64,17 @@ export class OrderService {
 
   /**
    * Actualiza el estado de un pedido y gestiona efectos secundarios (Webhooks).
+   * SOLUCIÓN AL ERROR DE TIPADO: Usamos Pedido['log_ia'] para asegurar compatibilidad.
    */
   static async updateStatus(
     pedidoId: string,
     status: OrderStatus,
-    log_ia: Record<string, unknown> = {}
+    log_ia: Pedido['log_ia'] = {} as Pedido['log_ia'] // <--- CORRECCIÓN AQUÍ
   ): Promise<{ success: boolean; error: string | null }> {
     const supabase = getServiceSupabase();
 
-    const updatePayload = {
+    // Definimos el payload explícitamente como Partial<Pedido> para evitar errores de asignación
+    const updatePayload: Partial<Pedido> = {
       estado: status,
       log_ia: log_ia
     };
@@ -89,7 +88,6 @@ export class OrderService {
       return { success: false, error: error.message };
     }
 
-    // Si el pedido pasa a 'pre_aprobado', notificamos automáticamente a Google Sheets
     if (status === 'pre_aprobado') {
       this.notifySheetsWebhook(pedidoId).catch(err =>
         console.error('[OrderService] Error en Webhook de Sheets:', err)
@@ -104,10 +102,7 @@ export class OrderService {
    */
   static async sendInitialEmail(order: Pedido): Promise<void> {
     const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      console.warn('[OrderService] RESEND_API_KEY no configurada. Email no enviado.');
-      return;
-    }
+    if (!apiKey) return;
 
     const resend = new Resend(apiKey);
     await resend.emails.send({
@@ -136,9 +131,6 @@ export class OrderService {
     });
   }
 
-  /**
-   * WEBHOOK: Notifica a Google Apps Script sobre un nuevo pedido pagado.
-   */
   private static async notifySheetsWebhook(orderId: string) {
     const webhookUrl = process.env.SHEETS_WEBHOOK_URL;
     if (!webhookUrl) return;
@@ -157,9 +149,6 @@ export class OrderService {
     });
   }
 
-  /**
-   * Obtiene pedidos para sincronización masiva.
-   */
   static async getOrdersForSync(limit = 50) {
     const supabase = getServiceSupabase();
     const { data, error } = await supabase

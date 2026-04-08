@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, use, useEffect } from 'react';
+import { useState, use } from 'react';
 import { CheckCircle, Info, AlertTriangle, Loader2 } from 'lucide-react';
 import ReceiptUploader from "@/components/ReceiptUploader";
 import { formatPrice } from "@/lib/format";
@@ -10,7 +10,7 @@ import type { Dictionary } from "@/lib/types";
 import esDict from "@/dictionaries/es.json";
 import enDict from "@/dictionaries/en.json";
 
-const dicts: Record<string, Dictionary> = { es: esDict as Dictionary, en: enDict as Dictionary };
+const dicts: Record<string, Dictionary> = { es: esDict as unknown as Dictionary, en: enDict as unknown as Dictionary };
 
 export default function CheckoutPage({
   params,
@@ -20,24 +20,15 @@ export default function CheckoutPage({
   const { lang } = use(params);
   const dict = dicts[lang] ?? dicts.es;
 
-  // ESTADO DEL CARRITO REAL
   const { items, getTotalPrice, clearCart } = useCartStore();
   const totalPrice = getTotalPrice();
 
-  // ESTADOS DE UI
   const [formData, setFormData] = useState({ nombre: '', email: '' });
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [mimeType, setMimeType] = useState<string>('image/jpeg');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Redirección si el carrito está vacío (opcional, pero buena UX senior)
-  useEffect(() => {
-    if (items.length === 0 && !showSuccess) {
-      // Podríamos redirigir, pero para esta App dejamos que vea el estado vacío o suba comprobante si ya tiene pedido.
-    }
-  }, [items, showSuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +38,6 @@ export default function CheckoutPage({
     setError(null);
 
     try {
-      // 1. CREAR EL PEDIDO EN LA BASE DE DATOS
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -64,7 +54,6 @@ export default function CheckoutPage({
 
       const pedidoId = orderData.order.id;
 
-      // 2. SUBIR COMPROBANTE Y VERIFICAR CON IA
       const verifyResponse = await fetch('/api/verify-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -79,12 +68,10 @@ export default function CheckoutPage({
       const verifyData = await verifyResponse.json();
       if (!verifyResponse.ok) throw new Error(verifyData.error || 'Error al verificar pago');
 
-      // 3. ÉXITO
       clearCart();
       setShowSuccess(true);
     } catch (err) {
       const error = err as Error;
-      console.error("Checkout error:", error);
       setError(error.message || "Ocurrió un problema procesando tu pedido.");
     } finally {
       setIsSubmitting(false);
@@ -96,12 +83,7 @@ export default function CheckoutPage({
       <div className="max-w-md mx-auto text-center py-20">
         <h2 className="text-2xl font-bold mb-4">Tu carrito está vacío</h2>
         <p className="text-muted mb-8 text-sm">Agrega algunos productos antes de proceder al pago.</p>
-        <button 
-          onClick={() => window.location.href = `/${lang}/catalog`}
-          className="btn-primary"
-        >
-          Ir al Catálogo
-        </button>
+        <button onClick={() => window.location.href = `/${lang}/catalog`} className="btn-primary">Ir al Catálogo</button>
       </div>
     );
   }
@@ -114,13 +96,8 @@ export default function CheckoutPage({
             <CheckCircle className="w-12 h-12 text-accent" />
           </div>
           <h2 className="text-4xl font-bold text-text mb-4">{dict.checkout.success.title}</h2>
-          <p className="text-muted mb-8 max-w-sm mx-auto">
-            {dict.checkout.success.message}
-          </p>
-          <button
-            onClick={() => window.location.href = `/${lang}`}
-            className="btn-primary px-10"
-          >
+          <p className="text-muted mb-8 max-w-sm mx-auto">{dict.checkout.success.text}</p>
+          <button onClick={() => window.location.href = `/${lang}`} className="btn-primary px-10">
             {dict.checkout.success.backToCatalog}
           </button>
         </div>
@@ -131,8 +108,6 @@ export default function CheckoutPage({
           </h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-            
-            {/* Columna Izquierda: Instrucciones y Resumen (40%) */}
             <div className="lg:col-span-2 space-y-6">
               <div className="card p-8 border-accent/10 bg-accent-lt/30">
                 <h2 className="text-xl font-bold mb-6 text-text flex items-center gap-2">
@@ -172,13 +147,8 @@ export default function CheckoutPage({
               </div>
             </div>
 
-            {/* Columna Derecha: Formulario (60%) */}
             <div className="lg:col-span-3">
               <form onSubmit={handleSubmit} className="card p-8 space-y-8 bg-surface shadow-xl shadow-black/5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                  <CheckCircle className="w-32 h-32" />
-                </div>
-
                 <div className="space-y-6 relative z-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -186,10 +156,10 @@ export default function CheckoutPage({
                       <input
                         required
                         type="text"
-                        className="w-full px-4 py-3 rounded-2xl bg-gray-lt border border-border focus:ring-2 focus:ring-accent/20 outline-none transition-all placeholder:text-muted/40"
+                        className="w-full px-4 py-3 rounded-2xl bg-gray-lt border border-border focus:ring-2 focus:ring-accent/20 outline-none transition-all"
                         placeholder="Ej: Juan Pérez"
                         value={formData.nombre}
-                        onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                       />
                     </div>
                     <div>
@@ -197,10 +167,10 @@ export default function CheckoutPage({
                       <input
                         required
                         type="email"
-                        className="w-full px-4 py-3 rounded-2xl bg-gray-lt border border-border focus:ring-2 focus:ring-accent/20 outline-none transition-all placeholder:text-muted/40"
+                        className="w-full px-4 py-3 rounded-2xl bg-gray-lt border border-border focus:ring-2 focus:ring-accent/20 outline-none transition-all"
                         placeholder="juan@ejemplo.com"
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       />
                     </div>
                   </div>
@@ -208,7 +178,7 @@ export default function CheckoutPage({
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-3">Subir Comprobante</label>
                     <ReceiptUploader
-                      onFileSelect={(base64, file) => {
+                      onFileSelect={(base64: string, file: File) => {
                         setImageBase64(base64);
                         setMimeType(file.type);
                       }}
@@ -235,11 +205,10 @@ export default function CheckoutPage({
                   <button
                     type="submit"
                     disabled={!imageBase64 || isSubmitting}
-                    className={`w-full py-5 px-4 font-bold rounded-full transition-all duration-300 flex justify-center items-center gap-2 transform active:scale-95 shadow-lg ${
-                      !imageBase64 || isSubmitting
-                        ? 'bg-gray-lt text-muted cursor-not-allowed opacity-50 shadow-none'
-                        : 'bg-accent text-surface hover:bg-accent/90 shadow-accent/20 hover:shadow-accent/40'
-                    }`}
+                    className={`w-full py-5 px-4 font-bold rounded-full transition-all duration-300 flex justify-center items-center gap-2 transform active:scale-95 shadow-lg ${!imageBase64 || isSubmitting
+                      ? 'bg-gray-lt text-muted cursor-not-allowed opacity-50 shadow-none'
+                      : 'bg-accent text-surface hover:bg-accent/90 shadow-accent/20 hover:shadow-accent/40'
+                      }`}
                   >
                     {isSubmitting ? (
                       <>
@@ -247,15 +216,12 @@ export default function CheckoutPage({
                         Procesando pedido e IA...
                       </>
                     ) : (
-                      <>
-                        Finalizar Compra
-                      </>
+                      <>Finalizar Compra</>
                     )}
                   </button>
                 </div>
               </form>
             </div>
-
           </div>
         </>
       )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Trash2, Minus, Plus, Beaker } from "lucide-react";
 import { formatPrice } from "@/lib/format";
 import { useCartStore } from "@/lib/store";
@@ -14,11 +14,11 @@ interface CartItemProps {
     quantity: number;
     image?: string; // Añadido soporte para imagen real
   };
-  lang: string;
+
   dict: Dictionary;
 }
 
-export default function CartItem({ item, lang, dict }: CartItemProps) {
+export default function CartItem({ item, dict }: CartItemProps) {
   const { updateQuantity, removeItem } = useCartStore();
 
   const handleIncrement = () => updateQuantity(item.id, item.quantity + 1);

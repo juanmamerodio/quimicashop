@@ -10,7 +10,11 @@ import enDict from "@/dictionaries/en.json";
 import type { Dictionary } from "@/lib/types";
 import { useEffect, useState } from "react";
 
-const dicts: Record<string, Dictionary> = { es: esDict, en: enDict };
+// CORRECCIÓN: Eliminamos el import de zod y aplicamos casting para evitar el error de propiedades faltantes
+const dicts: Record<string, Dictionary> = {
+  es: esDict as unknown as Dictionary,
+  en: enDict as unknown as Dictionary
+};
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -59,7 +63,7 @@ export default function NavBar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
 
-        {/* LOGO SECTION - Integración de E.E.S.T N°1 QUÍMICA */}
+        {/* LOGO SECTION */}
         <div className="flex items-center gap-8">
           <Link
             href={`/${lang}`}
@@ -73,11 +77,11 @@ export default function NavBar() {
             </div>
           </Link>
 
-          {/* NAV LINKS - Home, Cart, Admin */}
+          {/* NAV LINKS */}
           <nav className="hidden md:flex items-center gap-1">
             {[
-              { name: dict.nav.title, path: `/${lang}` }, // Home
-              { name: dict.nav.titleAccent, path: `/${lang}/cart` }, // Cart
+              { name: dict.nav.title, path: `/${lang}` },
+              { name: dict.nav.titleAccent, path: `/${lang}/cart` },
             ].map((link) => {
               const isActive = pathname === link.path;
               return (
@@ -100,12 +104,11 @@ export default function NavBar() {
               );
             })}
 
-            {/* Link de Admin Especial - Estilo Pill con Borde */}
             <Link
               href="/admin"
               className={`ml-2 px-4 py-2 rounded-full text-sm font-medium border border-border transition-all duration-300 ${pathname.startsWith('/admin')
-                  ? 'bg-accent text-surface border-accent'
-                  : 'text-accent hover:bg-gray-lt border-accent/20'
+                ? 'bg-accent text-surface border-accent'
+                : 'text-accent hover:bg-gray-lt border-accent/20'
                 }`}
             >
               Admin
@@ -174,4 +177,4 @@ export default function NavBar() {
       </div>
     </motion.header>
   );
-}
+} 

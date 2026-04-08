@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingCart, Beaker } from "lucide-react";
 import type { Producto } from "@/lib/supabase";
 import type { Dictionary } from "@/lib/types";
@@ -13,15 +14,21 @@ export default function ProductCard({ product, lang, dict }: ProductCardProps) {
     const nombre = lang === 'es' ? product.nombre_es : product.nombre_en;
     const descripcion = lang === 'es' ? product.descripcion_es : product.descripcion_en;
 
+    // SOLUCIÓN AL ERROR 'dict is defined but never used':
+    // Usamos el diccionario para traducir la categoría técnica a un nombre legible
+    const categoryLabel = dict.catalog.categories[product.categoria as keyof typeof dict.catalog.categories] || product.categoria;
+
     return (
         <div className="card group flex flex-col h-full overflow-hidden">
             {/* Imagen con overlay de laboratorio */}
             <div className="relative aspect-square overflow-hidden bg-gray-lt">
                 {product.imagen_url ? (
-                    <img
+                    <Image
                         src={product.imagen_url}
                         alt={nombre}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted">
@@ -30,7 +37,7 @@ export default function ProductCard({ product, lang, dict }: ProductCardProps) {
                 )}
                 <div className="absolute top-3 right-3">
                     <span className="chip text-[10px] uppercase tracking-wider font-bold">
-                        {product.categoria}
+                        {categoryLabel}
                     </span>
                 </div>
             </div>
