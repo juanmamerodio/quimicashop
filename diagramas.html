@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esencia Técnica | Documentación del Sistema</title>
+    
+    <!-- Tailwind CSS para el diseño estilo QuimicaShop -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        quimica: {
+                            light: '#e0f2fe',
+                            DEFAULT: '#0ea5e9',
+                            dark: '#0369a1',
+                            accent: '#10b981' // Un verde laboratorio
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .mermaid { background-color: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); display: flex; justify-content: center; overflow-x: auto;}
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Navegación -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-quimica rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        E
+                    </div>
+                    <span class="font-bold text-xl tracking-tight text-slate-900">Esencia<span class="text-quimica">Técnica</span></span>
+                </div>
+                <div class="hidden md:flex space-x-6 text-sm font-medium text-slate-600">
+                    <a href="#dfd0" class="hover:text-quimica transition">DFD Nivel 0</a>
+                    <a href="#dfd1" class="hover:text-quimica transition">DFD Nivel 1</a>
+                    <a href="#dfd2" class="hover:text-quimica transition">DFD Nivel 2</a>
+                    <a href="#der" class="hover:text-quimica transition">DER</a>
+                    <a href="#dte" class="hover:text-quimica transition">DTE</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Cabecera / Hero -->
+    <header class="bg-gradient-to-br from-slate-900 to-quimica-dark text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4">Arquitectura del Sistema</h1>
+            <p class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-6">
+                Documentación técnica de la plataforma de e-commerce para productos cosméticos elaborados en el laboratorio de la E.E.S.T N°1 Luciano Reyes.
+            </p>
+            <div class="inline-flex flex-col items-center bg-white/10 rounded-xl p-4 backdrop-blur-sm border border-white/20">
+                <span class="text-sm text-quimica-light uppercase tracking-wider font-semibold">Última Actualización</span>
+                <span class="text-2xl font-bold">1 de Junio de 2026</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+
+        <!-- DFD Nivel 0 -->
+        <section id="dfd0" class="scroll-mt-24">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Diagrama de Flujo de Datos (Nivel 0)</h2>
+                <p class="text-slate-600">Contexto general del sistema "Esencia Técnica". Muestra las interacciones principales con las entidades externas: los clientes (comunidad) y los administradores (alumnos/profesores).</p>
+            </div>
+            <div class="mermaid">
+                flowchart TD
+                    C[Cliente / Comunidad Educativa]
+                    A[Administrador / Equipo Química]
+                    S((Sistema Esencia Técnica))
+
+                    C -- "Busca productos, carga carrito,\nenvía comprobante de pago" --> S
+                    S -- "Catálogo, notificaciones de stock,\ncomprobante de compra" --> C
+                    
+                    A -- "Carga productos, valida\npagos, gestiona stock" --> S
+                    S -- "Alertas de falta de stock,\nreservas y pagos pendientes" --> A
+            </div>
+        </section>
+
+        <!-- DFD Nivel 1 -->
+        <section id="dfd1" class="scroll-mt-24">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Diagrama de Flujo de Datos (Nivel 1)</h2>
+                <p class="text-slate-600">Desglose de los macroprocesos principales: Gestión de usuarios, Catálogo y Stock, Procesamiento de Ventas y el Sistema de Notificaciones.</p>
+            </div>
+            <div class="mermaid">
+                flowchart TD
+                    C[Cliente]
+                    A[Administrador]
+                    
+                    P1((1.0\nGestionar\nUsuarios))
+                    P2((2.0\nGestionar\nCatálogo y Stock))
+                    P3((3.0\nProcesar\nVentas y Pagos))
+                    P4((4.0\nGenerar Alertas\ny Notificaciones))
+
+                    D1[(BD Usuarios)]
+                    D2[(BD Productos)]
+                    D3[(BD Ventas)]
+
+                    C -- Datos registro --> P1
+                    P1 -- Lee/Escribe --> D1
+
+                    A -- Alta/Baja cosméticos --> P2
+                    P2 -- Actualiza info --> D2
+
+                    C -- Selecciona productos\ny envía comprobante --> P3
+                    A -- Valida pagos dudosos --> P3
+                    
+                    P3 -- Lee precios/stock --> D2
+                    P3 -- Actualiza stock --> D2
+                    P3 -- Registra transacción --> D3
+                    
+                    P3 -- Estado de venta --> P4
+                    P2 -- Nivel de stock --> P4
+                    
+                    P4 -- Recibo y avisos --> C
+                    P4 -- Alertas stock/reservas --> A
+            </div>
+        </section>
+
+        <!-- DFD Nivel 2 -->
+        <section id="dfd2" class="scroll-mt-24">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Diagrama de Flujo de Datos (Nivel 2)</h2>
+                <p class="text-slate-600">Expansión del Proceso 3.0 (Procesar Ventas y Pagos). Aquí se detalla la intervención de la Inteligencia Artificial para la validación de los comprobantes de pago.</p>
+            </div>
+            <div class="mermaid">
+                flowchart TD
+                    C[Cliente]
+                    A[Administrador]
+                    
+                    P31((3.1\nRegistrar\nPedido))
+                    P32((3.2\nValidar Imagen\nde Pago con IA))
+                    P33((3.3\nConfirmar\nTransacción))
+                    P34((3.4\nEmitir\nComprobante))
+
+                    D2[(BD Productos)]
+                    D3[(BD Ventas)]
+
+                    C -- Confirma Carrito --> P31
+                    P31 -- Crea orden PENDIENTE --> D3
+                    P31 -- Solicita pago --> C
+                    
+                    C -- Sube Comprobante (Img) --> P32
+                    P32 -- Análisis OK --> P33
+                    P32 -- Análisis Dudoso --> A
+                    A -- Aprobación Manual --> P33
+                    
+                    P33 -- Resta inventario --> D2
+                    P33 -- Cambia a PAGADO --> D3
+                    P33 -- Datos de compra --> P34
+                    
+                    P34 -- Ticket PDF/Email --> C
+            </div>
+        </section>
+
+        <!-- DER -->
+        <section id="der" class="scroll-mt-24">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Diagrama Entidad-Relación (DER)</h2>
+                <p class="text-slate-600">Estructura relacional de la base de datos de la plataforma.</p>
+            </div>
+            <div class="mermaid">
+                erDiagram
+                    USUARIO ||--o{ PEDIDO : realiza
+                    USUARIO {
+                        int id_usuario PK
+                        string nombre
+                        string correo
+                        string contrasena
+                        string rol "cliente o admin"
+                    }
+                    
+                    CATEGORIA ||--o{ PRODUCTO : contiene
+                    CATEGORIA {
+                        int id_categoria PK
+                        string nombre_categoria
+                        string descripcion
+                    }
+
+                    PRODUCTO ||--o{ DETALLE_PEDIDO : incluye
+                    PRODUCTO {
+                        int id_producto PK
+                        string nombre
+                        string ingredientes
+                        string advertencias_salud
+                        float precio
+                        int stock
+                        int id_categoria FK
+                    }
+                    
+                    PEDIDO ||--o{ DETALLE_PEDIDO : compuesto_por
+                    PEDIDO ||--o| COMPROBANTE : tiene
+                    PEDIDO {
+                        int id_pedido PK
+                        int id_usuario FK
+                        date fecha_creacion
+                        string estado "Pendiente, Pagado, etc"
+                        float total
+                    }
+                    
+                    DETALLE_PEDIDO {
+                        int id_detalle PK
+                        int id_pedido FK
+                        int id_producto FK
+                        int cantidad
+                        float subtotal
+                    }
+
+                    COMPROBANTE {
+                        int id_comprobante PK
+                        int id_pedido FK
+                        string imagen_url
+                        boolean validado_ia
+                        date fecha_validacion
+                    }
+            </div>
+        </section>
+
+        <!-- DTE -->
+        <section id="dte" class="scroll-mt-24">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Diagrama de Transición de Estados (DTE)</h2>
+                <p class="text-slate-600">Ciclo de vida del objeto "Pedido" desde que el cliente lo inicia hasta que se concreta la venta.</p>
+            </div>
+            <div class="mermaid">
+                stateDiagram-v2
+                    [*] --> Creado : Cliente confirma carrito
+                    
+                    Creado --> PendienteDePago : Generación de orden
+                    
+                    PendienteDePago --> ValidandoPago : Cliente sube comprobante
+                    
+                    ValidandoPago --> PagoRechazado : IA o Admin detectan error/fraude
+                    PagoRechazado --> PendienteDePago : Cliente reintenta subir imagen
+                    
+                    ValidandoPago --> Confirmado : IA valida imagen OK\no Admin aprueba manualmente
+                    
+                    Confirmado --> Notificado : Sistema envía recibo al cliente
+                    
+                    Notificado --> ListoParaRetirar : Descuento de stock aplicado
+                    
+                    ListoParaRetirar --> [*] : Cliente retira en escuela
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-10 mt-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+            <div class="flex justify-center items-center gap-2 text-white mb-4">
+                <div class="w-6 h-6 bg-quimica rounded flex items-center justify-center font-bold text-xs">E</div>
+                <span class="font-bold tracking-tight">Esencia<span class="text-quimica">Técnica</span></span>
+            </div>
+            <p>Proyecto de Diseño e Implementación de Sistemas</p>
+            <p class="text-sm">E.E.S.T N°1 Luciano Reyes, Campana, Buenos Aires.</p>
+            <div class="pt-4 border-t border-slate-800 flex flex-col md:flex-row justify-center gap-4 md:gap-8 text-sm">
+                <p><strong>Integrantes:</strong> Isabella Infante, Juan Manuel Merodio, Celeste Caceres y Enzo Queipo</p>
+                <p><strong>Profesores:</strong> Ariel Leibouski y Cecilia Maldonado</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Script de Mermaid (Versión más reciente en CDN) -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'base',
+            themeVariables: {
+                fontFamily: 'Inter',
+                primaryColor: '#e0f2fe',
+                primaryTextColor: '#0f172a',
+                primaryBorderColor: '#0ea5e9',
+                lineColor: '#64748b',
+                secondaryColor: '#f1f5f9',
+                tertiaryColor: '#ffffff'
+            },
+            flowchart: {
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>
