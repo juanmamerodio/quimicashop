@@ -1,480 +1,1222 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hub del Proyecto â€” QuimicaShop Â· E.E.S.T N1</title>
-  <meta name="description" content="Hub central de diagramas, prototipos y documentacion del proyecto QuimicaShop. E.E.S.T N1 Luciano Reyes â€” 7mo Anio Programacion 2026." />
+  <meta name="description"
+    content="Hub central de diagramas, prototipos y documentacion del proyecto QuimicaShop. E.E.S.T N1 Luciano Reyes â€” 7mo Anio Programacion 2026." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --bg:#f5f5f3;--surface:#fff;--glass:rgba(255,255,255,.68);--glass-2:rgba(255,255,255,.48);
-      --accent:#3d8c6e;--accent-lt:#e8f3ef;--accent-deep:#2a6b54;
-      --amber:#d97706;--amber-lt:#fef3c7;
-      --violet:#7c3aed;--violet-lt:#ede9fe;
-      --text:#1c1c1e;--text-2:#3a3a3c;--muted:#8e8e93;
-      --border:rgba(0,0,0,.07);--border-2:rgba(0,0,0,.04);
-      --sh-sm:0 1px 4px rgba(0,0,0,.05),0 2px 12px rgba(0,0,0,.04);
-      --sh-md:0 4px 20px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
-      --sh-lg:0 12px 40px rgba(0,0,0,.10),0 2px 8px rgba(0,0,0,.04);
-      --r:22px;--rb:100px;--rc:10px;
-      --ease:cubic-bezier(.34,1.26,.64,1);--eout:cubic-bezier(.16,1,.3,1);
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
     }
-    html{scroll-behavior:smooth}
-    body{
-      font-family:"DM Sans",-apple-system,BlinkMacSystemFont,sans-serif;
-      background:var(--bg);color:var(--text);min-height:100vh;
-      -webkit-font-smoothing:antialiased;
+
+    :root {
+      --bg: #f5f5f3;
+      --surface: #fff;
+      --glass: rgba(255, 255, 255, .68);
+      --glass-2: rgba(255, 255, 255, .48);
+      --accent: #3d8c6e;
+      --accent-lt: #e8f3ef;
+      --accent-deep: #2a6b54;
+      --amber: #d97706;
+      --amber-lt: #fef3c7;
+      --violet: #7c3aed;
+      --violet-lt: #ede9fe;
+      --text: #1c1c1e;
+      --text-2: #3a3a3c;
+      --muted: #8e8e93;
+      --border: rgba(0, 0, 0, .07);
+      --border-2: rgba(0, 0, 0, .04);
+      --sh-sm: 0 1px 4px rgba(0, 0, 0, .05), 0 2px 12px rgba(0, 0, 0, .04);
+      --sh-md: 0 4px 20px rgba(0, 0, 0, .08), 0 1px 4px rgba(0, 0, 0, .04);
+      --sh-lg: 0 12px 40px rgba(0, 0, 0, .10), 0 2px 8px rgba(0, 0, 0, .04);
+      --r: 22px;
+      --rb: 100px;
+      --rc: 10px;
+      --ease: cubic-bezier(.34, 1.26, .64, 1);
+      --eout: cubic-bezier(.16, 1, .3, 1);
     }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
     /* NAV */
-    .nav{
-      position:sticky;top:0;z-index:200;padding:0 20px;height:56px;
-      display:flex;align-items:center;justify-content:space-between;
-      background:rgba(245,245,243,.84);
-      backdrop-filter:blur(40px) saturate(1.8);
-      -webkit-backdrop-filter:blur(40px) saturate(1.8);
-      border-bottom:1px solid rgba(0,0,0,.05);
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      padding: 0 20px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(245, 245, 243, .84);
+      backdrop-filter: blur(40px) saturate(1.8);
+      -webkit-backdrop-filter: blur(40px) saturate(1.8);
+      border-bottom: 1px solid rgba(0, 0, 0, .05);
     }
-    .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
-    .nav-sq{
-      width:34px;height:34px;border-radius:11px;
-      background:linear-gradient(140deg,#4fa882 0%,var(--accent) 60%,var(--accent-deep) 100%);
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 2px 8px rgba(61,140,110,.28);
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit
     }
-    .nav-sq svg{color:#fff}
-    .nav-name{font-size:.9rem;font-weight:660;letter-spacing:-.02em}
-    .nav-sub{font-size:.7rem;color:var(--muted);margin-top:-1px}
-    .nav-r{display:flex;align-items:center;gap:8px}
-    .nav-pill{
-      background:var(--accent-lt);color:var(--accent);
-      border:1px solid rgba(61,140,110,.18);border-radius:var(--rc);
-      padding:4px 12px;font-size:.75rem;font-weight:600;
+
+    .nav-sq {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      background: linear-gradient(140deg, #4fa882 0%, var(--accent) 60%, var(--accent-deep) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(61, 140, 110, .28);
     }
-    .nav-dot{
-      width:8px;height:8px;border-radius:50%;background:var(--accent);
-      box-shadow:0 0 0 3px rgba(61,140,110,.18);
-      animation:pdot 2.4s ease infinite;
+
+    .nav-sq svg {
+      color: #fff
     }
-    @keyframes pdot{0%,100%{opacity:1;box-shadow:0 0 0 3px rgba(61,140,110,.18)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(61,140,110,.06)}}
+
+    .nav-name {
+      font-size: .9rem;
+      font-weight: 660;
+      letter-spacing: -.02em
+    }
+
+    .nav-sub {
+      font-size: .7rem;
+      color: var(--muted);
+      margin-top: -1px
+    }
+
+    .nav-r {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .nav-pill {
+      background: var(--accent-lt);
+      color: var(--accent);
+      border: 1px solid rgba(61, 140, 110, .18);
+      border-radius: var(--rc);
+      padding: 4px 12px;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(61, 140, 110, .18);
+      animation: pdot 2.4s ease infinite;
+    }
+
+    @keyframes pdot {
+
+      0%,
+      100% {
+        opacity: 1;
+        box-shadow: 0 0 0 3px rgba(61, 140, 110, .18)
+      }
+
+      50% {
+        opacity: .7;
+        box-shadow: 0 0 0 6px rgba(61, 140, 110, .06)
+      }
+    }
+
     /* SHELL */
-    .shell{max-width:960px;margin:0 auto;padding:0 20px 100px}
+    .shell {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 20px 100px
+    }
+
     /* HERO */
-    .hero{padding:52px 0 36px}
-    .eyebrow{
-      display:inline-flex;align-items:center;gap:7px;
-      background:var(--glass);border:1px solid var(--border);border-radius:var(--rc);
-      padding:5px 14px;font-size:.75rem;font-weight:600;color:var(--accent);
-      margin-bottom:18px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-      box-shadow:var(--sh-sm);
+    .hero {
+      padding: 52px 0 36px
     }
-    .hero h1{font-size:clamp(2rem,5.5vw,3rem);font-weight:740;letter-spacing:-.04em;line-height:1.1;margin-bottom:14px}
-    .hero h1 em{font-style:normal;color:var(--accent)}
-    .hero-sub{font-size:1rem;color:var(--muted);line-height:1.65;max-width:520px;margin-bottom:28px}
-    .hero-stats{display:flex;flex-wrap:wrap;gap:10px}
-    .spill{
-      display:flex;align-items:center;gap:7px;
-      background:var(--glass);border:1px solid var(--border);border-radius:var(--rc);
-      padding:7px 14px;font-size:.8rem;font-weight:500;color:var(--text-2);
-      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--sh-sm);
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--rc);
+      padding: 5px 14px;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 18px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: var(--sh-sm);
     }
-    .spill svg{color:var(--accent)}
+
+    .hero h1 {
+      font-size: clamp(2rem, 5.5vw, 3rem);
+      font-weight: 740;
+      letter-spacing: -.04em;
+      line-height: 1.1;
+      margin-bottom: 14px
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent)
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 520px;
+      margin-bottom: 28px
+    }
+
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px
+    }
+
+    .spill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--rc);
+      padding: 7px 14px;
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--text-2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: var(--sh-sm);
+    }
+
+    .spill svg {
+      color: var(--accent)
+    }
+
     /* SECTION */
-    .sec{margin-bottom:48px;animation:fup 400ms var(--eout) both}
-    .sec:nth-child(2){animation-delay:40ms}.sec:nth-child(3){animation-delay:90ms}
-    .sec:nth-child(4){animation-delay:140ms}.sec:nth-child(5){animation-delay:190ms}
-    .sec:nth-child(6){animation-delay:230ms}
-    @keyframes fup{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-    .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-    .sec-chip{
-      display:inline-flex;align-items:center;gap:6px;border-radius:var(--rc);
-      padding:5px 13px;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border:1px solid;
+    .sec {
+      margin-bottom: 48px;
+      animation: fup 400ms var(--eout) both
     }
-    .cg{background:var(--accent-lt);color:var(--accent);border-color:rgba(61,140,110,.2)}
-    .ca{background:var(--amber-lt);color:var(--amber);border-color:rgba(217,119,6,.2)}
-    .cv{background:var(--violet-lt);color:var(--violet);border-color:rgba(124,58,237,.2)}
-    .sec-line{flex:1;height:1px;background:var(--border)}
-    .sec-cnt{font-size:.78rem;color:var(--muted);font-family:"DM Mono",monospace}
+
+    .sec:nth-child(2) {
+      animation-delay: 40ms
+    }
+
+    .sec:nth-child(3) {
+      animation-delay: 90ms
+    }
+
+    .sec:nth-child(4) {
+      animation-delay: 140ms
+    }
+
+    .sec:nth-child(5) {
+      animation-delay: 190ms
+    }
+
+    .sec:nth-child(6) {
+      animation-delay: 230ms
+    }
+
+    @keyframes fup {
+      from {
+        opacity: 0;
+        transform: translateY(16px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px
+    }
+
+    .sec-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: var(--rc);
+      padding: 5px 13px;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      border: 1px solid;
+    }
+
+    .cg {
+      background: var(--accent-lt);
+      color: var(--accent);
+      border-color: rgba(61, 140, 110, .2)
+    }
+
+    .ca {
+      background: var(--amber-lt);
+      color: var(--amber);
+      border-color: rgba(217, 119, 6, .2)
+    }
+
+    .cv {
+      background: var(--violet-lt);
+      color: var(--violet);
+      border-color: rgba(124, 58, 237, .2)
+    }
+
+    .sec-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border)
+    }
+
+    .sec-cnt {
+      font-size: .78rem;
+      color: var(--muted);
+      font-family: "DM Mono", monospace
+    }
+
     /* GRID */
-    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-    .g2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-    .ga{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .g3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px
+    }
+
+    .g2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px
+    }
+
+    .ga {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px
+    }
+
     /* CARD */
-    .card{
-      background:var(--glass);
-      backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);
-      border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm);
-      padding:22px;display:flex;flex-direction:column;gap:14px;
-      text-decoration:none;color:inherit;position:relative;overflow:hidden;cursor:pointer;
-      transition:transform 200ms var(--ease),box-shadow 200ms var(--eout),background 180ms ease;
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(24px) saturate(1.5);
+      -webkit-backdrop-filter: blur(24px) saturate(1.5);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--sh-sm);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 200ms var(--ease), box-shadow 200ms var(--eout), background 180ms ease;
     }
-    .card::after{content:'';position:absolute;inset:0;border-radius:var(--r);background:linear-gradient(135deg,rgba(255,255,255,.35) 0%,transparent 55%);pointer-events:none}
-    .card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;pointer-events:none}
-    .cg.card::before{background:rgba(61,140,110,.06)}
-    .ca.card::before{background:rgba(217,119,6,.06)}
-    .cv.card::before{background:rgba(124,58,237,.06)}
-    .card:hover{transform:translateY(-3px) scale(1.005);box-shadow:var(--sh-lg);background:rgba(255,255,255,.82)}
-    .card:active{transform:translateY(-1px) scale(.998);transition-duration:80ms}
-    .card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-    .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .ci{width:46px;height:46px;border-radius:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-    .ig{background:var(--accent-lt)}.ia{background:var(--amber-lt)}.iv{background:var(--violet-lt)}
-    .ig svg{color:var(--accent)}.ia svg{color:var(--amber)}.iv svg{color:var(--violet)}
-    .cbadge{
-      font-family:"DM Mono",monospace;font-size:.62rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;
-      padding:3px 9px;border-radius:7px;background:rgba(0,0,0,.04);color:var(--muted);flex-shrink:0;margin-top:2px;
+
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--r);
+      background: linear-gradient(135deg, rgba(255, 255, 255, .35) 0%, transparent 55%);
+      pointer-events: none
     }
-    .ct{font-size:1.05rem;font-weight:660;letter-spacing:-.025em;color:var(--text);margin-bottom:4px}
-    .cd{font-size:.825rem;color:var(--muted);line-height:1.58}
-    .cf{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border-2);margin-top:auto}
-    .csrc{display:flex;align-items:center;gap:5px;font-size:.76rem;color:var(--muted)}
-    .btn{
-      display:inline-flex;align-items:center;gap:5px;border-radius:var(--rb);
-      padding:7px 16px;font-size:.8rem;font-weight:600;border:none;cursor:pointer;text-decoration:none;
-      transition:opacity 150ms ease,transform 150ms ease;
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      pointer-events: none
     }
-    .btn:hover{opacity:.84;transform:scale(1.03)}
-    .bg{background:var(--accent);color:#fff}
-    .ba{background:var(--amber);color:#fff}
-    .bv{background:var(--violet);color:#fff}
+
+    .cg.card::before {
+      background: rgba(61, 140, 110, .06)
+    }
+
+    .ca.card::before {
+      background: rgba(217, 119, 6, .06)
+    }
+
+    .cv.card::before {
+      background: rgba(124, 58, 237, .06)
+    }
+
+    .card:hover {
+      transform: translateY(-3px) scale(1.005);
+      box-shadow: var(--sh-lg);
+      background: rgba(255, 255, 255, .82)
+    }
+
+    .card:active {
+      transform: translateY(-1px) scale(.998);
+      transition-duration: 80ms
+    }
+
+    .card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .ci {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .ig {
+      background: var(--accent-lt)
+    }
+
+    .ia {
+      background: var(--amber-lt)
+    }
+
+    .iv {
+      background: var(--violet-lt)
+    }
+
+    .ig svg {
+      color: var(--accent)
+    }
+
+    .ia svg {
+      color: var(--amber)
+    }
+
+    .iv svg {
+      color: var(--violet)
+    }
+
+    .cbadge {
+      font-family: "DM Mono", monospace;
+      font-size: .62rem;
+      font-weight: 500;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 7px;
+      background: rgba(0, 0, 0, .04);
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .ct {
+      font-size: 1.05rem;
+      font-weight: 660;
+      letter-spacing: -.025em;
+      color: var(--text);
+      margin-bottom: 4px
+    }
+
+    .cd {
+      font-size: .825rem;
+      color: var(--muted);
+      line-height: 1.58
+    }
+
+    .cf {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-2);
+      margin-top: auto
+    }
+
+    .csrc {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .76rem;
+      color: var(--muted)
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: var(--rb);
+      padding: 7px 16px;
+      font-size: .8rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+
+    .btn:hover {
+      opacity: .84;
+      transform: scale(1.03)
+    }
+
+    .bg {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .ba {
+      background: var(--amber);
+      color: #fff
+    }
+
+    .bv {
+      background: var(--violet);
+      color: #fff
+    }
+
     /* MEGA */
-    .mega{
-      background:var(--glass);
-      backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);
-      border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm);
-      padding:24px;overflow:hidden;position:relative;
+    .mega {
+      background: var(--glass);
+      backdrop-filter: blur(24px) saturate(1.5);
+      -webkit-backdrop-filter: blur(24px) saturate(1.5);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--sh-sm);
+      padding: 24px;
+      overflow: hidden;
+      position: relative;
     }
-    .mega::after{content:'';position:absolute;inset:0;border-radius:var(--r);background:linear-gradient(135deg,rgba(255,255,255,.3) 0%,transparent 50%);pointer-events:none}
-    .mega-in{display:flex;flex-direction:column;gap:16px;position:relative;z-index:1}
-    .mega-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-    .mega-t{font-size:1.15rem;font-weight:700;letter-spacing:-.03em;margin-bottom:5px}
-    .mega-d{font-size:.85rem;color:var(--muted);line-height:1.6;max-width:480px}
-    .live-badge{
-      display:flex;align-items:center;gap:6px;
-      background:rgba(61,140,110,.10);color:var(--accent);border:1px solid rgba(61,140,110,.2);
-      border-radius:var(--rb);padding:5px 12px;font-size:.75rem;font-weight:700;white-space:nowrap;flex-shrink:0;
+
+    .mega::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--r);
+      background: linear-gradient(135deg, rgba(255, 255, 255, .3) 0%, transparent 50%);
+      pointer-events: none
     }
-    .ldot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pdot 2s ease infinite}
-    .mega-links{display:flex;flex-wrap:wrap;gap:10px}
-    .mlink{
-      display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:14px;
-      padding:12px 16px;text-decoration:none;color:var(--text);background:var(--glass-2);
-      transition:transform 180ms var(--ease),background 150ms ease,box-shadow 150ms ease;flex:1;min-width:200px;
+
+    .mega-in {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      z-index: 1
     }
-    .mlink:hover{background:var(--surface);transform:translateY(-2px);box-shadow:var(--sh-md)}
-    .mlink-ic{width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-    .mlink-lbl{font-size:.8rem;font-weight:660;color:var(--text);display:block}
-    .mlink-sub{font-size:.72rem;color:var(--muted);display:block;margin-top:1px}
-    .mlink-arr{margin-left:auto;color:var(--muted);flex-shrink:0}
+
+    .mega-hd {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px
+    }
+
+    .mega-t {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -.03em;
+      margin-bottom: 5px
+    }
+
+    .mega-d {
+      font-size: .85rem;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 480px
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(61, 140, 110, .10);
+      color: var(--accent);
+      border: 1px solid rgba(61, 140, 110, .2);
+      border-radius: var(--rb);
+      padding: 5px 12px;
+      font-size: .75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .ldot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pdot 2s ease infinite
+    }
+
+    .mega-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px
+    }
+
+    .mlink {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: var(--text);
+      background: var(--glass-2);
+      transition: transform 180ms var(--ease), background 150ms ease, box-shadow 150ms ease;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .mlink:hover {
+      background: var(--surface);
+      transform: translateY(-2px);
+      box-shadow: var(--sh-md)
+    }
+
+    .mlink-ic {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .mlink-lbl {
+      font-size: .8rem;
+      font-weight: 660;
+      color: var(--text);
+      display: block
+    }
+
+    .mlink-sub {
+      font-size: .72rem;
+      color: var(--muted);
+      display: block;
+      margin-top: 1px
+    }
+
+    .mlink-arr {
+      margin-left: auto;
+      color: var(--muted);
+      flex-shrink: 0
+    }
+
     /* STACK TAGS */
-    .stag{
-      display:inline-flex;align-items:center;gap:5px;
-      background:rgba(61,140,110,.1);color:var(--accent);
-      border-radius:8px;border:1px solid rgba(61,140,110,.15);
-      padding:3px 10px;font-size:.72rem;font-weight:600;
+    .stag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(61, 140, 110, .1);
+      color: var(--accent);
+      border-radius: 8px;
+      border: 1px solid rgba(61, 140, 110, .15);
+      padding: 3px 10px;
+      font-size: .72rem;
+      font-weight: 600;
     }
+
     /* INFO BAR */
-    .ibar{
-      display:flex;align-items:center;gap:8px;
-      background:var(--glass);border:1px solid var(--border);border-radius:14px;
-      padding:12px 16px;font-size:.8rem;color:var(--muted);box-shadow:var(--sh-sm);
-      margin-bottom:40px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    .ibar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: .8rem;
+      color: var(--muted);
+      box-shadow: var(--sh-sm);
+      margin-bottom: 40px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
-    .ibar svg{color:var(--accent);flex-shrink:0}
+
+    .ibar svg {
+      color: var(--accent);
+      flex-shrink: 0
+    }
+
     /* FOOTER */
-    .fdiv{height:1px;background:var(--border);max-width:960px;margin:0 auto 32px}
-    .foot{text-align:center;padding:0 20px 48px;font-size:.78rem;color:var(--muted)}
-    .foot strong{color:var(--accent);font-weight:600}
-    /* SCROLLBAR */
-    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:3px}
-    /* RESPONSIVE */
-    @media(max-width:700px){
-      .nav{padding:0 16px}.shell{padding:0 16px 80px}.hero{padding:36px 0 28px}
-      .hero h1{font-size:1.9rem}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}
-      .mega-hd{flex-direction:column;gap:10px}.mega-links{flex-direction:column}
-      .mlink{min-width:unset}.nav-sub{display:none}
+    .fdiv {
+      height: 1px;
+      background: var(--border);
+      max-width: 960px;
+      margin: 0 auto 32px
     }
-    @media(min-width:701px) and (max-width:900px){.g3{grid-template-columns:repeat(2,1fr)}}
+
+    .foot {
+      text-align: center;
+      padding: 0 20px 48px;
+      font-size: .78rem;
+      color: var(--muted)
+    }
+
+    .foot strong {
+      color: var(--accent);
+      font-weight: 600
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 6px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, .12);
+      border-radius: 3px
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:700px) {
+      .nav {
+        padding: 0 16px
+      }
+
+      .shell {
+        padding: 0 16px 80px
+      }
+
+      .hero {
+        padding: 36px 0 28px
+      }
+
+      .hero h1 {
+        font-size: 1.9rem
+      }
+
+      .g3 {
+        grid-template-columns: 1fr
+      }
+
+      .g2 {
+        grid-template-columns: 1fr
+      }
+
+      .mega-hd {
+        flex-direction: column;
+        gap: 10px
+      }
+
+      .mega-links {
+        flex-direction: column
+      }
+
+      .mlink {
+        min-width: unset
+      }
+
+      .nav-sub {
+        display: none
+      }
+    }
+
+    @media(min-width:701px) and (max-width:900px) {
+      .g3 {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
   </style>
 </head>
+
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <a class="nav-brand" href="#" aria-label="QuimicaShop Hub">
-    <div class="nav-sq">
-      <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/>
-        <path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/>
+  <!-- NAV -->
+  <nav class="nav">
+    <a class="nav-brand" href="#" aria-label="QuimicaShop Hub">
+      <div class="nav-sq">
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 2v7.31" />
+          <path d="M14 9.3V1.99" />
+          <path d="M8.5 2h7" />
+          <path d="M14 9.3a6.5 6.5 0 1 1-4 0" />
+          <path d="M5.52 16h12.96" />
+        </svg>
+      </div>
+      <div>
+        <div class="nav-name">QuimicaShop</div>
+        <div class="nav-sub">E.E.S.T N1 Â· 7mo Anio Programacion</div>
+      </div>
+    </a>
+    <div class="nav-r">
+      <span class="nav-pill">Hub del Proyecto</span>
+      <span class="nav-dot" aria-hidden="true"></span>
+    </div>
+  </nav>
+
+  <div class="shell">
+
+    <!-- HERO -->
+    <header class="hero sec">
+      <div class="eyebrow">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon
+            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+        Documentacion tecnica Â· 2026
+      </div>
+      <h1>Centro de control<br />del <em>proyecto</em></h1>
+      <p class="hero-sub">Todos los diagramas, modelos y prototipos en un solo lugar. Hace click en cualquier tarjeta
+        para ir directo al recurso.</p>
+      <div class="hero-stats">
+        <span class="spill">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
+          </svg>
+          3 DFD
+        </span>
+        <span class="spill">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3" />
+            <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+            <path d="M3 12A9 3 0 0 0 21 12" />
+          </svg>
+          1 DER
+        </span>
+        <span class="spill">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="20" x="5" y="2" rx="2" />
+            <path d="M9 7h6" />
+            <path d="M9 11h6" />
+            <path d="M9 15h4" />
+          </svg>
+          2 Prototipos
+        </span>
+        <span class="spill">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          Sep 2026
+        </span>
+      </div>
+    </header>
+
+    <!-- INFO BAR -->
+    <div class="ibar sec">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 16v-4" />
+        <path d="M12 8h.01" />
       </svg>
+      Lucidchart requiere estar logueado con la cuenta del proyecto para editar. El prototipo de Vercel esta conectado a
+      Supabase (base de datos real).
     </div>
-    <div>
-      <div class="nav-name">QuimicaShop</div>
-      <div class="nav-sub">E.E.S.T N1 Â· 7mo Anio Programacion</div>
-    </div>
-  </a>
-  <div class="nav-r">
-    <span class="nav-pill">Hub del Proyecto</span>
-    <span class="nav-dot" aria-hidden="true"></span>
-  </div>
-</nav>
 
-<div class="shell">
-
-<!-- HERO -->
-<header class="hero sec">
-  <div class="eyebrow">
-    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-    </svg>
-    Documentacion tecnica Â· 2026
-  </div>
-  <h1>Centro de control<br/>del <em>proyecto</em></h1>
-  <p class="hero-sub">Todos los diagramas, modelos y prototipos en un solo lugar. Hace click en cualquier tarjeta para ir directo al recurso.</p>
-  <div class="hero-stats">
-    <span class="spill">
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-      3 DFD
-    </span>
-    <span class="spill">
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
-      1 DER
-    </span>
-    <span class="spill">
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/></svg>
-      2 Prototipos
-    </span>
-    <span class="spill">
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Sep 2026
-    </span>
-  </div>
-</header>
-
-<!-- INFO BAR -->
-<div class="ibar sec">
-  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-  Lucidchart requiere estar logueado con la cuenta del proyecto para editar. El prototipo de Vercel esta conectado a Supabase (base de datos real).
-</div>
-
-<!-- SEC 1 â€” DFD -->
-<section class="sec" aria-labelledby="s-dfd">
-  <div class="sec-head">
-    <div class="sec-chip cg" id="s-dfd">
-      <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-      Diagramas de Flujo de Datos
-    </div>
-    <div class="sec-line"></div>
-    <span class="sec-cnt">3 niveles</span>
-  </div>
-  <div class="g3">
-
-    <a id="dfd-n1" class="card cg" target="_blank" rel="noopener noreferrer"
-       href="https://lucid.app/lucidchart/b61b3f10-e0cd-4a1f-a708-4d9914ac57d1/edit?invitationId=inv_79464b55-f369-4661-807a-1b98e1c1df5d&page=0_0#">
-      <div class="card-top">
-        <div class="ci ig">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v4"/><path d="M10.8 10.8 5.7 17"/><path d="M13.2 10.8l5.1 6.2"/></svg>
+    <!-- SEC 1 â€” DFD -->
+    <section class="sec" aria-labelledby="s-dfd">
+      <div class="sec-head">
+        <div class="sec-chip cg" id="s-dfd">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
+          </svg>
+          Diagramas de Flujo de Datos
         </div>
-        <span class="cbadge">N1</span>
+        <div class="sec-line"></div>
+        <span class="sec-cnt">3 niveles</span>
       </div>
-      <div>
-        <div class="ct">DFD Nivel 1</div>
-        <p class="cd">Vision general. Entidades externas, procesos principales y almacenes de datos del sistema.</p>
-      </div>
-      <div class="cf">
-        <span class="csrc">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6"/><path d="M9 12h6"/><path d="M9 15h4"/></svg>
-          Lucidchart
-        </span>
-        <span class="btn bg">Abrir <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></span>
-      </div>
-    </a>
+      <div class="g3">
 
-    <a id="dfd-n2" class="card cg" target="_blank" rel="noopener noreferrer"
-       href="https://lucid.app/lucidchart/afb9b366-838b-4eae-a743-4830f0454024/edit?invitationId=inv_59f172c5-3d35-479b-b383-1cc59795a07b&page=0_0#">
-      <div class="card-top">
-        <div class="ci ig">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-        </div>
-        <span class="cbadge">N2</span>
-      </div>
-      <div>
-        <div class="ct">DFD Nivel 2</div>
-        <p class="cd">Descomposicion de procesos. Subprocesos, flujos internos y transformaciones de datos.</p>
-      </div>
-      <div class="cf">
-        <span class="csrc">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6"/><path d="M9 12h6"/><path d="M9 15h4"/></svg>
-          Lucidchart
-        </span>
-        <span class="btn bg">Abrir <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></span>
-      </div>
-    </a>
-
-    <a id="dfd-n3" class="card cg" target="_blank" rel="noopener noreferrer"
-       href="https://lucid.app/lucidchart/d94e24c2-c4fd-406d-a9d2-82c6214226e4/edit?invitationId=inv_4df43e0c-1bfa-412e-b8b7-a0497d88859d&page=0_0#">
-      <div class="card-top">
-        <div class="ci ig">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/><path d="M10 6.5h4"/><path d="M10 17.5h4"/><path d="M6.5 10v4"/><path d="M17.5 10v4"/></svg>
-        </div>
-        <span class="cbadge">N3</span>
-      </div>
-      <div>
-        <div class="ct">DFD Nivel 3</div>
-        <p class="cd">Maximo detalle. Logica de verificacion con Gemini IA, sync con Sheets y gestion de stock.</p>
-      </div>
-      <div class="cf">
-        <span class="csrc">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6"/><path d="M9 12h6"/><path d="M9 15h4"/></svg>
-          Lucidchart
-        </span>
-        <span class="btn bg">Abrir <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></span>
-      </div>
-    </a>
-
-  </div>
-</section>
-
-<!-- SEC 2 â€” DER -->
-<section class="sec" aria-labelledby="s-der">
-  <div class="sec-head">
-    <div class="sec-chip ca" id="s-der">
-      <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
-      Modelo de Datos
-    </div>
-    <div class="sec-line"></div>
-    <span class="sec-cnt">1 diagrama</span>
-  </div>
-  <div class="ga">
-
-    <a id="der-quimica" class="card ca" target="_blank" rel="noopener noreferrer"
-       href="https://lucid.app/lucidchart/d8c27501-67e7-491e-9675-98fe4564abbb/edit?invitationId=inv_d8cbad3f-6375-488e-b19b-cca811629323&page=HWEp-vi-RSFO#">
-      <div class="card-top">
-        <div class="ci ia">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
-        </div>
-        <span class="cbadge">DER</span>
-      </div>
-      <div>
-        <div class="ct">Diagrama Entidad-Relacion</div>
-        <p class="cd">Modelo relacional de la BD en Supabase/PostgreSQL. Tablas <code style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">productos</code>, <code style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">pedidos</code> y <code style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">verificaciones</code> con sus relaciones e integridad referencial.</p>
-      </div>
-      <div class="cf">
-        <span class="csrc">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6"/><path d="M9 12h6"/><path d="M9 15h4"/></svg>
-          Lucidchart
-        </span>
-        <span class="btn ba">Abrir <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></span>
-      </div>
-    </a>
-
-  </div>
-</section>
-
-<!-- SEC 3 â€” PROTOTIPOS -->
-<section class="sec" aria-labelledby="s-proto">
-  <div class="sec-head">
-    <div class="sec-chip cv" id="s-proto">
-      <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/></svg>
-      Prototipos
-    </div>
-    <div class="sec-line"></div>
-    <span class="sec-cnt">2 versiones</span>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:14px">
-
-    <!-- PROTO v1 -->
-    <div id="proto-v1" class="mega">
-      <div class="mega-in">
-        <div class="mega-hd">
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <div class="ci iv" style="width:42px;height:42px;border-radius:13px">
-                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/></svg>
-              </div>
-              <span class="cbadge" style="background:var(--violet-lt);color:var(--violet)">PROTO v1</span>
+        <a id="dfd-n1" class="card cg" target="_blank" rel="noopener noreferrer"
+          href="https://lucid.app/lucidchart/b61b3f10-e0cd-4a1f-a708-4d9914ac57d1/edit?invitationId=inv_79464b55-f369-4661-807a-1b98e1c1df5d&page=0_0#">
+          <div class="card-top">
+            <div class="ci ig">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="5" r="2" />
+                <circle cx="5" cy="19" r="2" />
+                <circle cx="19" cy="19" r="2" />
+                <path d="M12 7v4" />
+                <path d="M10.8 10.8 5.7 17" />
+                <path d="M13.2 10.8l5.1 6.2" />
+              </svg>
             </div>
-            <div class="mega-t">Prototipo de Alta Fidelidad</div>
-            <p class="mega-d">Disenio de interfaz completo con estetica iOS 27. Maqueta estatica con todas las pantallas: catalogo, carrito, checkout, admin y verificacion con IA. Disponible en Google Stitch y como HTML local.</p>
+            <span class="cbadge">N1</span>
+          </div>
+          <div>
+            <div class="ct">DFD Nivel 1</div>
+            <p class="cd">Vision general. Entidades externas, procesos principales y almacenes de datos del sistema.</p>
+          </div>
+          <div class="cf">
+            <span class="csrc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M9 9h6" />
+                <path d="M9 12h6" />
+                <path d="M9 15h4" />
+              </svg>
+              Lucidchart
+            </span>
+            <span class="btn bg">Abrir <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M7 17L17 7" />
+                <path d="M7 7h10v10" />
+              </svg></span>
+          </div>
+        </a>
+
+        <a id="dfd-n2" class="card cg" target="_blank" rel="noopener noreferrer"
+          href="https://lucid.app/lucidchart/afb9b366-838b-4eae-a743-4830f0454024/edit?invitationId=inv_59f172c5-3d35-479b-b383-1cc59795a07b&page=0_0#">
+          <div class="card-top">
+            <div class="ci ig">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="7" height="7" x="3" y="3" rx="1" />
+                <rect width="7" height="7" x="14" y="3" rx="1" />
+                <rect width="7" height="7" x="14" y="14" rx="1" />
+                <rect width="7" height="7" x="3" y="14" rx="1" />
+              </svg>
+            </div>
+            <span class="cbadge">N2</span>
+          </div>
+          <div>
+            <div class="ct">DFD Nivel 2</div>
+            <p class="cd">Descomposicion de procesos. Subprocesos, flujos internos y transformaciones de datos.</p>
+          </div>
+          <div class="cf">
+            <span class="csrc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M9 9h6" />
+                <path d="M9 12h6" />
+                <path d="M9 15h4" />
+              </svg>
+              Lucidchart
+            </span>
+            <span class="btn bg">Abrir <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M7 17L17 7" />
+                <path d="M7 7h10v10" />
+              </svg></span>
+          </div>
+        </a>
+
+        <a id="dfd-n3" class="card cg" target="_blank" rel="noopener noreferrer"
+          href="https://lucid.app/lucidchart/d94e24c2-c4fd-406d-a9d2-82c6214226e4/edit?invitationId=inv_4df43e0c-1bfa-412e-b8b7-a0497d88859d&page=0_0#">
+          <div class="card-top">
+            <div class="ci ig">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3h7v7H3z" />
+                <path d="M14 3h7v7h-7z" />
+                <path d="M14 14h7v7h-7z" />
+                <path d="M3 14h7v7H3z" />
+                <path d="M10 6.5h4" />
+                <path d="M10 17.5h4" />
+                <path d="M6.5 10v4" />
+                <path d="M17.5 10v4" />
+              </svg>
+            </div>
+            <span class="cbadge">N3</span>
+          </div>
+          <div>
+            <div class="ct">DFD Nivel 3</div>
+            <p class="cd">Maximo detalle. Logica de verificacion con Gemini IA, sync con Sheets y gestion de stock.</p>
+          </div>
+          <div class="cf">
+            <span class="csrc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M9 9h6" />
+                <path d="M9 12h6" />
+                <path d="M9 15h4" />
+              </svg>
+              Lucidchart
+            </span>
+            <span class="btn bg">Abrir <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M7 17L17 7" />
+                <path d="M7 7h10v10" />
+              </svg></span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- SEC 2 â€” DER -->
+    <section class="sec" aria-labelledby="s-der">
+      <div class="sec-head">
+        <div class="sec-chip ca" id="s-der">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3" />
+            <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+            <path d="M3 12A9 3 0 0 0 21 12" />
+          </svg>
+          Modelo de Datos
+        </div>
+        <div class="sec-line"></div>
+        <span class="sec-cnt">1 diagrama</span>
+      </div>
+      <div class="ga">
+
+        <a id="der-quimica" class="card ca" target="_blank" rel="noopener noreferrer"
+          href="https://lucid.app/lucidchart/d8c27501-67e7-491e-9675-98fe4564abbb/edit?invitationId=inv_d8cbad3f-6375-488e-b19b-cca811629323&page=HWEp-vi-RSFO#">
+          <div class="card-top">
+            <div class="ci ia">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="5" rx="9" ry="3" />
+                <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+                <path d="M3 12A9 3 0 0 0 21 12" />
+              </svg>
+            </div>
+            <span class="cbadge">DER</span>
+          </div>
+          <div>
+            <div class="ct">Diagrama Entidad-Relacion</div>
+            <p class="cd">Modelo relacional de la BD en Supabase/PostgreSQL. Tablas <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">productos</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">pedidos</code>
+              y <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">verificaciones</code>
+              con sus relaciones e integridad referencial.</p>
+          </div>
+          <div class="cf">
+            <span class="csrc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M9 9h6" />
+                <path d="M9 12h6" />
+                <path d="M9 15h4" />
+              </svg>
+              Lucidchart
+            </span>
+            <span class="btn ba">Abrir <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M7 17L17 7" />
+                <path d="M7 7h10v10" />
+              </svg></span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- SEC 3 â€” PROTOTIPOS -->
+    <section class="sec" aria-labelledby="s-proto">
+      <div class="sec-head">
+        <div class="sec-chip cv" id="s-proto">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="20" x="5" y="2" rx="2" />
+            <path d="M9 7h6" />
+            <path d="M9 11h6" />
+            <path d="M9 15h4" />
+          </svg>
+          Prototipos
+        </div>
+        <div class="sec-line"></div>
+        <span class="sec-cnt">2 versiones</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- PROTO v1 -->
+        <div id="proto-v1" class="mega">
+          <div class="mega-in">
+            <div class="mega-hd">
+              <div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                  <div class="ci iv" style="width:42px;height:42px;border-radius:13px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="14" height="20" x="5" y="2" rx="2" />
+                      <path d="M9 7h6" />
+                      <path d="M9 11h6" />
+                      <path d="M9 15h4" />
+                    </svg>
+                  </div>
+                  <span class="cbadge" style="background:var(--violet-lt);color:var(--violet)">PROTO v1</span>
+                </div>
+                <div class="mega-t">Prototipo de Alta Fidelidad</div>
+                <p class="mega-d">Diseño de interfaz UX/UI, Maqueta estatica con todas las pantallas: catalogo, carrito,
+                  checkout, admin. Disponible en Google Stitch y como HTML.</p>
+              </div>
+            </div>
+            <div class="mega-links">
+              <a class="mlink" href="https://stitch.withgoogle.com/projects/11338771320979669391" target="_blank"
+                rel="noopener noreferrer">
+                <div class="mlink-ic" style="background:#e8f0fe">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="#4285f4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 8v4l3 3" />
+                  </svg>
+                </div>
+                <div>
+                  <span class="mlink-lbl">Google Stitch</span>
+                  <span class="mlink-sub">stitch.withgoogle.com</span>
+                </div>
+                <span class="mlink-arr"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg></span>
+              </a>
+              <a class="mlink" href="./diagrams/prototype1.html" target="_blank" rel="noopener noreferrer">
+                <div class="mlink-ic" style="background:var(--violet-lt)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                </div>
+                <div>
+                  <span class="mlink-lbl">Prototipo Stitch· HTML</span>
+                  <span class="mlink-sub">ascender.uno/quimicashop/diagrams/prototype1.html</span>
+                </div>
+                <span class="mlink-arr"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg></span>
+              </a>
+            </div>
           </div>
         </div>
-        <div class="mega-links">
-          <a class="mlink" href="https://stitch.withgoogle.com/projects/11338771320979669391" target="_blank" rel="noopener noreferrer">
-            <div class="mlink-ic" style="background:#e8f0fe">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4285f4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-            </div>
-            <div>
-              <span class="mlink-lbl">Google Stitch</span>
-              <span class="mlink-sub">stitch.withgoogle.com</span>
-            </div>
-            <span class="mlink-arr"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
-          </a>
-          <a class="mlink" href="./diagrams/prototype1.html" target="_blank" rel="noopener noreferrer">
-            <div class="mlink-ic" style="background:var(--violet-lt)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            </div>
-            <div>
-              <span class="mlink-lbl">Prototipo v1 Â· HTML</span>
-              <span class="mlink-sub">ascender.uno/quimicashop/diagrams/prototype1.html</span>
-            </div>
-            <span class="mlink-arr"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
-          </a>
-        </div>
-      </div>
-    </div>
 
-    <!-- PROTO v2 -->
-    <div id="proto-v2" class="mega" style="border-color:rgba(61,140,110,.18);background:rgba(232,243,239,.4)">
-      <div class="mega-in">
-        <div class="mega-hd">
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <div class="ci ig" style="width:42px;height:42px;border-radius:13px">
-                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 19.8h20z"/></svg>
+        <!-- PROTO v2 -->
+        <div id="proto-v2" class="mega" style="border-color:rgba(61,140,110,.18);background:rgba(232,243,239,.4)">
+          <div class="mega-in">
+            <div class="mega-hd">
+              <div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                  <div class="ci ig" style="width:42px;height:42px;border-radius:13px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2L2 19.8h20z" />
+                    </svg>
+                  </div>
+                  <span class="cbadge" style="background:var(--accent-lt);color:var(--accent)">PROTO v2 Â· LIVE</span>
+                </div>
+                <div class="mega-t">Aplicacion en Vercel â€” Framework real</div>
+                <p class="mega-d">Prototipo funcional Nivel 2. Es el estado actual del proyecto: Next.js 15 + Supabase
+                  con las 3 tablas migradas + Gemini IA integrada. El framework en donde estamos parados hoy.</p>
               </div>
-              <span class="cbadge" style="background:var(--accent-lt);color:var(--accent)">PROTO v2 Â· LIVE</span>
+              <div class="live-badge"><span class="ldot"></span>Live</div>
             </div>
-            <div class="mega-t">Aplicacion en Vercel â€” Framework real</div>
-            <p class="mega-d">Prototipo funcional Nivel 2. Es el estado actual del proyecto: Next.js 15 + Supabase con las 3 tablas migradas + Gemini IA integrada. El framework en donde estamos parados hoy.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px">
+              <span class="stag">Next.js 15</span>
+              <span class="stag">Supabase</span>
+              <span class="stag">TypeScript</span>
+              <span class="stag">Tailwind CSS</span>
+              <span class="stag">Gemini IA</span>
+              <span class="stag">Resend</span>
+            </div>
+            <div class="mega-links">
+              <a class="mlink" href="https://quimicashop.vercel.app" target="_blank" rel="noopener noreferrer">
+                <div class="mlink-ic" style="background:var(--accent-lt)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="#3d8c6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M2 12h20" />
+                    <path
+                      d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  </svg>
+                </div>
+                <div>
+                  <span class="mlink-lbl">quimicashop.vercel.app</span>
+                  <span class="mlink-sub">Produccion Â· Vercel Hobby Â· CI/CD via GitHub</span>
+                </div>
+                <span class="mlink-arr"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg></span>
+              </a>
+            </div>
           </div>
-          <div class="live-badge"><span class="ldot"></span>Live</div>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px">
-          <span class="stag">Next.js 15</span>
-          <span class="stag">Supabase</span>
-          <span class="stag">TypeScript</span>
-          <span class="stag">Tailwind CSS</span>
-          <span class="stag">Gemini IA</span>
-          <span class="stag">Resend</span>
-        </div>
-        <div class="mega-links">
-          <a class="mlink" href="https://quimicashop.vercel.app" target="_blank" rel="noopener noreferrer">
-            <div class="mlink-ic" style="background:var(--accent-lt)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3d8c6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            </div>
-            <div>
-              <span class="mlink-lbl">quimicashop.vercel.app</span>
-              <span class="mlink-sub">Produccion Â· Vercel Hobby Â· CI/CD via GitHub</span>
-            </div>
-            <span class="mlink-arr"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
-          </a>
-        </div>
+
       </div>
-    </div>
+    </section>
 
   </div>
-</section>
 
-</div>
-
-<div class="fdiv"></div>
-<footer class="foot">
-  <p>QuimicaShop Â· E.E.S.T N1 Luciano Reyes Â· Campana, Buenos Aires Â· <strong>7mo Anio Programacion 2026</strong></p>
-</footer>
+  <div class="fdiv"></div>
+  <footer class="foot">
+    <p>QuimicaShop Â· E.E.S.T N1 Luciano Reyes Â· Campana, Buenos Aires Â· <strong>7mo Anio Programacion 2026</strong>
+    </p>
+  </footer>
 
 </body>
+
 </html>
