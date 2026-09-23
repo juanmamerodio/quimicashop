@@ -1700,9 +1700,9 @@ function updatePresencialCountdown() {
 }
 
 // ==========================================
-// HISTORIAL Y ARCHIVO DE MINUTAS
+// HISTORIAL Y ARCHIVO DE MINUTAS (CON EDICIÓN Y PAPELERA)
 // ==========================================
-const MINUTES_ARCHIVE_KEY = "quimicashop_meetings_archive_v1";
+const MINUTES_ARCHIVE_KEY = "esencia_tecnica_meetings_archive_v1";
 
 async function renderMinutesHistory() {
   const grid = document.getElementById("minutesHistoryGrid");
@@ -1760,12 +1760,16 @@ async function renderMinutesHistory() {
     ];
   }
 
-  if (countBadge) countBadge.textContent = `${meetingsList.length} Minutas Registradas`;
+  // Filtrar las que fueron enviadas a la papelera (soft delete)
+  const activeMinutes = meetingsList.filter(m => !m.is_trashed && m.status !== "trashed");
 
-  meetingsList.forEach(m => {
-    const d = new Date(m.scheduled_at);
+  if (countBadge) countBadge.textContent = `${activeMinutes.length} Minutas Registradas`;
+
+  activeMinutes.forEach(m => {
+    const d = new Date(m.scheduled_at || Date.now());
     const card = document.createElement("div");
     card.className = "minute-card";
+    card.id = `minute-card-${m.id}`;
     card.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
         <span style="background:#fef3c7;color:#b45309;font-weight:700;font-size:.68rem;padding:2px 7px;border-radius:6px;border:1px solid #fde68a">
@@ -1779,11 +1783,149 @@ async function renderMinutesHistory() {
       <div style="font-size:.78rem;color:var(--text-2);background:var(--bg);padding:10px 12px;border-radius:10px;white-space:pre-wrap;line-height:1.5;max-height:160px;overflow-y:auto;border:1px solid var(--border-2)">${escapeHtml(m.minutes || "Sin minuta registrada aún.")}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;font-size:.7rem;color:var(--muted);border-top:1px solid var(--border-2);padding-top:8px">
         <span>Convocó: <strong>${escapeHtml(m.created_by || 'Equipo')}</strong></span>
-        <span style="color:var(--accent);font-weight:700">🔒 Minuta Archivada</span>
+        <div class="minute-actions-row">
+          <button class="btn-minute-action edit" onclick="openEditMinuteModal('${m.id}')" title="Corregir Acta">
+            ✏️ Editar
+          </button>
+          <button class="btn-minute-action trash" onclick="handleTrashMeeting('${m.id}')" title="Mover a Papelera">
+            🗑️ Papelera
+          </button>
+        </div>
       </div>
     `;
     grid.appendChild(card);
   });
+}
+
+// CORRECCIÓN / EDICIÓN DE MINUTA ARCHIVADA
+function openEditMinuteModal(meetingId) {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado no tiene permisos para editar minutas.");
+    return;
+  }
+
+  let meetingsList = [];
+  try {
+    const local = localStorage.getItem(MINUTES_ARCHIVE_KEY);
+    if (local) meetingsList = JSON.parse(local);
+  } catch (e) { }
+
+  let target = meetingsList.find(m => m.id === meetingId);
+  if (!target && currentMeeting && currentMeeting.id === meetingId) {
+    target = currentMeeting;
+  }
+  if (!target) {
+    alert("No se encontró el registro de la minuta.");
+    return;
+  }
+
+  document.getElementById("editMinuteId").value = target.id;
+  document.getElementById("editMinuteTitle").value = target.title || "";
+  document.getElementById("editMinuteReason").value = target.reason || "";
+  document.getElementById("editMinuteContent").value = target.minutes || "";
+
+  document.getElementById("editMinuteModal").classList.add("open");
+}
+
+function closeEditMinuteModal() {
+  const modal = document.getElementById("editMinuteModal");
+  if (modal) modal.classList.remove("open");
+}
+
+async function handleSaveEditedMinute(e) {
+  e.preventDefault();
+  if (currentUser && currentUser.isGuest) {
+    alert("Modo invitado: Acción no permitida.");
+    return;
+  }
+
+  const id = document.getElementById("editMinuteId").value;
+  const title = document.getElementById("editMinuteTitle").value.trim();
+  const reason = document.getElementById("editMinuteReason").value.trim();
+  const content = document.getElementById("editMinuteContent").value.trim();
+
+  let meetingsList = [];
+  try {
+    const local = localStorage.getItem(MINUTES_ARCHIVE_KEY);
+    if (local) meetingsList = JSON.parse(local);
+  } catch (e) { }
+
+  const index = meetingsList.findIndex(m => m.id === id);
+  if (index !== -1) {
+    meetingsList[index].title = title;
+    meetingsList[index].reason = reason;
+    meetingsList[index].minutes = content;
+    localStorage.setItem(MINUTES_ARCHIVE_KEY, JSON.stringify(meetingsList));
+  }
+
+  if (currentMeeting && currentMeeting.id === id) {
+    currentMeeting.title = title;
+    currentMeeting.reason = reason;
+    currentMeeting.minutes = content;
+    localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+  }
+
+  // Guardar en Supabase si está disponible
+  if (supabaseClient) {
+    try {
+      await supabaseClient
+        .from("team_meetings")
+        .update({
+          title: title,
+          reason: reason,
+          minutes: content
+        })
+        .eq("id", id);
+    } catch (err) {
+      console.warn("No se pudo actualizar la minuta en Supabase:", err);
+    }
+  }
+
+  closeEditMinuteModal();
+  renderMinutesHistory();
+  alert("Minuta corregida y actualizada en la base de datos.");
+}
+
+// MOVER MINUTA A LA PAPELERA
+async function handleTrashMeeting(meetingId) {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado no puede enviar minutas a la papelera.");
+    return;
+  }
+
+  if (!confirm("¿Deseas enviar esta minuta a la papelera?")) return;
+
+  let meetingsList = [];
+  try {
+    const local = localStorage.getItem(MINUTES_ARCHIVE_KEY);
+    if (local) meetingsList = JSON.parse(local);
+  } catch (e) { }
+
+  const index = meetingsList.findIndex(m => m.id === meetingId);
+  if (index !== -1) {
+    meetingsList[index].is_trashed = true;
+    meetingsList[index].status = "trashed";
+    localStorage.setItem(MINUTES_ARCHIVE_KEY, JSON.stringify(meetingsList));
+  }
+
+  if (currentMeeting && currentMeeting.id === meetingId) {
+    currentMeeting.is_trashed = true;
+    currentMeeting.status = "trashed";
+    localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+  }
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient
+        .from("team_meetings")
+        .update({ status: "trashed" })
+        .eq("id", meetingId);
+    } catch (err) {
+      console.warn("No se pudo enviar a papelera en Supabase:", err);
+    }
+  }
+
+  renderMinutesHistory();
 }
 
 // ==========================================
@@ -1815,7 +1957,8 @@ async function syncMeetingsWithSupabase() {
           votes: data[0].votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
           close_votes: data[0].close_votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
           minutes: data[0].minutes || "",
-          closed_at: data[0].closed_at || null
+          closed_at: data[0].closed_at || null,
+          is_trashed: data[0].status === "trashed"
         };
         localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
       }
@@ -1836,3 +1979,4 @@ updatePresencialCountdown();
 setInterval(updatePresencialCountdown, 60000);
 syncMeetingsWithSupabase();
 initMobileKanbanSwipeObserver();
+

@@ -24,6 +24,27 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-23] Fase 2 Mobile: Erradicación de Desbordes (iPhone SE / Pixel), Renombrado a "Esencia Técnica" y Módulo Completo de Minutas
+- **Autor / Responsable:** Juan Manuel Merodio (Frontend & JS Lead) & Equipo de Programación
+- **Artefactos Modificados:** `style.css`, `tasks.html`, `tasks.js`, `index.html`, `diagrams/CHANGELOG.md`
+- **¿Por qué se hizo? (Motivo):** Se detectó un desbordamiento horizontal severo en dispositivos móviles (Pixel 9 Pro 427px e iPhone SE 320/375px) causado por estilos inline no responsivos en `.board-controls` y acumulación de pills sin wrap en la barra de navegación. Además, se formalizó el nuevo nombre del sistema ("Esencia Técnica") y se completó la gestión integral de actas y minutas con visualización en el Hub.
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Erradicación de Desborde Horizontal (0px overflow):** 
+    - Reemplazo del contenedor inline `style="display:flex;gap:8px"` por la clase `.board-actions`, adaptándose a grid 2x2 en phablets y 1 columna en iPhone SE (`<= 390px`).
+    - Adición de `overflow-x: clip; width: 100%; max-width: 100vw;` en `html` y `body`.
+    - Colapso del navbar mobile: ocultación de "🔒 Entorno Privado", "Volver al Hub" y la etiqueta de texto de Supabase en `< 768px`, dejando únicamente el led verde y el usuario activo.
+  - **Renombrado a "Esencia Técnica":** Actualización global de "QuimicaShop" a "Esencia Técnica" en los encabezados, barras de navegación, metadata y overlays de autenticación en `index.html`, `tasks.html`, `tasks.js` y `style.css`.
+  - **Botón Destacado de Minutas:** Transformación de `.btn-presencial-minuta` con gradiente celeste-azul 3D, sombra de elevación e icono vectorial identificable.
+  - **Módulo CRUD de Minutas de Cátedra:**
+    - Modal interactivo de corrección/edición (`#editMinuteModal`) con persistencia en `team_meetings` de Supabase y `localStorage`.
+    - Envío de minutas caducadas o descartadas a la papelera (`handleTrashMeeting`), sincronizado con la base de datos.
+  - **Integración en Hub Principal (`index.html`):**
+    - Nueva sección `#sec-meetings` ("Actas & Minutas de Cátedra · Teams") con conteo en vivo de total de llamadas realizadas, sesiones presenciales y reuniones Google Meet.
+    - Renderizado dinámico de minutas y suscripción WebSocket en tiempo real a la tabla `team_meetings`.
+- **Efectos Secundarios / Verificación:** Validación de compilación en Next.js (`npm run build`) con código 0 y verificación de layout sin scroll horizontal en resoluciones móviles desde 320px hasta 430px.
+
+---
+
 ### [2026-09-23] Ejecución Integral: Media Queries Móviles & Estándar Visual iOS 27 (Teams)
 - **Autor / Responsable:** Juan Manuel Merodio (Frontend & JS Lead) & UI/UX Expert
 - **Artefactos Modificados:** `style.css`, `tasks.html`, `tasks.js`, `diagrams/CHANGELOG.md`
