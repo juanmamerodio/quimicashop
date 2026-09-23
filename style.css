@@ -1616,6 +1616,63 @@
       margin-top: 24px;
     }
 
+    .btn-trash {
+      background: var(--surface);
+      color: var(--rose);
+      border: 1px solid rgba(225, 29, 72, 0.2);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 150ms ease;
+    }
+
+    .btn-trash:hover {
+      background: #fff1f2;
+      border-color: var(--rose);
+      color: #be123c;
+    }
+
+    .btn-delete-task {
+      background: rgba(225, 29, 72, 0.08);
+      color: var(--rose);
+      border: 1px solid rgba(225, 29, 72, 0.2);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 150ms ease;
+    }
+
+    .btn-delete-task:hover {
+      background: var(--rose);
+      color: #fff;
+    }
+
+    .trash-item-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 150ms ease;
+    }
+
+    .trash-item-card:hover {
+      border-color: rgba(61, 140, 110, 0.3);
+    }
+
     /* RESPONSIVE */
     @media (max-width: 1024px) {
       .kanban-board {

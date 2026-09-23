@@ -124,6 +124,10 @@ const NOTES_STORAGE_KEY = "quimicashop_team_notes_v1";
 let taskNotes = {};
 let activeTaskId = null;
 
+// ESTADO DE PAPELERA DE TAREAS (TRASH / ARCHIVE)
+const TRASH_STORAGE_KEY = "quimicashop_team_trash_v1";
+let trashTasks = [];
+
 async function init() {
   // 1. Carga local inmediata
   const storedTasks = localStorage.getItem(STORAGE_KEY);
@@ -138,7 +142,13 @@ async function init() {
     try { taskNotes = JSON.parse(storedNotes); } catch (e) { taskNotes = {}; }
   }
 
+  const storedTrash = localStorage.getItem(TRASH_STORAGE_KEY);
+  if (storedTrash) {
+    try { trashTasks = JSON.parse(storedTrash); } catch (e) { trashTasks = []; }
+  }
+
   render();
+  updateTrashBadge();
 
   // 2. Sincronización con Supabase (team_members, team_tasks, task_notes y Realtime)
   if (supabaseClient) {
@@ -454,6 +464,8 @@ function openCreateModal() {
   if (entityEl) entityEl.value = "General";
   const hoursEl = document.getElementById("taskEstHours");
   if (hoursEl) hoursEl.value = "2";
+  const trashBtn = document.getElementById("btn-trash-current-task");
+  if (trashBtn) trashBtn.style.display = "none";
   document.getElementById("taskNotesSection").style.display = "none";
   activeTaskId = null;
   if (currentUser && USERS[currentUser.key]) {
@@ -478,6 +490,10 @@ function openEditModal(id) {
   if (entityEl) entityEl.value = task.der_entity || "General";
   const hoursEl = document.getElementById("taskEstHours");
   if (hoursEl) hoursEl.value = task.estimated_hours || 2;
+  const trashBtn = document.getElementById("btn-trash-current-task");
+  if (trashBtn) {
+    trashBtn.style.display = (currentUser && currentUser.isGuest) ? "none" : "inline-flex";
+  }
 
   renderTaskNotes(task.id);
   const authorHidden = document.getElementById("newNoteAuthor");
@@ -625,6 +641,196 @@ async function handleSaveTask(e) {
 
   if (savedItem) {
     await save(savedItem, previousTaskState);
+  }
+}
+
+// ==========================================
+// MÓDULO DE PAPELERA DE TAREAS (TRASH / ARCHIVE)
+// ==========================================
+function updateTrashBadge() {
+  const badge = document.getElementById("trashCountBadge");
+  if (badge) {
+    badge.textContent = trashTasks.length.toString();
+  }
+}
+
+function openTrashModal() {
+  renderTrashTasks();
+  document.getElementById("trashModal").classList.add("open");
+}
+
+function closeTrashModal() {
+  document.getElementById("trashModal").classList.remove("open");
+}
+
+function renderTrashTasks() {
+  const container = document.getElementById("trashTasksList");
+  if (!container) return;
+  updateTrashBadge();
+
+  if (trashTasks.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:36px 16px;color:var(--muted)">
+        <div style="font-size:2rem;margin-bottom:8px">🗑️</div>
+        <div style="font-size:.9rem;font-weight:600">La papelera está vacía</div>
+        <div style="font-size:.76rem;margin-top:4px">Las tareas que descartes o envíes a papelera aparecerán aquí para restaurarlas cuando quieras.</div>
+      </div>
+    `;
+    const btnEmpty = document.getElementById("btn-empty-trash");
+    if (btnEmpty) btnEmpty.style.display = "none";
+    return;
+  }
+
+  const btnEmpty = document.getElementById("btn-empty-trash");
+  if (btnEmpty) btnEmpty.style.display = "inline-flex";
+
+  container.innerHTML = "";
+  trashTasks.forEach(task => {
+    const card = document.createElement("div");
+    card.className = "trash-item-card";
+    const tagStyle = TAG_COLORS[task.tag] || { bg: "#f3f4f6", txt: "#374151" };
+    const trashedDate = task.trashed_at ? new Date(task.trashed_at).toLocaleDateString("es-AR", { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : "Reciente";
+
+    card.innerHTML = `
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span class="task-tag" style="background:${tagStyle.bg};color:${tagStyle.txt}">${task.tag}</span>
+          <span style="font-size:.72rem;font-weight:700;color:var(--text-2)">● ${task.assignee}</span>
+          <span style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace">${trashedDate}</span>
+        </div>
+        <div style="font-size:.88rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          ${escapeHtml(task.title)}
+        </div>
+        ${task.desc ? `<div style="font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">${escapeHtml(task.desc)}</div>` : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button type="button" class="f-btn" onclick="handleRestoreTask('${task.id}')" title="Restaurar al tablero" style="display:inline-flex;align-items:center;gap:4px">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          Restaurar
+        </button>
+        <button type="button" class="btn-delete-task" onclick="handlePermanentDeleteTask('${task.id}')" title="Eliminar definitivamente" style="padding:6px 10px">
+          ✕
+        </button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+async function handleTrashCurrentTask() {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado es de solo lectura. No puedes descartar tareas.");
+    return;
+  }
+  if (!activeTaskId) return;
+
+  const taskIndex = tasks.findIndex(t => t.id === activeTaskId);
+  if (taskIndex === -1) return;
+
+  const [removedTask] = tasks.splice(taskIndex, 1);
+  removedTask.trashed_at = new Date().toISOString();
+  removedTask.trashed_by = (currentUser && !currentUser.isGuest) ? currentUser.key : "Juanma";
+
+  trashTasks.unshift(removedTask);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  localStorage.setItem(TRASH_STORAGE_KEY, JSON.stringify(trashTasks));
+
+  closeModal();
+  render();
+  updateTrashBadge();
+
+  // Si existe en Supabase y es UUID, lo eliminamos de team_tasks para limpiar el backlog
+  if (supabaseClient) {
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(removedTask.id);
+      if (isUuid) {
+        await supabaseClient.from("team_tasks").delete().eq("id", removedTask.id);
+        
+        try {
+          await supabaseClient.from("task_audit_logs").insert([{
+            task_id: removedTask.id,
+            action: 'DELETE',
+            changed_by: removedTask.trashed_by,
+            previous_state: removedTask,
+            new_state: null,
+            diff_summary: `Tarea movida a la papelera por ${removedTask.trashed_by}`
+          }]);
+        } catch (e) { }
+      }
+    } catch (e) {
+      console.warn("No se pudo reflejar el borrado de tarea en Supabase:", e);
+    }
+  }
+}
+
+async function handleRestoreTask(taskId) {
+  const trashIndex = trashTasks.findIndex(t => t.id === taskId);
+  if (trashIndex === -1) return;
+
+  const [restoredTask] = trashTasks.splice(trashIndex, 1);
+  delete restoredTask.trashed_at;
+  delete restoredTask.trashed_by;
+
+  tasks.unshift(restoredTask);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  localStorage.setItem(TRASH_STORAGE_KEY, JSON.stringify(trashTasks));
+
+  render();
+  renderTrashTasks();
+  updateTrashBadge();
+
+  // Guardar nuevamente en Supabase
+  await save(restoredTask);
+}
+
+async function handlePermanentDeleteTask(taskId) {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado es de solo lectura.");
+    return;
+  }
+  const trashIndex = trashTasks.findIndex(t => t.id === taskId);
+  if (trashIndex === -1) return;
+
+  const [deletedTask] = trashTasks.splice(trashIndex, 1);
+  localStorage.setItem(TRASH_STORAGE_KEY, JSON.stringify(trashTasks));
+  renderTrashTasks();
+  updateTrashBadge();
+
+  if (supabaseClient) {
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deletedTask.id);
+      if (isUuid) {
+        await supabaseClient.from("team_tasks").delete().eq("id", deletedTask.id);
+      }
+    } catch (e) { }
+  }
+}
+
+async function handleEmptyTrash() {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado es de solo lectura.");
+    return;
+  }
+  if (!confirm("¿Estás seguro de que deseas vaciar toda la papelera definitivamente? Esta acción no se puede deshacer.")) {
+    return;
+  }
+
+  const idsToDelete = trashTasks.filter(t => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t.id)).map(t => t.id);
+  trashTasks = [];
+  localStorage.setItem(TRASH_STORAGE_KEY, JSON.stringify(trashTasks));
+  renderTrashTasks();
+  updateTrashBadge();
+
+  if (supabaseClient && idsToDelete.length > 0) {
+    try {
+      await supabaseClient.from("team_tasks").delete().in("id", idsToDelete);
+    } catch (e) { }
   }
 }
 

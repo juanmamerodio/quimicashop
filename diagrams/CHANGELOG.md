@@ -24,6 +24,19 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-23] Incorporación de Módulo de Papelera de Tareas (Soft-Delete, Restauración y Vaciado)
+- **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
+- **Artefactos Modificados:** `tasks.html`, `tasks.js`, `style.css`, `diagrams/CHANGELOG.md`
+- **¿Por qué se hizo? (Motivo):** Permitir a los integrantes descartar y enviar a la papelera aquellas tareas caducadas, duplicadas o no utilizadas, sin perder la posibilidad de recuperarlas en caso de requerir su trazabilidad o reactivación técnica.
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Botón de Papelera en Controles:** Se agregó `#btn-open-trash` con contador reactivo (`#trashCountBadge`) en la barra de filtros del Kanban.
+  - **Acción "Mover a Papelera" en Tareas:** En el modal de edición de cada tarea se incorporó el botón destructivo controlado `#btn-trash-current-task`, el cual remueve la tarea del tablero activo y la almacena en el registro de papelera (`quimicashop_team_trash_v1`).
+  - **Modal de Gestión de Papelera (`#trashModal`):** Lista todas las tareas descartadas con fecha/hora de borrado, módulo, responsable y dos acciones: botón de "Restaurar" para reintegrarla de inmediato al Kanban y a Supabase, y botón de "Eliminar definitivamente" o "Vaciar Papelera Definitivamente".
+  - **Protección de Invitados:** Los usuarios en modo invitado (Read-Only) tienen deshabilitadas las opciones de mover a papelera, vaciar o eliminar tareas.
+- **Efectos Secundarios / Verificación:** Se probó la apertura del modal, el envío a papelera, la actualización del contador en vivo, la restauración de tarjetas manteniendo atributos completos y la compilación exitosa en Next.js.
+
+---
+
 ### [2026-09-23] Auditoría de Base de Datos Full-Stack: Persistencia Resiliente de Tareas y Eliminación de Regresión en Refresh
 - **Autor / Responsable:** Juan Manuel Merodio (Full-Stack & DB Lead)
 - **Artefactos Modificados:** `tasks.js`, `diagrams/supabase_teams_schema.sql`, `diagrams/CHANGELOG.md`

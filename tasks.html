@@ -130,6 +130,14 @@
           </svg>
           Crear Meeting
         </button>
+        <button class="btn-trash" id="btn-open-trash" onclick="openTrashModal()" title="Papelera de tareas archivadas">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Papelera (<span id="trashCountBadge">0</span>)
+        </button>
         <button class="btn-export" onclick="exportBackup()">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -377,11 +385,56 @@
           </div>
         </div>
 
-        <div class="modal-actions">
-          <button type="button" class="btn-export" onclick="closeModal()">Cancelar</button>
-          <button type="submit" class="btn-create">Guardar Tarea</button>
+        <div class="modal-actions" style="justify-content:space-between">
+          <div>
+            <button type="button" class="btn-delete-task" id="btn-trash-current-task" onclick="handleTrashCurrentTask()" style="display:none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Mover a Papelera
+            </button>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button type="button" class="btn-export" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="btn-create">Guardar Tarea</button>
+          </div>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE PAPELERA DE TAREAS -->
+  <div class="modal-backdrop" id="trashModal">
+    <div class="modal" style="max-width:680px">
+      <div class="modal-hd">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:10px;background:#fff1f2;color:var(--rose);display:flex;align-items:center;justify-content:center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="modal-title" style="margin:0">Papelera de Tareas</h3>
+            <p style="font-size:.76rem;color:var(--muted);margin:2px 0 0">Tareas caducadas, descartadas o enviadas a papelera. Puedes restaurarlas en cualquier momento.</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeTrashModal()">✕</button>
+      </div>
+
+      <div id="trashTasksList" style="display:flex;flex-direction:column;gap:12px;max-height:420px;overflow-y:auto;padding-right:4px;margin-bottom:20px">
+        <!-- Renderizado dinámicamente -->
+      </div>
+
+      <div class="modal-actions" style="justify-content:space-between">
+        <button type="button" class="btn-delete-task" id="btn-empty-trash" onclick="handleEmptyTrash()">
+          Vaciar Papelera Definitivamente
+        </button>
+        <button type="button" class="btn-export" onclick="closeTrashModal()">Cerrar</button>
+      </div>
     </div>
   </div>
 
