@@ -131,13 +131,17 @@
           </svg>
           2 Prototipos
         </span>
+        <a href="#sec-progreso" class="spill" style="text-decoration:none;cursor:pointer">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,.6)"></span>
+          Sprint: Progreso Teams
+        </a>
         <a href="#sec-cambios" class="spill" style="text-decoration:none;cursor:pointer">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="12 8 12 12 14 14" />
             <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
           </svg>
-          5 Hitos · Cambios
+          9 Hitos · Cambios
         </a>
         <span class="spill">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
@@ -708,7 +712,111 @@
       </div>
     </section>
 
-    <!-- SEC 7 — BITÁCORA DE CAMBIOS & RELEVAMIENTO TÉCNICO -->
+    <!-- SEC 7 — PROGRESO DEL SPRINT & ENTREGAS TEAMS -->
+    <section class="sec" id="sec-progreso" aria-labelledby="s-progreso">
+      <div class="sec-head">
+        <div class="sec-chip cg" id="s-progreso">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+          Progreso del Sprint · Teams
+        </div>
+        <div class="sec-line"></div>
+        <span class="sec-cnt" id="sprintSyncStatus">En vivo · Supabase</span>
+      </div>
+
+      <div class="sprint-progress-card">
+        <div class="sprint-hd">
+          <div class="sprint-title-box">
+            <h3>
+              Estado del Sprint & Avance de Tareas
+              <span class="cbadge" style="background:var(--accent-lt);color:var(--accent);font-size:.7rem">7mo Año · 2026</span>
+            </h3>
+            <p>Monitoreo continuo de avance del equipo de programación en el tablero Scrum con sincronización y persistencia en Supabase.</p>
+          </div>
+          <a href="./tasks.html" class="btn bg" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+            Ver Tablero Completo
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="sprint-bar-wrap">
+          <div class="sprint-bar-meta">
+            <span>Completitud general del ciclo</span>
+            <span id="sprintProgressPercent" style="font-family:'DM Mono',monospace;color:var(--accent)">25%</span>
+          </div>
+          <div class="sprint-bar-bg">
+            <div class="sprint-bar-fill" id="sprintBarFill" style="width: 25%"></div>
+          </div>
+        </div>
+
+        <div class="sprint-stats-grid">
+          <div class="sprint-stat-box">
+            <span class="sprint-stat-num" id="sprintCountDone" style="color:var(--accent)">1</span>
+            <span class="sprint-stat-lbl">Completadas</span>
+          </div>
+          <div class="sprint-stat-box">
+            <span class="sprint-stat-num" id="sprintCountReview" style="color:#2563eb">1</span>
+            <span class="sprint-stat-lbl">En Revisión</span>
+          </div>
+          <div class="sprint-stat-box">
+            <span class="sprint-stat-num" id="sprintCountInProgress" style="color:#d97706">0</span>
+            <span class="sprint-stat-lbl">En Curso</span>
+          </div>
+          <div class="sprint-stat-box">
+            <span class="sprint-stat-num" id="sprintCountBacklog" style="color:var(--muted)">2</span>
+            <span class="sprint-stat-lbl">Backlog</span>
+          </div>
+        </div>
+
+        <div class="sprint-tasks-sec">
+          <div class="sprint-tasks-hd">
+            <span>Tareas Completadas Recientemente</span>
+            <span style="font-size:.72rem;font-family:'DM Mono',monospace;color:var(--muted)">Historial de Logros</span>
+          </div>
+          <div class="sprint-tasks-grid" id="sprintCompletedTasksList">
+            <!-- Tareas completadas inyectadas dinámicamente o con fallback inicial -->
+            <div class="completed-task-pill">
+              <div class="completed-task-top">
+                <span class="task-tag" style="background:#ffe4e6;color:#be123c">ADMIN</span>
+                <span style="font-size:.68rem;color:var(--accent);font-weight:700">✓ COMPLETADA</span>
+              </div>
+              <div class="completed-task-title">Separación de Roles</div>
+              <p style="font-size:.76rem;color:var(--muted);line-height:1.4">Entender que todos tenemos roles fijos pero todos podemos colaborar en cualquier requerimiento.</p>
+              <div class="completed-task-foot">
+                <span class="completed-task-who">
+                  <span style="width:16px;height:16px;border-radius:50%;background:#db2777;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:9px">II</span>
+                  Isabella & Juanma
+                </span>
+                <span>23 Sep 2026</span>
+              </div>
+            </div>
+            <div class="completed-task-pill">
+              <div class="completed-task-top">
+                <span class="task-tag" style="background:#f0fdfa;color:#0f766e">DOCS</span>
+                <span style="font-size:.68rem;color:var(--accent);font-weight:700">✓ COMPLETADA</span>
+              </div>
+              <div class="completed-task-title">Alineación de Relevamiento con Cátedra</div>
+              <p style="font-size:.76rem;color:var(--muted);line-height:1.4">Garantizar concordancia del sistema con la memoria técnica de Leibouski, Maldonado y Nieva.</p>
+              <div class="completed-task-foot">
+                <span class="completed-task-who">
+                  <span style="width:16px;height:16px;border-radius:50%;background:#0284c7;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:9px">JM</span>
+                  Juanma
+                </span>
+                <span>Sep 2026</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEC 8 — BITÁCORA DE CAMBIOS & RELEVAMIENTO TÉCNICO -->
     <section class="sec" id="sec-cambios" aria-labelledby="s-cambios">
       <div class="sec-head">
         <div class="sec-chip cg" id="s-cambios">
@@ -724,6 +832,135 @@
       </div>
 
       <div class="timeline" id="changelog-timeline">
+
+        <!-- CAMBIO: MÓDULO DE MEETINGS CON VOTACIÓN UNÁNIME & FIX UUID -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7" />
+              <rect width="15" height="14" x="1" y="5" rx="2" ry="2" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Módulo Teams: Votación Unánime de Reuniones (UUID &amp; Realtime)</span>
+              <div class="tl-meta">
+                <span class="tl-who">Juanma &amp; Isabella</span>
+                <span>23 Sep 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Implementación del módulo de gobernanza para reuniones internas. Para abrir o cerrar una llamada de Meet se exige unanimidad (4/4 votos). Se resolvió el bloqueo de inserción en Supabase adaptando el identificador al estándar nativo UUID (PostgreSQL) y habilitando sincronización en vivo vía WebSockets.</p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Permitir a los 4 integrantes votar la convocatoria y visualizar la card de Meet de forma instantánea sin fallos de tipo de datos en PostgreSQL.</div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Persistencia en <code>team_meetings</code>, actas inmutables en base de datos, banner con countdown y enlace condicional a Google Meet.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMBIO: MÓDULO DE PAPELERA Y SOFT-DELETE -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <line x1="10" y1="11" x2="10" y2="17" />
+              <line x1="14" y1="11" x2="14" y2="17" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Módulo de Papelera y Soft-Delete con Trazabilidad</span>
+              <div class="tl-meta">
+                <span class="tl-who">Equipo</span>
+                <span>23 Sep 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Desarrollo del sistema de papelera para descartar tareas caducadas o no utilizadas sin destruirlas de forma irreversible. Incluye badge reactivo con contador en filtros, confirmación segura, y modal de gestión con restauración inmediata al tablero Kanban o vaciado definitivo.</p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Evitar la sobrecarga visual del tablero Scrum y prevenir la pérdida accidental de requerimientos o notas históricas del equipo.</div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Control de acceso por rol (bloqueado para invitados), almacenamiento en <code>quimicashop_team_trash_v1</code> y re-inyección en Supabase.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMBIO: AUDITORÍA DE DATOS Y PERSISTENCIA RESILIENTE -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#3d8c6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3" />
+              <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+              <path d="M3 12A9 3 0 0 0 21 12" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Auditoría Full-Stack: Persistencia Resiliente en PostgreSQL</span>
+              <div class="tl-meta">
+                <span class="tl-who">Juanma (Full-Stack Lead)</span>
+                <span>23 Sep 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Auditoría exhaustiva sobre el flujo de actualización de tareas. Se resolvió la reversión involuntaria de datos ante recargas (F5) mediante transacciones asíncronas seguras (await), degradación adaptativa (fallback ante código PGRST204) y sincronización bidireccional con campos DER.</p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Asegurar que cada modificación de título, descripción, horas estimadas o entidad DER se guarde de forma definitiva en la nube.</div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Script DDL de migración segura en <code>diagrams/supabase_teams_schema.sql</code>, eliminación de condiciones de carrera y cero pérdida de datos.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMBIO: REDISTRIBUCIÓN OFICIAL DE ROLES -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Redistribución Oficial de Roles de Especialidad del Departamento</span>
+              <div class="tl-meta">
+                <span class="tl-who">Equipo de Programación</span>
+                <span>23 Sep 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Acuerdo formal de especialidades técnicas para el ciclo lectivo: Juanma (Frontend &amp; JS Lead), Isabella (Database &amp; SQL Architecture), Celeste (Diseño UX/UI &amp; Testing QA) y Enzo (Backend, Admin Panel &amp; Relaciones). Cada integrante posee dominio sobre su subsistema sin descuidar el apoyo cruzado.</p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Optimizar los tiempos de desarrollo para la entrega final con los profesores y alinear las responsabilidades con la memoria técnica.</div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Actualización de registros en <code>team_members</code> (Supabase), AGENTS.md, tasks.html y asignación de autoría en bitácoras.</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- CAMBIO: ALCANCE FINAL Y SIN IA -->
         <div class="tl-item">
@@ -907,62 +1144,165 @@
     </p>
   </footer>
 
-  <!-- SUPABASE JS CDN & SINCRONIZACIÓN DE CAMBIOS -->
+  <!-- SUPABASE JS CDN & SINCRONIZACIÓN DE CAMBIOS Y PROGRESO DE SPRINT -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    (async function syncChangelog() {
+    (async function syncHubData() {
       const SUPABASE_URL = "https://uchyattzuhaltsaxazce.supabase.co";
       const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjaHlhdHR6dWhhbHRzYXhhemNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0Njg1MzgsImV4cCI6MjA5MTA0NDUzOH0.uEDBFqcqMcUaI_QdcMj0HsvF4ZUvWntFu_CcTMTdY-I";
 
       if (!window.supabase) return;
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      const container = document.getElementById("changelog-timeline");
-      if (!client || !container) return;
+      if (!client) return;
 
-      try {
-        const { data, error } = await client
-          .from("project_changes")
-          .select("*")
-          .order("date", { ascending: false });
+      const AVATARS = {
+        Juanma: { bg: "#0284c7", txt: "#fff", in: "JM" },
+        Isabella: { bg: "#db2777", txt: "#fff", in: "II" },
+        Celeste: { bg: "#d97706", txt: "#fff", in: "CC" },
+        Enzo: { bg: "#16a34a", txt: "#fff", in: "EQ" }
+      };
 
-        if (!error && data && data.length > 0) {
-          // Inyectamos las entradas dinámicas registradas en base de datos arriba del timeline
-          data.forEach(item => {
+      const TAGS = {
+        DATABASE: { bg: "#fef3c7", txt: "#b45309" },
+        FRONTEND: { bg: "#ede9fe", txt: "#6d28d9" },
+        BACKEND: { bg: "#e0f2fe", txt: "#0369a1" },
+        STOCK: { bg: "#f0fdf4", txt: "#15803d" },
+        ADMIN: { bg: "#ffe4e6", txt: "#be123c" },
+        DOCS: { bg: "#f0fdfa", txt: "#0f766e" }
+      };
+
+      // 1. CARGA Y SINCRONIZACIÓN DEL PROGRESO DEL SPRINT (team_tasks)
+      async function refreshSprint() {
+        let taskList = [];
+        try {
+          const { data, error } = await client.from("team_tasks").select("*");
+          if (!error && data && data.length > 0) {
+            taskList = data;
+            const syncStatusEl = document.getElementById("sprintSyncStatus");
+            if (syncStatusEl) syncStatusEl.textContent = "Sincronizado · Supabase Cloud";
+          } else {
+            const local = localStorage.getItem("quimicashop_team_tasks_v1");
+            if (local) taskList = JSON.parse(local);
+          }
+        } catch (e) {
+          const local = localStorage.getItem("quimicashop_team_tasks_v1");
+          if (local) taskList = JSON.parse(local);
+        }
+
+        if (!taskList || taskList.length === 0) return;
+
+        const total = taskList.length;
+        const done = taskList.filter(t => t.status === "done").length;
+        const review = taskList.filter(t => t.status === "review").length;
+        const inProg = taskList.filter(t => t.status === "in_progress").length;
+        const backlog = taskList.filter(t => t.status === "backlog").length;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+        const pctEl = document.getElementById("sprintProgressPercent");
+        const fillEl = document.getElementById("sprintBarFill");
+        const cDone = document.getElementById("sprintCountDone");
+        const cReview = document.getElementById("sprintCountReview");
+        const cInProg = document.getElementById("sprintCountInProgress");
+        const cBacklog = document.getElementById("sprintCountBacklog");
+
+        if (pctEl) pctEl.textContent = pct + "%";
+        if (fillEl) fillEl.style.width = pct + "%";
+        if (cDone) cDone.textContent = done;
+        if (cReview) cReview.textContent = review;
+        if (cInProg) cInProg.textContent = inProg;
+        if (cBacklog) cBacklog.textContent = backlog;
+
+        // Renderizado de tareas completadas recientemente
+        const completedTasks = taskList.filter(t => t.status === "done");
+        const completedContainer = document.getElementById("sprintCompletedTasksList");
+        if (completedContainer && completedTasks.length > 0) {
+          completedContainer.innerHTML = "";
+          completedTasks.forEach(task => {
+            const authorKey = Object.keys(AVATARS).find(k => k.toLowerCase() === (task.assignee || "").toLowerCase()) || "Juanma";
+            const av = AVATARS[authorKey] || { bg: "#0284c7", txt: "#fff", in: "EQ" };
+            const tagStyle = TAGS[task.tag] || { bg: "#f3f4f6", txt: "#374151" };
+            const dateStr = task.completed_at ? new Date(task.completed_at).toLocaleDateString("es-AR", { day: '2-digit', month: '2-digit' }) : "23 Sep";
+
             const el = document.createElement("div");
-            el.className = "tl-item";
+            el.className = "completed-task-pill";
             el.innerHTML = `
-              <div class="tl-dot">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="${item.accent_color || '#3d8c6e'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
+              <div class="completed-task-top">
+                <span class="task-tag" style="background:${tagStyle.bg};color:${tagStyle.txt}">${task.tag || 'SPRINT'}</span>
+                <span style="font-size:.68rem;color:var(--accent);font-weight:700">✓ COMPLETADA</span>
               </div>
-              <div class="tl-card">
-                <div class="tl-hd">
-                  <span class="tl-title">${item.title}</span>
-                  <div class="tl-meta">
-                    <span class="tl-who">${item.author}</span>
-                    <span>${item.date}</span>
-                  </div>
-                </div>
-                <p class="tl-body">${item.description}</p>
-                <div class="tl-grid">
-                  <div class="tl-box">
-                    <div class="tl-box-t">Motivo</div>
-                    <div>${item.reason || 'Actualización de desarrollo.'}</div>
-                  </div>
-                  <div class="tl-box">
-                    <div class="tl-box-t">Impacto</div>
-                    <div>${item.impact || 'Reflejado en el repositorio.'}</div>
-                  </div>
-                </div>
+              <div class="completed-task-title">${task.title || 'Tarea completada'}</div>
+              <p style="font-size:.76rem;color:var(--muted);line-height:1.4">${task.description || task.desc || 'Sin descripción adicional.'}</p>
+              <div class="completed-task-foot">
+                <span class="completed-task-who">
+                  <span style="width:16px;height:16px;border-radius:50%;background:${av.bg};color:${av.txt};display:inline-flex;align-items:center;justify-content:center;font-size:9px">${av.in}</span>
+                  ${task.assignee || 'Equipo'}
+                </span>
+                <span>${dateStr}</span>
               </div>
             `;
-            container.prepend(el);
+            completedContainer.appendChild(el);
           });
         }
-      } catch (err) {
-        console.warn("Changelog offline, mostrando contenido estático:", err);
+      }
+
+      await refreshSprint();
+
+      // 2. ESCUCHA REALTIME DE SUPABASE PARA EL TABLERO DE TAREAS
+      try {
+        client.channel("hub_sprint_realtime")
+          .on("postgres_changes", { event: "*", schema: "public", table: "team_tasks" }, () => {
+            refreshSprint();
+          })
+          .subscribe();
+      } catch (err) { }
+
+      // 3. SINCRONIZACIÓN DE LA BITÁCORA DINÁMICA DE CAMBIOS (project_changes)
+      const container = document.getElementById("changelog-timeline");
+      if (container) {
+        try {
+          const { data, error } = await client
+            .from("project_changes")
+            .select("*")
+            .order("date", { ascending: false });
+
+          if (!error && data && data.length > 0) {
+            data.forEach(item => {
+              const el = document.createElement("div");
+              el.className = "tl-item";
+              el.innerHTML = `
+                <div class="tl-dot">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="${item.accent_color || '#3d8c6e'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                </div>
+                <div class="tl-card">
+                  <div class="tl-hd">
+                    <span class="tl-title">${item.title}</span>
+                    <div class="tl-meta">
+                      <span class="tl-who">${item.author}</span>
+                      <span>${item.date}</span>
+                    </div>
+                  </div>
+                  <p class="tl-body">${item.description}</p>
+                  <div class="tl-grid">
+                    <div class="tl-box">
+                      <div class="tl-box-t">Motivo</div>
+                      <div>${item.reason || 'Actualización de desarrollo.'}</div>
+                    </div>
+                    <div class="tl-box">
+                      <div class="tl-box-t">Impacto</div>
+                      <div>${item.impact || 'Reflejado en el repositorio.'}</div>
+                    </div>
+                  </div>
+                </div>
+              `;
+              container.prepend(el);
+            });
+          }
+        } catch (err) {
+          console.warn("Changelog offline, mostrando contenido estático:", err);
+        }
       }
     })();
   </script>

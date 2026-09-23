@@ -24,6 +24,18 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-23] Hub Central: Panel de Progreso del Sprint (Teams) e Incorporación de Nuevos Hitos Técnicos
+- **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
+- **Artefactos Modificados:** `index.html`, `style.css`, `diagrams/CHANGELOG.md`
+- **¿Por qué se hizo? (Motivo):** Revelar visualmente el progreso real de las tareas completadas por el equipo en Teams hacia el Hub central de documentación (`index.html`), actualizando la bitácora de control de cambios con los hitos alcanzados recientemente (gobernanza de meetings, módulo de papelera, auditoría de datos y redistribución de roles).
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Panel de Progreso del Sprint (`#sec-progreso`):** Se integró un componente con estética M3 Expressive + iOS 26 que expone el porcentaje global de avance del sprint, 4 contadores de estado (Completadas, En Revisión, En Curso, Backlog) y la lista de tareas recientemente completadas con autoría y marcas temporales.
+  - **Sincronización Reactiva:** El script de cliente consulta en tiempo real la tabla `team_tasks` en Supabase y suscribe a eventos WebSocket vía `client.channel('hub_sprint_realtime')`, reflejando automáticamente cualquier tarea que se mueva a `done` en Teams sin recargar la página.
+  - **Nuevas Cards de Hitos en Timeline:** Se incorporaron las 4 tarjetas técnicas correspondientes a los hitos de la fecha en `#sec-cambios`, actualizando el contador del Hero a 9 Hitos.
+- **Efectos Secundarios / Verificación:** Se probó la carga dinámica de datos, el cálculo de métricas en vivo y la compatibilidad con el diseño responsive.
+
+---
+
 ### [2026-09-23] Corrección de Card de Votación de Meetings & Redistribución Oficial de Roles de Equipo
 - **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
 - **Artefactos Modificados:** `tasks.js`, `tasks.html`, `diagrams/supabase_teams_schema.sql`, `AGENTS.md`, `diagrams/CHANGELOG.md`
