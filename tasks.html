@@ -944,18 +944,17 @@
         try {
           const { data, error } = await supabaseClient
             .from("team_tasks")
-            .select("*")
-            .order("created_at", { ascending: false });
+            .select("*");
 
           if (!error && data && data.length > 0) {
             tasks = data.map(item => ({
-              id: item.id.toString(),
-              title: item.title,
-              desc: item.description || "",
+              id: (item.id || Date.now()).toString(),
+              title: item.title || "",
+              desc: item.description || item.desc || "",
               assignee: item.assignee || "Juanma",
               status: item.status || "backlog",
               tag: item.tag || "DATABASE",
-              prio: item.priority || "MEDIA"
+              prio: item.priority || item.prio || "MEDIA"
             }));
             localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
             render();
