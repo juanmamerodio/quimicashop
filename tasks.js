@@ -782,6 +782,7 @@ async function handleSaveMeeting(e) {
   if (supabaseClient) {
     try {
       await supabaseClient.from("team_meetings").insert([{
+        id: newMeeting.id,
         title: newMeeting.title,
         reason: newMeeting.reason,
         scheduled_at: newMeeting.scheduled_at,
@@ -809,7 +810,7 @@ async function voteForMeeting() {
 
   const allApproved = Object.keys(USERS).every(k => currentMeeting.votes[k] === true);
   if (allApproved) {
-    currentMeeting.status = "approved";
+    currentMeeting.status = "confirmed";
   }
 
   localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
