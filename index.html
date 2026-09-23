@@ -1680,7 +1680,7 @@
         <span class="sec-cnt">Registro cronológico</span>
       </div>
 
-      <div class="timeline">
+      <div class="timeline" id="changelog-timeline">
 
         <!-- CAMBIO: ALCANCE FINAL Y SIN IA -->
         <div class="tl-item">
@@ -1863,6 +1863,66 @@
     <p>QuimicaShop · E.E.S.T N1 Luciano Reyes · Campana, Buenos Aires · <strong>7mo Año Programacion 2026</strong>
     </p>
   </footer>
+
+  <!-- SUPABASE JS CDN & SINCRONIZACIÓN DE CAMBIOS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (async function syncChangelog() {
+      const SUPABASE_URL = "https://uchyattzuhaltsaxazce.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjaHlhdHR6dWhhbHRzYXhhemNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0Njg1MzgsImV4cCI6MjA5MTA0NDUzOH0.uEDBFqcqMcUaI_QdcMj0HsvF4ZUvWntFu_CcTMTdY-I";
+
+      if (!window.supabase) return;
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const container = document.getElementById("changelog-timeline");
+      if (!client || !container) return;
+
+      try {
+        const { data, error } = await client
+          .from("project_changes")
+          .select("*")
+          .order("date", { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          // Inyectamos las entradas dinámicas registradas en base de datos arriba del timeline
+          data.forEach(item => {
+            const el = document.createElement("div");
+            el.className = "tl-item";
+            el.innerHTML = `
+              <div class="tl-dot">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="${item.accent_color || '#3d8c6e'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+              </div>
+              <div class="tl-card">
+                <div class="tl-hd">
+                  <span class="tl-title">${item.title}</span>
+                  <div class="tl-meta">
+                    <span class="tl-who">${item.author}</span>
+                    <span>${item.date}</span>
+                  </div>
+                </div>
+                <p class="tl-body">${item.description}</p>
+                <div class="tl-grid">
+                  <div class="tl-box">
+                    <div class="tl-box-t">Motivo</div>
+                    <div>${item.reason || 'Actualización de desarrollo.'}</div>
+                  </div>
+                  <div class="tl-box">
+                    <div class="tl-box-t">Impacto</div>
+                    <div>${item.impact || 'Reflejado en el repositorio.'}</div>
+                  </div>
+                </div>
+              </div>
+            `;
+            container.prepend(el);
+          });
+        }
+      } catch (err) {
+        console.warn("Changelog offline, mostrando contenido estático:", err);
+      }
+    })();
+  </script>
 
 </body>
 

@@ -615,6 +615,10 @@
       </div>
     </a>
     <div class="nav-r">
+      <span id="db-status-badge" class="nav-pill" style="font-family:'DM Mono',monospace;font-size:.7rem;gap:6px">
+        <span style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block"></span>
+        Supabase Conectado
+      </span>
       <span class="nav-badge-priv">🔒 Entorno Privado</span>
       <a href="./index.html" class="nav-pill">
         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
@@ -837,8 +841,17 @@
     </div>
   </div>
 
+  <!-- SUPABASE JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
-    // BASE DE DATOS INICIAL DEL EQUIPO (Scrum Backlog Inicial de QuimicaShop)
+    // CREDENCIALES DE SUPABASE DEL PROYECTO
+    const SUPABASE_URL = "https://uchyattzuhaltsaxazce.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjaHlhdHR6dWhhbHRzYXhhemNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0Njg1MzgsImV4cCI6MjA5MTA0NDUzOH0.uEDBFqcqMcUaI_QdcMj0HsvF4ZUvWntFu_CcTMTdY-I";
+
+    const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    // BASE DE DATOS INICIAL DEL EQUIPO (Fallback / Seed)
     const INITIAL_TASKS = [
       {
         id: "task-1",
@@ -916,23 +929,98 @@
       DOCS: { bg: "#f0fdfa", txt: "#0f766e" }
     };
 
-    function init() {
+    async function init() {
+      // 1. Carga local inmediata para experiencia instantánea
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        try {
-          tasks = JSON.parse(stored);
-        } catch (e) {
-          tasks = INITIAL_TASKS;
-        }
+        try { tasks = JSON.parse(stored); } catch (e) { tasks = INITIAL_TASKS; }
       } else {
         tasks = INITIAL_TASKS;
-        save();
       }
       render();
+
+      // 2. Sincronización con Supabase si está disponible
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from("team_tasks")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+          if (!error && data && data.length > 0) {
+            tasks = data.map(item => ({
+              id: item.id.toString(),
+              title: item.title,
+              desc: item.description || "",
+              assignee: item.assignee || "Juanma",
+              status: item.status || "backlog",
+              tag: item.tag || "DATABASE",
+              prio: item.priority || "MEDIA"
+            }));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+            render();
+            const badge = document.getElementById("db-status-badge");
+            if (badge) badge.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block"></span> Supabase Conectado`;
+          } else if (!error && data && data.length === 0) {
+            // Si la tabla está vacía, sembramos las tareas iniciales en Supabase
+            for (const t of INITIAL_TASKS) {
+              await supabaseClient.from("team_tasks").insert([{
+                title: t.title,
+                description: t.desc,
+                assignee: t.assignee,
+                status: t.status,
+                tag: t.tag,
+                priority: t.prio
+              }]);
+            }
+            const badge = document.getElementById("db-status-badge");
+            if (badge) badge.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block"></span> Supabase Conectado`;
+          } else if (error) {
+            const badge = document.getElementById("db-status-badge");
+            if (badge) badge.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block"></span> Modo Local (Offline)`;
+          }
+        } catch (err) {
+          console.warn("Supabase sync offline, usando almacenamiento local:", err);
+          const badge = document.getElementById("db-status-badge");
+          if (badge) badge.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block"></span> Modo Local (Offline)`;
+        }
+      }
     }
 
-    function save() {
+    async function save(taskItem = null) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      if (supabaseClient && taskItem) {
+        try {
+          // Si el ID es un UUID o existe en BD actualizamos, sino insertamos
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskItem.id);
+          if (isUuid) {
+            await supabaseClient.from("team_tasks").update({
+              title: taskItem.title,
+              description: taskItem.desc,
+              assignee: taskItem.assignee,
+              status: taskItem.status,
+              tag: taskItem.tag,
+              priority: taskItem.prio,
+              updated_at: new Date().toISOString()
+            }).eq("id", taskItem.id);
+          } else {
+            const { data } = await supabaseClient.from("team_tasks").insert([{
+              title: taskItem.title,
+              description: taskItem.desc,
+              assignee: taskItem.assignee,
+              status: taskItem.status,
+              tag: taskItem.tag,
+              priority: taskItem.prio
+            }]).select();
+            if (data && data[0]) {
+              taskItem.id = data[0].id.toString();
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+            }
+          }
+        } catch (e) {
+          console.error("Error guardando en Supabase:", e);
+        }
+      }
     }
 
     function render() {
@@ -1023,10 +1111,12 @@
 
       if (!title) return;
 
+      let savedItem = null;
       if (id) {
         const index = tasks.findIndex(t => t.id === id);
         if (index !== -1) {
           tasks[index] = { ...tasks[index], title, desc, assignee, status, tag, prio };
+          savedItem = tasks[index];
         }
       } else {
         const newTask = {
@@ -1039,9 +1129,10 @@
           prio
         };
         tasks.unshift(newTask);
+        savedItem = newTask;
       }
 
-      save();
+      save(savedItem);
       render();
       closeModal();
     }
