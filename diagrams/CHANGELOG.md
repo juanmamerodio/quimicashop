@@ -24,6 +24,19 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-22] Auditoría Senior Full-Stack: Seguridad de Roles, Autoría Estricta, Minutas Presenciales y Planes Técnicos
+- **Autor / Responsable:** Juan Manuel Merodio (QA & Arquitectura) & Senior Full-Stack Lead
+- **Artefactos Modificados:** `tasks.html`, `tasks.js`, `AGENTS.md`, `diagrams/CHANGELOG.md`, `diagrams/PLAN_NOTIFICACIONES_EMAIL.md`, `diagrams/PLAN_MOBILE_MEDIA_QUERIES_IOS27.md`, `.agents/skills/media-queries-ios-pro/SKILL.md`
+- **¿Por qué se hizo? (Motivo):** Corregir fallos de control de acceso (cada usuario solo debe editar su propio rol, notas asociadas de forma inmutable al perfil activo sin poder elegir otros integrantes), desvincular la reunión presencial de una llamada virtual habilitando un modal específico que solo se edita en días de clase (Jueves), y formalizar los planes de arquitectura para notificaciones por email y responsive design iOS 27.
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Edición de Roles Propios:** El botón "Editar Mi Rol" solo se renderiza en la tarjeta del usuario logueado (`currentUser.key === key`), y la función `handleSaveRole()` bloquea cualquier intento de payload para otros miembros.
+  - **Autoría Estricta de Notas:** Se eliminó el `<select>` libre de autor en el modal de tareas; ahora se deriva directamente del perfil autenticado con badge visual y avatar.
+  - **Minutas Presenciales (Jueves 13 a 15 hs):** Se desacopló de la creación de Google Meet. Abre un modal dedicado (`#presencialMinuteModal`) que verifica `isPresencialMeetingToday()`; si no es jueves, mantiene el contenido en modo lectura (`disabled`) con aviso explicativo.
+  - **Plan de Notificaciones por Email:** Documentado en [`diagrams/PLAN_NOTIFICACIONES_EMAIL.md`](./diagrams/PLAN_NOTIFICACIONES_EMAIL.md) integrando Resend con Supabase.
+  - **Plan y Skill Mobile iOS 27:** Documentado en [`diagrams/PLAN_MOBILE_MEDIA_QUERIES_IOS27.md`](./diagrams/PLAN_MOBILE_MEDIA_QUERIES_IOS27.md) y creado el estándar de agencia en [`.agents/skills/media-queries-ios-pro/SKILL.md`](../.agents/skills/media-queries-ios-pro/SKILL.md).
+
+---
+
 ### [2026-09-22] Desacople y Modularización Arquitectónica: Extracción de style.css y tasks.js
 - **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
 - **Artefactos Modificados:** `style.css`, `tasks.js`, `index.html`, `tasks.html`, `diagrams/CHANGELOG.md`

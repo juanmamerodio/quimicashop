@@ -348,6 +348,20 @@ function openEditModal(id) {
   document.getElementById("taskPrio").value = task.prio;
 
   renderTaskNotes(task.id);
+  const authorHidden = document.getElementById("newNoteAuthor");
+  const authorAvatar = document.getElementById("noteAuthorAvatar");
+  const authorName = document.getElementById("noteAuthorName");
+  if (authorHidden && currentUser && USERS[currentUser.key]) {
+    authorHidden.value = currentUser.key;
+    if (authorAvatar) {
+      authorAvatar.textContent = currentUser.avatar;
+      authorAvatar.style.background = currentUser.bg;
+      authorAvatar.style.color = currentUser.color;
+    }
+    if (authorName) {
+      authorName.textContent = currentUser.name.split(" ")[0];
+    }
+  }
   document.getElementById("taskNotesSection").style.display = "block";
   document.getElementById("taskModal").classList.add("open");
 }
@@ -588,9 +602,20 @@ function applyUserSession() {
   } else {
     if (btnCreateMeeting) btnCreateMeeting.style.display = "inline-flex";
     if (btnCreateTask) btnCreateTask.style.display = "inline-flex";
-    const authorSelect = document.getElementById("newNoteAuthor");
-    if (authorSelect && USERS[currentUser.key]) {
-      authorSelect.value = currentUser.key;
+    const authorHidden = document.getElementById("newNoteAuthor");
+    const authorBadge = document.getElementById("noteAuthorBadge");
+    const authorAvatar = document.getElementById("noteAuthorAvatar");
+    const authorName = document.getElementById("noteAuthorName");
+    if (authorHidden && currentUser && USERS[currentUser.key]) {
+      authorHidden.value = currentUser.key;
+      if (authorAvatar) {
+        authorAvatar.textContent = currentUser.avatar;
+        authorAvatar.style.background = currentUser.bg;
+        authorAvatar.style.color = currentUser.color;
+      }
+      if (authorName) {
+        authorName.textContent = currentUser.name.split(" ")[0];
+      }
     }
   }
 
@@ -1021,6 +1046,7 @@ function renderTeamCards() {
 
   Object.keys(USERS).forEach(key => {
     const u = USERS[key];
+    const isOwner = currentUser && !currentUser.isGuest && currentUser.key === key;
     const card = document.createElement("div");
     card.className = "member-card";
     card.innerHTML = `
@@ -1028,7 +1054,7 @@ function renderTeamCards() {
       <div class="member-info" style="flex:1">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <h3>${escapeHtml(u.name)}</h3>
-          ${currentUser && !currentUser.isGuest ? `<button class="btn-edit-role" onclick="openEditRoleModal('${key}')" title="Editar rol">✏️ Editar</button>` : ''}
+          ${isOwner ? `<button class="btn-edit-role" onclick="openEditRoleModal('${key}')" title="Editar mi rol">✏️ Editar Mi Rol</button>` : ''}
         </div>
         <p>${escapeHtml(u.role)}</p>
         <span class="role-badge" style="background:${u.bg};color:${u.color}">${escapeHtml(u.badge)}</span>
@@ -1043,6 +1069,10 @@ function openEditRoleModal(userKey) {
     alert("El modo invitado no puede modificar roles de equipo.");
     return;
   }
+  if (!currentUser || currentUser.key !== userKey) {
+    alert("Acción denegada: Cada integrante sólo puede editar su propio rol.");
+    return;
+  }
   const u = USERS[userKey];
   if (!u) return;
 
@@ -1050,7 +1080,7 @@ function openEditRoleModal(userKey) {
   document.getElementById("editRoleUserName").value = u.name;
   document.getElementById("editRoleTitleInput").value = u.role;
   document.getElementById("editRoleBadgeInput").value = u.badge;
-  document.getElementById("editRoleModalTitle").textContent = `Editar Rol: ${u.name.split(" ")[0]}`;
+  document.getElementById("editRoleModalTitle").textContent = `Editar Mi Rol (${u.name.split(" ")[0]})`;
 
   document.getElementById("editRoleModal").classList.add("open");
 }
@@ -1064,6 +1094,11 @@ function handleSaveRole(e) {
   const userKey = document.getElementById("editRoleUserKey").value;
   const newRole = document.getElementById("editRoleTitleInput").value.trim();
   const newBadge = document.getElementById("editRoleBadgeInput").value.trim();
+
+  if (!currentUser || currentUser.key !== userKey) {
+    alert("Operación rechazada: No tienes permisos para alterar roles de otros integrantes.");
+    return;
+  }
 
   if (!USERS[userKey]) return;
 
@@ -1083,6 +1118,89 @@ function handleSaveRole(e) {
 // ==========================================
 // REUNIÓN PRESENCIAL FIJA (JUEVES 13:00 - 15:00)
 // ==========================================
+const PRESENCIAL_MINUTES_KEY = "quimicashop_presencial_minutes_v1";
+
+function isPresencialMeetingToday() {
+  const now = new Date();
+  // Día 4 = Jueves
+  return now.getDay() === 4;
+}
+
+function openPresencialMinuteModal() {
+  const now = new Date();
+  const isThursday = isPresencialMeetingToday();
+  const modal = document.getElementById("presencialMinuteModal");
+  if (!modal) return;
+
+  const lockedNotice = document.getElementById("presencialLockedNotice");
+  const activeNotice = document.getElementById("presencialActiveNotice");
+  const textArea = document.getElementById("presencialMinuteText");
+  const saveBtn = document.getElementById("btnSavePresencialMinute");
+  const dateInput = document.getElementById("presencialSessionDate");
+
+  dateInput.value = `Jueves · Sesión de Cátedra E.E.S.T N°1 (13:00 - 15:00 hs)`;
+
+  // Cargar minuta existente
+  const savedMinutes = localStorage.getItem(PRESENCIAL_MINUTES_KEY) || "";
+  textArea.value = savedMinutes;
+
+  if (isThursday && currentUser && !currentUser.isGuest) {
+    lockedNotice.style.display = "none";
+    activeNotice.style.display = "block";
+    textArea.disabled = false;
+    saveBtn.style.display = "inline-flex";
+  } else {
+    lockedNotice.style.display = "block";
+    activeNotice.style.display = "none";
+    textArea.disabled = true;
+    saveBtn.style.display = "none";
+  }
+
+  modal.classList.add("open");
+}
+
+function closePresencialMinuteModal() {
+  const modal = document.getElementById("presencialMinuteModal");
+  if (modal) modal.classList.remove("open");
+}
+
+async function handleSavePresencialMinute(e) {
+  e.preventDefault();
+  if (!isPresencialMeetingToday()) {
+    alert("Las minutas presenciales sólo pueden editarse los días de cátedra (Jueves).");
+    return;
+  }
+  if (!currentUser || currentUser.isGuest) {
+    alert("El modo invitado no puede guardar minutas.");
+    return;
+  }
+
+  const text = document.getElementById("presencialMinuteText").value.trim();
+  localStorage.setItem(PRESENCIAL_MINUTES_KEY, text);
+
+  // También sincronizar con Supabase si está disponible como minuta presencial cerrada/activa
+  if (supabaseClient) {
+    try {
+      await supabaseClient.from("team_meetings").upsert([{
+        id: "presencial-jueves-actual",
+        title: "Reunión Presencial de Cátedra & Taller (Jueves 13-15hs)",
+        reason: "Auditoría Presencial",
+        scheduled_at: new Date().toISOString(),
+        meet_url: "Presencial · Aula Taller E.E.S.T N°1",
+        created_by: currentUser.key,
+        status: "closed",
+        minutes: text,
+        closed_at: new Date().toISOString()
+      }]);
+    } catch (err) {
+      console.warn("No se pudo sincronizar minuta presencial en Supabase:", err);
+    }
+  }
+
+  alert("Minuta presencial guardada y archivada con éxito.");
+  closePresencialMinuteModal();
+  renderMinutesHistory();
+}
 function updatePresencialCountdown() {
   const now = new Date();
   const nextThursday = new Date(now.getTime());

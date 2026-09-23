@@ -138,3 +138,9 @@ colors: {
   - `team_tasks`: Sprint Backlog y estado kanban.
   - `task_notes`: Bitácoras y avances por integrante.
   - `team_meetings`: Registro de reuniones, enlaces Meet, votos de apertura, votos de cierre y minutas inmutables.
+- **Reglas de Seguridad y Autoría Estricta:**
+  - **Edición de Roles Propios:** Cada integrante autenticado solo puede editar su propio rol y especialidad técnica. El acceso a editar roles ajenos está restringido.
+  - **Autoría de Notas en Tareas:** La firma del autor en los comentarios/bitácoras se deriva automáticamente del perfil activo (`currentUser`), impidiendo suplantación.
+  - **Minutas Presenciales (Jueves 13 a 15 hs):** La minuta de cátedra presencial se gestiona en modal independiente con bloqueo de edición los días no lectivos. Únicamente se desbloquea durante el día de la sesión presencial (Jueves).
+- **Skill Mobile iOS 26/27:**
+  - Registrada en `.agents/skills/media-queries-ios-pro/SKILL.md` con estándares de Safe Areas, Bottom Sheets y Kanban Snap Carousel.
