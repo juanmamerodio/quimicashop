@@ -1,0 +1,1252 @@
+// ==========================================
+// QUIMICASHOP · TEAMS SCRIPT (tasks.js)
+// Gestión de tareas, autenticación Netflix,
+// gobernanza de reuniones, roles y minutas.
+// ==========================================
+
+// CREDENCIALES DE SUPABASE DEL PROYECTO
+const SUPABASE_URL = "https://uchyattzuhaltsaxazce.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjaHlhdHR6dWhhbHRzYXhhemNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0Njg1MzgsImV4cCI6MjA5MTA0NDUzOH0.uEDBFqcqMcUaI_QdcMj0HsvF4ZUvWntFu_CcTMTdY-I";
+
+const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+// BASE DE DATOS INICIAL DEL EQUIPO (Fallback / Seed)
+const INITIAL_TASKS = [
+  {
+    id: "task-1",
+    title: "Migración de 13 Tablas en Supabase SQL",
+    desc: "Crear DDL con llaves foráneas para Cliente, Pedido, Detalle_del_pedido, Stock, Comprobante y remitos según DER-quimica.csv.",
+    assignee: "Enzo",
+    status: "in_progress",
+    tag: "DATABASE",
+    prio: "ALTA"
+  },
+  {
+    id: "task-2",
+    title: "Pantalla de Carga y Validación de Comprobantes",
+    desc: "Formulario para subida de foto de transferencia bancaria hacia Supabase Storage en el checkout.",
+    assignee: "Isabella",
+    status: "in_progress",
+    tag: "FRONTEND",
+    prio: "ALTA"
+  },
+  {
+    id: "task-3",
+    title: "Lógica de Reintegro de Stock Semanal (Viernes)",
+    desc: "Implementar función o Cron Job que libere 'cantidad_reservada' si el pedido no fue ejecutado/aprobado.",
+    assignee: "Celeste",
+    status: "backlog",
+    tag: "STOCK",
+    prio: "MEDIA"
+  },
+  {
+    id: "task-4",
+    title: "Panel /admin: Inspección de Comprobantes",
+    desc: "Módulo administrativo para ver foto de comprobante, aprobar o rechazar y generar el remito de entrega.",
+    assignee: "Juanma",
+    status: "backlog",
+    tag: "ADMIN",
+    prio: "ALTA"
+  },
+  {
+    id: "task-5",
+    title: "Generación y Despacho de Remitos vía Resend",
+    desc: "Envío automatizado de remito de venta y confirmación formal al email del comprador al aprobar el pago.",
+    assignee: "Enzo",
+    status: "backlog",
+    tag: "BACKEND",
+    prio: "MEDIA"
+  },
+  {
+    id: "task-6",
+    title: "Alineación de Relevamiento con Informe de Cátedra",
+    desc: "Garantizar que los alcances, exclusiones y manuales concuerden con la entrega para Leibouski, Maldonado y Nieva.",
+    assignee: "Juanma",
+    status: "done",
+    tag: "DOCS",
+    prio: "ALTA"
+  }
+];
+
+const STORAGE_KEY = "quimicashop_team_tasks_v1";
+let tasks = [];
+let currentFilter = "ALL";
+
+const AVATAR_COLORS = {
+  Juanma: { bg: "#0284c7", txt: "#fff" },
+  Isabella: { bg: "#db2777", txt: "#fff" },
+  Celeste: { bg: "#d97706", txt: "#fff" },
+  Enzo: { bg: "#16a34a", txt: "#fff" }
+};
+
+const TAG_COLORS = {
+  DATABASE: { bg: "#fef3c7", txt: "#b45309" },
+  FRONTEND: { bg: "#ede9fe", txt: "#6d28d9" },
+  BACKEND: { bg: "#e0f2fe", txt: "#0369a1" },
+  STOCK: { bg: "#f0fdf4", txt: "#15803d" },
+  ADMIN: { bg: "#ffe4e6", txt: "#be123c" },
+  DOCS: { bg: "#f0fdfa", txt: "#0f766e" }
+};
+
+// CONFIGURACIÓN DE PERFILES Y CREDENCIALES (DNI) CON ROLES PERSISTENTES
+const ROLES_STORAGE_KEY = "quimicashop_team_roles_v1";
+const DEFAULT_USERS = {
+  Juanma: { name: "Juan Manuel Merodio", pass: "48134318", role: "Full-Stack & Arquitectura", badge: "Next.js / Supabase / CI-CD", avatar: "JM", color: "#0284c7", bg: "#e0f2fe" },
+  Isabella: { name: "Isabella Infante", pass: "96131444", role: "Diseño UX/UI & Frontend", badge: "M3 / Tailwind / Vistas", avatar: "II", color: "#db2777", bg: "#fce7f3" },
+  Celeste: { name: "Celeste Cáceres", pass: "48021520", role: "Lógica de Stock & QA", badge: "Reglas de Stock / Testing", avatar: "CC", color: "#d97706", bg: "#fef3c7" },
+  Enzo: { name: "Enzo Queipo", pass: "48290048", role: "Base de Datos & Remitos", badge: "SQL 13 Tablas / Resend", avatar: "EQ", color: "#16a34a", bg: "#dcfce7" }
+};
+
+let USERS = { ...DEFAULT_USERS };
+try {
+  const storedRoles = localStorage.getItem(ROLES_STORAGE_KEY);
+  if (storedRoles) {
+    const parsed = JSON.parse(storedRoles);
+    Object.keys(parsed).forEach(k => {
+      if (USERS[k]) {
+        USERS[k].role = parsed[k].role || USERS[k].role;
+        USERS[k].badge = parsed[k].badge || USERS[k].badge;
+      }
+    });
+  }
+} catch (e) { }
+
+const AUTH_STORAGE_KEY = "quimicashop_logged_user_v1";
+let currentUser = null; // { key, name, isGuest, avatar, color, bg }
+let pendingProfileKey = null;
+
+// ESTADO DE MEETINGS Y LLAMADAS
+const MEETINGS_STORAGE_KEY = "quimicashop_current_meeting_v1";
+let currentMeeting = null;
+let countdownTimer = null;
+
+const NOTES_STORAGE_KEY = "quimicashop_team_notes_v1";
+let taskNotes = {};
+let activeTaskId = null;
+
+async function init() {
+  // 1. Carga local inmediata
+  const storedTasks = localStorage.getItem(STORAGE_KEY);
+  if (storedTasks) {
+    try { tasks = JSON.parse(storedTasks); } catch (e) { tasks = INITIAL_TASKS; }
+  } else {
+    tasks = INITIAL_TASKS;
+  }
+
+  const storedNotes = localStorage.getItem(NOTES_STORAGE_KEY);
+  if (storedNotes) {
+    try { taskNotes = JSON.parse(storedNotes); } catch (e) { taskNotes = {}; }
+  }
+
+  render();
+
+  // 2. Sincronización con Supabase (team_tasks y task_notes)
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("team_tasks")
+        .select("*");
+
+      if (!error && data && data.length > 0) {
+        tasks = data.map(item => ({
+          id: (item.id || Date.now()).toString(),
+          title: item.title || "",
+          desc: item.description || item.desc || "",
+          assignee: item.assignee || "Juanma",
+          status: item.status || "backlog",
+          tag: item.tag || "DATABASE",
+          prio: item.priority || item.prio || "MEDIA",
+          completed_at: item.completed_at || null,
+          created_at: item.created_at || null
+        }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        render();
+        const badge = document.getElementById("db-status-badge");
+        if (badge) badge.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block"></span> Supabase Conectado`;
+      } else if (!error && data && data.length === 0) {
+        for (const t of INITIAL_TASKS) {
+          await supabaseClient.from("team_tasks").insert([{
+            title: t.title,
+            description: t.desc,
+            assignee: t.assignee,
+            status: t.status,
+            tag: t.tag,
+            priority: t.prio,
+            completed_at: t.status === 'done' ? new Date().toISOString() : null
+          }]);
+        }
+        const badge = document.getElementById("db-status-badge");
+        if (badge) badge.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block"></span> Supabase Conectado`;
+      } else if (error) {
+        const badge = document.getElementById("db-status-badge");
+        if (badge) badge.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block"></span> Modo Local (Offline)`;
+      }
+
+      // Cargar notas desde Supabase si la tabla existe
+      const { data: notesData, error: notesError } = await supabaseClient
+        .from("task_notes")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (!notesError && notesData) {
+        taskNotes = {};
+        notesData.forEach(n => {
+          const tid = n.task_id.toString();
+          if (!taskNotes[tid]) taskNotes[tid] = [];
+          taskNotes[tid].push({
+            id: n.id,
+            author: n.author,
+            text: n.content,
+            date: n.created_at ? new Date(n.created_at).toLocaleDateString("es-AR", { day: '2-digit', month: '2-digit' }) : "Hoy"
+          });
+        });
+        localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(taskNotes));
+        render();
+      }
+    } catch (err) {
+      console.warn("Supabase sync offline, usando almacenamiento local:", err);
+      const badge = document.getElementById("db-status-badge");
+      if (badge) badge.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block"></span> Modo Local (Offline)`;
+    }
+  }
+}
+
+async function save(taskItem = null) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  if (supabaseClient && taskItem) {
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskItem.id);
+      const payload = {
+        title: taskItem.title,
+        description: taskItem.desc,
+        assignee: taskItem.assignee,
+        status: taskItem.status,
+        tag: taskItem.tag,
+        priority: taskItem.prio,
+        completed_at: taskItem.status === 'done' ? (taskItem.completed_at || new Date().toISOString()) : null,
+        updated_at: new Date().toISOString()
+      };
+
+      if (isUuid) {
+        await supabaseClient.from("team_tasks").update(payload).eq("id", taskItem.id);
+      } else {
+        const { data } = await supabaseClient.from("team_tasks").insert([payload]).select();
+        if (data && data[0]) {
+          taskItem.id = data[0].id.toString();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        }
+      }
+    } catch (e) {
+      console.error("Error guardando en Supabase:", e);
+    }
+  }
+}
+
+function render() {
+  const statuses = ["backlog", "in_progress", "review", "done"];
+  const counts = { backlog: 0, in_progress: 0, review: 0, done: 0 };
+  const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+
+  statuses.forEach(s => {
+    const listEl = document.getElementById(`list-${s}`);
+    if (listEl) listEl.innerHTML = "";
+  });
+
+  // Filtro de tareas: si está en 'done' hace más de 7 días, se oculta automáticamente
+  const activeTasks = tasks.filter(task => {
+    if (task.status === "done" && task.completed_at) {
+      const completedTime = new Date(task.completed_at).getTime();
+      if (now - completedTime > ONE_WEEK_MS) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const filtered = currentFilter === "ALL"
+    ? activeTasks
+    : activeTasks.filter(t => {
+      if (!t.assignee) return false;
+      const a = t.assignee.toLowerCase().trim();
+      const f = currentFilter.toLowerCase().trim();
+      return a === f || a.includes(f) || f.includes(a);
+    });
+
+  filtered.forEach(task => {
+    counts[task.status] = (counts[task.status] || 0) + 1;
+    const colEl = document.getElementById(`list-${task.status}`);
+    if (!colEl) return;
+
+    const tagStyle = TAG_COLORS[task.tag] || { bg: "#f3f4f6", txt: "#374151" };
+    const normKey = Object.keys(AVATAR_COLORS).find(k => k.toLowerCase() === (task.assignee || '').toLowerCase()) || "Enzo";
+    const avStyle = AVATAR_COLORS[normKey] || { bg: "#16a34a", txt: "#fff" };
+    const notes = taskNotes[task.id] || [];
+
+    const card = document.createElement("div");
+    card.className = "task-card";
+    card.onclick = () => openEditModal(task.id);
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span class="task-tag" style="background:${tagStyle.bg};color:${tagStyle.txt}">${task.tag}</span>
+        ${notes.length > 0 ? `<span style="font-size:.67rem;font-family:'DM Mono',monospace;color:var(--muted);background:rgba(0,0,0,.04);padding:2px 6px;border-radius:6px">💬 ${notes.length}</span>` : ''}
+      </div>
+      <div class="task-title">${escapeHtml(task.title)}</div>
+      <div class="task-desc">${escapeHtml(task.desc)}</div>
+      <div class="task-meta">
+        <div class="task-assignee">
+          <span class="task-avatar-sm" style="background:${avStyle.bg};color:${avStyle.txt}">${(task.assignee || 'EQ').substring(0, 2).toUpperCase()}</span>
+          <span>${task.assignee}</span>
+        </div>
+        <span class="task-prio" style="color:${task.prio === 'ALTA' ? 'var(--rose)' : 'var(--muted)'}">● ${task.prio}</span>
+      </div>
+    `;
+    colEl.appendChild(card);
+  });
+
+  statuses.forEach(s => {
+    const cEl = document.getElementById(`count-${s}`);
+    if (cEl) cEl.textContent = counts[s];
+  });
+}
+
+function filterTasks(assignee) {
+  currentFilter = assignee;
+  document.querySelectorAll(".f-btn").forEach(b => {
+    b.classList.toggle("active", b.textContent.includes(assignee) || (assignee === "ALL" && b.textContent === "Todas"));
+  });
+  render();
+}
+
+function openCreateModal() {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado es de solo lectura. No puedes crear tareas.");
+    return;
+  }
+  document.getElementById("modalTitle").textContent = "Nueva Tarea de Desarrollo";
+  document.getElementById("taskId").value = "";
+  document.getElementById("taskForm").reset();
+  document.getElementById("taskNotesSection").style.display = "none";
+  activeTaskId = null;
+  if (currentUser && USERS[currentUser.key]) {
+    document.getElementById("taskAssignee").value = currentUser.key;
+  }
+  document.getElementById("taskModal").classList.add("open");
+}
+
+function openEditModal(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  activeTaskId = task.id;
+  document.getElementById("modalTitle").textContent = "Editar Tarea";
+  document.getElementById("taskId").value = task.id;
+  document.getElementById("taskTitle").value = task.title;
+  document.getElementById("taskDesc").value = task.desc;
+  document.getElementById("taskAssignee").value = task.assignee;
+  document.getElementById("taskStatus").value = task.status;
+  document.getElementById("taskTag").value = task.tag;
+  document.getElementById("taskPrio").value = task.prio;
+
+  renderTaskNotes(task.id);
+  document.getElementById("taskNotesSection").style.display = "block";
+  document.getElementById("taskModal").classList.add("open");
+}
+
+function renderTaskNotes(taskId) {
+  const listEl = document.getElementById("taskNotesList");
+  const countEl = document.getElementById("notesCount");
+  listEl.innerHTML = "";
+  const notes = taskNotes[taskId] || [];
+  countEl.textContent = `${notes.length} notas`;
+
+  if (notes.length === 0) {
+    listEl.innerHTML = `<div style="font-size:.76rem;color:var(--muted);text-align:center;padding:12px">No hay notas registradas. Agrega requerimientos o avances del equipo.</div>`;
+    return;
+  }
+
+  notes.forEach(n => {
+    const item = document.createElement("div");
+    item.className = "note-bubble";
+    item.innerHTML = `
+      <div class="note-header">
+        <span class="note-author">● ${escapeHtml(n.author)}</span>
+        <span class="note-date">${escapeHtml(n.date)}</span>
+      </div>
+      <div class="note-content">${escapeHtml(n.text)}</div>
+    `;
+    listEl.appendChild(item);
+  });
+}
+
+async function handleAddNote() {
+  if (!activeTaskId) return;
+  const author = document.getElementById("newNoteAuthor").value;
+  const textInput = document.getElementById("newNoteText");
+  const text = textInput.value.trim();
+  if (!text) return;
+
+  const newNote = {
+    id: "note-" + Date.now(),
+    author,
+    text,
+    date: new Date().toLocaleDateString("es-AR", { day: '2-digit', month: '2-digit' })
+  };
+
+  if (!taskNotes[activeTaskId]) taskNotes[activeTaskId] = [];
+  taskNotes[activeTaskId].push(newNote);
+  localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(taskNotes));
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient.from("task_notes").insert([{
+        task_id: activeTaskId,
+        author: author,
+        content: text
+      }]);
+    } catch (e) {
+      console.warn("No se pudo guardar la nota en Supabase:", e);
+    }
+  }
+
+  textInput.value = "";
+  renderTaskNotes(activeTaskId);
+  render();
+}
+
+function closeModal() {
+  document.getElementById("taskModal").classList.remove("open");
+  activeTaskId = null;
+}
+
+function handleSaveTask(e) {
+  e.preventDefault();
+  const id = document.getElementById("taskId").value;
+  const title = document.getElementById("taskTitle").value.trim();
+  const desc = document.getElementById("taskDesc").value.trim();
+  const assignee = document.getElementById("taskAssignee").value;
+  const status = document.getElementById("taskStatus").value;
+  const tag = document.getElementById("taskTag").value;
+  const prio = document.getElementById("taskPrio").value;
+
+  if (!title) return;
+
+  let savedItem = null;
+  if (id) {
+    const index = tasks.findIndex(t => t.id === id);
+    if (index !== -1) {
+      const wasDone = tasks[index].status === 'done';
+      const isNowDone = status === 'done';
+      const completed_at = isNowDone ? (wasDone ? tasks[index].completed_at : new Date().toISOString()) : null;
+
+      tasks[index] = { ...tasks[index], title, desc, assignee, status, tag, prio, completed_at };
+      savedItem = tasks[index];
+    }
+  } else {
+    const newTask = {
+      id: "task-" + Date.now(),
+      title,
+      desc,
+      assignee,
+      status,
+      tag,
+      prio,
+      completed_at: status === 'done' ? new Date().toISOString() : null,
+      created_at: new Date().toISOString()
+    };
+    tasks.unshift(newTask);
+    savedItem = newTask;
+  }
+
+  save(savedItem);
+  render();
+  closeModal();
+}
+
+function exportBackup() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tasks, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", dataStr);
+  dlAnchor.setAttribute("download", `quimicashop_backlog_${new Date().toISOString().slice(0, 10)}.json`);
+  dlAnchor.click();
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+// ==========================================
+// AUTENTICACIÓN TIPO NETFLIX & SESIÓN
+// ==========================================
+function checkAuth() {
+  const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+  if (stored) {
+    try {
+      currentUser = JSON.parse(stored);
+      applyUserSession();
+      return;
+    } catch (e) {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+  }
+  showAuthOverlay();
+}
+
+function showAuthOverlay() {
+  const overlay = document.getElementById("authOverlay");
+  if (overlay) overlay.classList.remove("hidden");
+  document.getElementById("profilesView").style.display = "flex";
+  document.getElementById("passView").style.display = "none";
+}
+
+function selectProfile(key, name, pass, bg, color, avatar) {
+  pendingProfileKey = key;
+  document.getElementById("profilesView").style.display = "none";
+  const passView = document.getElementById("passView");
+  passView.style.display = "flex";
+
+  const avatarEl = document.getElementById("passAvatar");
+  avatarEl.textContent = avatar;
+  avatarEl.style.background = bg;
+  avatarEl.style.color = color;
+
+  document.getElementById("passUserName").textContent = name;
+  const passInput = document.getElementById("passInput");
+  passInput.value = "";
+  document.getElementById("passError").style.display = "none";
+  passInput.focus();
+}
+
+function cancelProfileSelection() {
+  pendingProfileKey = null;
+  document.getElementById("passView").style.display = "none";
+  document.getElementById("profilesView").style.display = "flex";
+}
+
+function handlePasswordSubmit(e) {
+  e.preventDefault();
+  if (!pendingProfileKey) return;
+  const passInput = document.getElementById("passInput");
+  const entered = passInput.value.trim();
+  const userDef = USERS[pendingProfileKey];
+
+  if (userDef && entered === userDef.pass) {
+    currentUser = {
+      key: pendingProfileKey,
+      name: userDef.name,
+      role: userDef.role,
+      avatar: userDef.avatar,
+      bg: userDef.bg,
+      color: userDef.color,
+      isGuest: false
+    };
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentUser));
+    applyUserSession();
+  } else {
+    const errEl = document.getElementById("passError");
+    errEl.style.display = "block";
+    passInput.select();
+  }
+}
+
+function loginAsGuest() {
+  currentUser = {
+    key: "Invitado",
+    name: "Invitado (Solo Lectura)",
+    role: "Visitante",
+    avatar: "👁",
+    bg: "#f3f4f6",
+    color: "#4b5563",
+    isGuest: true
+  };
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentUser));
+  applyUserSession();
+}
+
+function applyUserSession() {
+  const overlay = document.getElementById("authOverlay");
+  if (overlay) overlay.classList.add("hidden");
+
+  // Actualizar Navbar
+  const pill = document.getElementById("logged-user-pill");
+  const badgeAvatar = document.getElementById("user-badge-avatar");
+  const badgeName = document.getElementById("user-badge-name");
+  if (pill && currentUser) {
+    pill.style.display = "inline-flex";
+    badgeAvatar.textContent = currentUser.avatar;
+    badgeAvatar.style.background = currentUser.bg;
+    badgeAvatar.style.color = currentUser.color;
+    badgeName.textContent = currentUser.key === "Invitado" ? "Invitado" : currentUser.name.split(" ")[0];
+  }
+
+  // Restricciones modo Invitado (Solo Lectura)
+  const btnCreateMeeting = document.getElementById("btn-create-meeting");
+  const btnCreateTask = document.getElementById("btn-create-task");
+  if (currentUser.isGuest) {
+    if (btnCreateMeeting) btnCreateMeeting.style.display = "none";
+    if (btnCreateTask) btnCreateTask.style.display = "none";
+  } else {
+    if (btnCreateMeeting) btnCreateMeeting.style.display = "inline-flex";
+    if (btnCreateTask) btnCreateTask.style.display = "inline-flex";
+    const authorSelect = document.getElementById("newNoteAuthor");
+    if (authorSelect && USERS[currentUser.key]) {
+      authorSelect.value = currentUser.key;
+    }
+  }
+
+  renderTeamCards();
+  renderMeetingBanner();
+}
+
+function handleLogout() {
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  currentUser = null;
+  window.location.reload();
+}
+
+// ==========================================
+// SISTEMA DE MEETINGS, VOTACIÓN & MINUTAS
+// ==========================================
+function openCreateMeetingModal(defaultReason = null) {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado no puede programar reuniones.");
+    return;
+  }
+  const now = new Date();
+  now.setHours(now.getHours() + 2);
+  now.setMinutes(0, 0, 0);
+  const defaultDate = now.toISOString().slice(0, 16);
+  document.getElementById("mDate").value = defaultDate;
+  document.getElementById("mUrl").value = "https://meet.google.com/new";
+  if (defaultReason) {
+    document.getElementById("mTitle").value = defaultReason === 'Auditoría Presencial' ? 'Reunión Presencial de Cátedra & Equipo (Aula Taller)' : '';
+  }
+  document.getElementById("meetingModal").classList.add("open");
+}
+
+function closeMeetingModal() {
+  document.getElementById("meetingModal").classList.remove("open");
+}
+
+async function handleSaveMeeting(e) {
+  e.preventDefault();
+  const title = document.getElementById("mTitle").value.trim();
+  const reason = document.getElementById("mReason").value;
+  const scheduledAt = document.getElementById("mDate").value;
+  let meetUrl = document.getElementById("mUrl").value.trim() || "https://meet.google.com/new";
+
+  const newMeeting = {
+    id: "meeting-" + Date.now(),
+    title,
+    reason,
+    scheduled_at: scheduledAt,
+    meet_url: meetUrl,
+    created_by: currentUser ? currentUser.key : "Juanma",
+    status: "pending_vote",
+    votes: {
+      Juanma: currentUser && currentUser.key === "Juanma",
+      Isabella: currentUser && currentUser.key === "Isabella",
+      Celeste: currentUser && currentUser.key === "Celeste",
+      Enzo: currentUser && currentUser.key === "Enzo"
+    },
+    close_votes: {
+      Juanma: false,
+      Isabella: false,
+      Celeste: false,
+      Enzo: false
+    },
+    minutes: ""
+  };
+
+  currentMeeting = newMeeting;
+  localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient.from("team_meetings").insert([{
+        title: newMeeting.title,
+        reason: newMeeting.reason,
+        scheduled_at: newMeeting.scheduled_at,
+        meet_url: newMeeting.meet_url,
+        created_by: newMeeting.created_by,
+        status: newMeeting.status,
+        votes: newMeeting.votes,
+        close_votes: newMeeting.close_votes,
+        minutes: newMeeting.minutes
+      }]);
+    } catch (err) {
+      console.warn("No se pudo guardar la reunión en Supabase:", err);
+    }
+  }
+
+  closeMeetingModal();
+  renderMeetingBanner();
+}
+
+async function voteForMeeting() {
+  if (!currentMeeting || !currentUser || currentUser.isGuest) return;
+  if (!USERS[currentUser.key]) return;
+
+  currentMeeting.votes[currentUser.key] = true;
+
+  const allApproved = Object.keys(USERS).every(k => currentMeeting.votes[k] === true);
+  if (allApproved) {
+    currentMeeting.status = "approved";
+  }
+
+  localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient.from("team_meetings")
+        .update({ votes: currentMeeting.votes, status: currentMeeting.status })
+        .eq("id", currentMeeting.id);
+    } catch (e) {
+      console.warn("Error actualizando voto en Supabase:", e);
+    }
+  }
+
+  renderMeetingBanner();
+}
+
+function renderMeetingBanner() {
+  const banner = document.getElementById("meetingBanner");
+  if (!currentMeeting || currentMeeting.status === "closed") {
+    if (banner) banner.classList.remove("active");
+    if (countdownTimer) clearInterval(countdownTimer);
+    return;
+  }
+
+  banner.classList.add("active");
+  document.getElementById("meetingReasonBadge").textContent = currentMeeting.reason.toUpperCase();
+  document.getElementById("meetingTitleDisplay").textContent = currentMeeting.title;
+
+  const schedDate = new Date(currentMeeting.scheduled_at);
+  document.getElementById("meetingTimeDisplay").textContent = `Programada: ${schedDate.toLocaleDateString("es-AR", { weekday: 'long', day: 'numeric', month: 'short' })} · ${schedDate.toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' })} hs`;
+
+  const votersEl = document.getElementById("meetingVotersList");
+  votersEl.innerHTML = "";
+  let votedCount = 0;
+
+  Object.keys(USERS).forEach(key => {
+    const hasVoted = currentMeeting.votes[key] === true;
+    if (hasVoted) votedCount++;
+    const pill = document.createElement("span");
+    pill.className = `voter-pill ${hasVoted ? 'voted' : 'pending'}`;
+    pill.innerHTML = `
+      <span>${hasVoted ? '✓' : '⏳'}</span>
+      <span>${key}</span>
+    `;
+    votersEl.appendChild(pill);
+  });
+
+  const actionBtns = document.getElementById("meetingActionBtns");
+  actionBtns.innerHTML = "";
+
+  const userAlreadyVoted = currentUser && USERS[currentUser.key] && currentMeeting.votes[currentUser.key] === true;
+  const isUnanimous = votedCount === 4;
+
+  if (!isUnanimous) {
+    if (currentUser && !currentUser.isGuest && !userAlreadyVoted) {
+      const voteBtn = document.createElement("button");
+      voteBtn.className = "btn-create";
+      voteBtn.innerHTML = `✓ Votar a Favor (${votedCount}/4)`;
+      voteBtn.onclick = voteForMeeting;
+      actionBtns.appendChild(voteBtn);
+    } else {
+      const waitPill = document.createElement("span");
+      waitPill.className = "nav-pill";
+      waitPill.style.color = "#b45309";
+      waitPill.style.fontWeight = "700";
+      waitPill.textContent = `Esperando votación (${votedCount}/4)`;
+      actionBtns.appendChild(waitPill);
+    }
+  } else {
+    const meetBtn = document.createElement("a");
+    meetBtn.href = currentMeeting.meet_url;
+    meetBtn.target = "_blank";
+    meetBtn.className = "btn-meeting";
+    meetBtn.style.textDecoration = "none";
+    meetBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+      </svg>
+      Unirse a Meet
+    `;
+    actionBtns.appendChild(meetBtn);
+
+    const hubBtn = document.createElement("button");
+    hubBtn.className = "btn-create";
+    hubBtn.innerHTML = `📺 Abrir Pizarra & Minutas`;
+    hubBtn.onclick = openMeetingFullscreen;
+    actionBtns.appendChild(hubBtn);
+  }
+
+  if (currentUser && !currentUser.isGuest) {
+    const cancelBtn = document.createElement("button");
+    cancelBtn.className = "btn-export";
+    cancelBtn.style.background = "#fee2e2";
+    cancelBtn.style.color = "#991b1b";
+    cancelBtn.style.borderColor = "rgba(239,68,68,.3)";
+    cancelBtn.title = "Cancelar y descartar esta reunión";
+    cancelBtn.innerHTML = `✕ Cancelar`;
+    cancelBtn.onclick = cancelCurrentMeeting;
+    actionBtns.appendChild(cancelBtn);
+  }
+
+  startCountdown(schedDate);
+}
+
+function startCountdown(targetDate) {
+  if (countdownTimer) clearInterval(countdownTimer);
+
+  const updateCounter = () => {
+    const now = new Date().getTime();
+    const diff = targetDate.getTime() - now;
+    const countBox = document.getElementById("meetingCountdown");
+    if (!countBox) return;
+
+    if (diff <= 0) {
+      countBox.textContent = "EN CURSO";
+      countBox.style.color = "#16a34a";
+      return;
+    }
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+    countBox.textContent = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  updateCounter();
+  countdownTimer = setInterval(updateCounter, 1000);
+}
+
+// ==========================================
+// HUB DE MEETING EN PANTALLA COMPLETA & MINUTAS
+// ==========================================
+function openMeetingFullscreen() {
+  if (!currentMeeting) return;
+  const fs = document.getElementById("meetingFullscreen");
+  fs.classList.add("open");
+
+  document.getElementById("hubMeetingReason").textContent = currentMeeting.reason.toUpperCase();
+  document.getElementById("hubMeetingTitle").textContent = currentMeeting.title;
+  document.getElementById("hubMeetLink").href = currentMeeting.meet_url;
+  const d = new Date(currentMeeting.scheduled_at);
+  document.getElementById("hubMeetingDate").textContent = `Programada: ${d.toLocaleString("es-AR")}`;
+
+  document.getElementById("hubMinutesText").value = currentMeeting.minutes || "";
+  renderHubCloseVotes();
+  renderHubTasks();
+
+  if (currentUser && currentUser.isGuest) {
+    document.getElementById("hubMinutesText").disabled = true;
+    document.getElementById("btn-save-minutes").style.display = "none";
+  } else {
+    document.getElementById("hubMinutesText").disabled = false;
+    document.getElementById("btn-save-minutes").style.display = "block";
+  }
+}
+
+function closeMeetingFullscreen() {
+  document.getElementById("meetingFullscreen").classList.remove("open");
+}
+
+function renderHubCloseVotes() {
+  if (!currentMeeting) return;
+  const listEl = document.getElementById("hubCloseVotersList");
+  listEl.innerHTML = "";
+  let count = 0;
+
+  Object.keys(USERS).forEach(k => {
+    const hasVotedClose = currentMeeting.close_votes && currentMeeting.close_votes[k] === true;
+    if (hasVotedClose) count++;
+    const pill = document.createElement("span");
+    pill.className = `voter-pill ${hasVotedClose ? 'voted' : 'pending'}`;
+    pill.innerHTML = `<span>${hasVotedClose ? '✓' : '⏳'}</span><span>${k}</span>`;
+    listEl.appendChild(pill);
+  });
+
+  document.getElementById("closeVotesCount").textContent = `${count}/4`;
+}
+
+function renderHubTasks() {
+  const el = document.getElementById("hubTasksSummary");
+  el.innerHTML = "";
+
+  const completed = tasks.filter(t => t.status === "done").slice(0, 5);
+  const inProgress = tasks.filter(t => t.status === "in_progress").slice(0, 5);
+
+  const makeSection = (title, items, color) => {
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = `<div style="font-size:.72rem;font-weight:700;color:${color};margin-bottom:6px;text-transform:uppercase">${title}</div>`;
+    items.forEach(t => {
+      const item = document.createElement("div");
+      item.style.padding = "8px 12px";
+      item.style.background = "var(--bg)";
+      item.style.borderRadius = "10px";
+      item.style.marginBottom = "6px";
+      item.style.fontSize = ".78rem";
+      item.innerHTML = `<strong>${escapeHtml(t.title)}</strong> · <span style="color:var(--muted)">${escapeHtml(t.assignee)}</span>`;
+      wrapper.appendChild(item);
+    });
+    return wrapper;
+  };
+
+  if (completed.length > 0) el.appendChild(makeSection("Tareas Completadas Recientes", completed, "var(--accent)"));
+  if (inProgress.length > 0) el.appendChild(makeSection("En Desarrollo Activo", inProgress, "#d97706"));
+}
+
+async function saveMeetingMinutes() {
+  if (!currentMeeting || (currentUser && currentUser.isGuest)) return;
+  const text = document.getElementById("hubMinutesText").value.trim();
+  currentMeeting.minutes = text;
+  localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient.from("team_meetings")
+        .update({ minutes: text })
+        .eq("id", currentMeeting.id);
+    } catch (e) {
+      console.warn("Error guardando minuta:", e);
+    }
+  }
+
+  const statusEl = document.getElementById("hubMinutesStatus");
+  statusEl.textContent = "✓ Guardado";
+  setTimeout(() => { statusEl.textContent = "● En Vivo"; }, 2000);
+}
+
+async function voteToCloseMeeting() {
+  if (!currentMeeting || !currentUser || currentUser.isGuest) return;
+  if (!USERS[currentUser.key]) return;
+
+  if (!currentMeeting.close_votes) {
+    currentMeeting.close_votes = { Juanma: false, Isabella: false, Celeste: false, Enzo: false };
+  }
+
+  currentMeeting.close_votes[currentUser.key] = true;
+  renderHubCloseVotes();
+
+  const allClosed = Object.keys(USERS).every(k => currentMeeting.close_votes[k] === true);
+
+  if (allClosed) {
+    currentMeeting.status = "closed";
+    currentMeeting.closed_at = new Date().toISOString();
+    localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+
+    document.getElementById("hubMinutesText").disabled = true;
+    document.getElementById("btn-save-minutes").style.display = "none";
+    alert("¡Votación unánime completada! La reunión ha finalizado y la minuta queda archivada e inmutable.");
+
+    if (supabaseClient) {
+      try {
+        await supabaseClient.from("team_meetings")
+          .update({
+            close_votes: currentMeeting.close_votes,
+            status: "closed",
+            closed_at: currentMeeting.closed_at
+          })
+          .eq("id", currentMeeting.id);
+      } catch (e) {
+        console.warn("Error archivando reunión:", e);
+      }
+    }
+
+    closeMeetingFullscreen();
+    renderMeetingBanner();
+    renderMinutesHistory();
+  } else {
+    localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+    if (supabaseClient) {
+      try {
+        await supabaseClient.from("team_meetings")
+          .update({ close_votes: currentMeeting.close_votes })
+          .eq("id", currentMeeting.id);
+      } catch (e) {
+        console.warn("Error en voto de cierre:", e);
+      }
+    }
+    alert(`Tu voto de cierre ha sido registrado (${document.getElementById("closeVotesCount").textContent}). Se requiere el voto de todos los miembros para archivar.`);
+  }
+}
+
+// ==========================================
+// CANCELACIÓN DE REUNIÓN / VOTACIÓN POR EL CREADOR
+// ==========================================
+async function cancelCurrentMeeting() {
+  if (!currentMeeting) return;
+  if (!currentUser || currentUser.isGuest) {
+    alert("Los invitados no pueden cancelar reuniones.");
+    return;
+  }
+  if (currentUser.key !== currentMeeting.created_by && currentUser.name !== currentMeeting.created_by) {
+    if (!confirm(`Esta reunión fue convocada por "${currentMeeting.created_by}". ¿Deseas cancelarla de todos modos como integrante del equipo?`)) {
+      return;
+    }
+  } else {
+    if (!confirm("¿Estás seguro de que deseas cancelar la convocatoria de esta reunión?")) {
+      return;
+    }
+  }
+
+  const meetingIdToCancel = currentMeeting.id;
+  currentMeeting = null;
+  localStorage.removeItem(MEETINGS_STORAGE_KEY);
+
+  if (countdownTimer) clearInterval(countdownTimer);
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient.from("team_meetings").delete().eq("id", meetingIdToCancel);
+    } catch (e) {
+      console.warn("Error borrando reunión de Supabase:", e);
+    }
+  }
+
+  renderMeetingBanner();
+  alert("La convocatoria de la reunión ha sido cancelada.");
+}
+
+// ==========================================
+// GESTIÓN Y EDICIÓN DE ROLES DE EQUIPO
+// ==========================================
+function renderTeamCards() {
+  const grid = document.getElementById("teamGridSection");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  Object.keys(USERS).forEach(key => {
+    const u = USERS[key];
+    const card = document.createElement("div");
+    card.className = "member-card";
+    card.innerHTML = `
+      <div class="member-avatar" style="background:${u.bg};color:${u.color}">${u.avatar}</div>
+      <div class="member-info" style="flex:1">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <h3>${escapeHtml(u.name)}</h3>
+          ${currentUser && !currentUser.isGuest ? `<button class="btn-edit-role" onclick="openEditRoleModal('${key}')" title="Editar rol">✏️ Editar</button>` : ''}
+        </div>
+        <p>${escapeHtml(u.role)}</p>
+        <span class="role-badge" style="background:${u.bg};color:${u.color}">${escapeHtml(u.badge)}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function openEditRoleModal(userKey) {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado no puede modificar roles de equipo.");
+    return;
+  }
+  const u = USERS[userKey];
+  if (!u) return;
+
+  document.getElementById("editRoleUserKey").value = userKey;
+  document.getElementById("editRoleUserName").value = u.name;
+  document.getElementById("editRoleTitleInput").value = u.role;
+  document.getElementById("editRoleBadgeInput").value = u.badge;
+  document.getElementById("editRoleModalTitle").textContent = `Editar Rol: ${u.name.split(" ")[0]}`;
+
+  document.getElementById("editRoleModal").classList.add("open");
+}
+
+function closeEditRoleModal() {
+  document.getElementById("editRoleModal").classList.remove("open");
+}
+
+function handleSaveRole(e) {
+  e.preventDefault();
+  const userKey = document.getElementById("editRoleUserKey").value;
+  const newRole = document.getElementById("editRoleTitleInput").value.trim();
+  const newBadge = document.getElementById("editRoleBadgeInput").value.trim();
+
+  if (!USERS[userKey]) return;
+
+  USERS[userKey].role = newRole;
+  USERS[userKey].badge = newBadge;
+
+  const rolesToStore = {};
+  Object.keys(USERS).forEach(k => {
+    rolesToStore[k] = { role: USERS[k].role, badge: USERS[k].badge };
+  });
+  localStorage.setItem(ROLES_STORAGE_KEY, JSON.stringify(rolesToStore));
+
+  renderTeamCards();
+  closeEditRoleModal();
+}
+
+// ==========================================
+// REUNIÓN PRESENCIAL FIJA (JUEVES 13:00 - 15:00)
+// ==========================================
+function updatePresencialCountdown() {
+  const now = new Date();
+  const nextThursday = new Date(now.getTime());
+  const dayOfWeek = now.getDay();
+  let daysToAdd = (4 - dayOfWeek + 7) % 7;
+
+  if (daysToAdd === 0 && now.getHours() >= 15) {
+    daysToAdd = 7;
+  }
+
+  nextThursday.setDate(now.getDate() + daysToAdd);
+  nextThursday.setHours(13, 0, 0, 0);
+
+  const diff = nextThursday.getTime() - now.getTime();
+  const el = document.getElementById("presencialCountdown");
+  if (!el) return;
+
+  if (dayOfWeek === 4 && now.getHours() >= 13 && now.getHours() < 15) {
+    el.textContent = "● EN CURSO AHORA (Aula Taller 7mo)";
+    el.style.background = "#dcfce7";
+    el.style.color = "#15803d";
+    return;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+  el.textContent = `Próxima sesión en: ${days > 0 ? `${days}d ` : ''}${hours}h ${mins}m`;
+}
+
+// ==========================================
+// HISTORIAL Y ARCHIVO DE MINUTAS
+// ==========================================
+const MINUTES_ARCHIVE_KEY = "quimicashop_meetings_archive_v1";
+
+async function renderMinutesHistory() {
+  const grid = document.getElementById("minutesHistoryGrid");
+  const countBadge = document.getElementById("minutesCountBadge");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  let meetingsList = [];
+
+  const localArchive = localStorage.getItem(MINUTES_ARCHIVE_KEY);
+  if (localArchive) {
+    try { meetingsList = JSON.parse(localArchive); } catch (e) { }
+  }
+
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("team_meetings")
+        .select("*")
+        .order("scheduled_at", { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        meetingsList = data;
+        localStorage.setItem(MINUTES_ARCHIVE_KEY, JSON.stringify(data));
+      }
+    } catch (e) { }
+  }
+
+  if (currentMeeting && (currentMeeting.status === "closed" || (currentMeeting.minutes && currentMeeting.minutes.trim()))) {
+    if (!meetingsList.some(m => m.id === currentMeeting.id)) {
+      meetingsList.unshift(currentMeeting);
+    }
+  }
+
+  if (meetingsList.length === 0) {
+    meetingsList = [
+      {
+        id: "m-seed-1",
+        title: "Auditoría Presencial de Relevamiento & DER",
+        reason: "Auditoría Presencial",
+        scheduled_at: "2026-09-17T13:00:00",
+        status: "closed",
+        minutes: "- Revisión conjunta con los profesores Leibouski y Maldonado.\n- Se acordó el descarte de validación bancaria automática por IA (Gemini) en favor de la aprobación manual por el Administrador escolar.\n- El prototipo mobile en React Native queda deprecado para concentrar el esfuerzo en Next.js 15 Web App.\n- Se consolidan las 13 entidades relacionales con integridad referencial.",
+        created_by: "Juanma"
+      },
+      {
+        id: "m-seed-2",
+        title: "Sincronización Sprint Backlog & Supabase Setup",
+        reason: "Semanal",
+        scheduled_at: "2026-09-22T21:00:00",
+        status: "closed",
+        minutes: "- Enzo inicia la migración del script SQL para las 13 tablas en Supabase.\n- Isabella avanza con la maqueta de subida de comprobantes en el checkout.\n- Celeste define los umbrales de stock warning y reintegro semanal de stock no ejecutado los viernes.\n- Juanma configura el Teams Hub con autenticación Netflix y sistema unánime de llamadas.",
+        created_by: "Juanma"
+      }
+    ];
+  }
+
+  if (countBadge) countBadge.textContent = `${meetingsList.length} Minutas Registradas`;
+
+  meetingsList.forEach(m => {
+    const d = new Date(m.scheduled_at);
+    const card = document.createElement("div");
+    card.className = "minute-card";
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <span style="background:#fef3c7;color:#b45309;font-weight:700;font-size:.68rem;padding:2px 7px;border-radius:6px;border:1px solid #fde68a">
+          ${escapeHtml(m.reason || 'Reunión')}
+        </span>
+        <span style="font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted)">
+          ${d.toLocaleDateString("es-AR", { day: '2-digit', month: '2-digit', year: 'numeric' })}
+        </span>
+      </div>
+      <h4 style="font-size:.9rem;font-weight:700;color:var(--text);line-height:1.35">${escapeHtml(m.title)}</h4>
+      <div style="font-size:.78rem;color:var(--text-2);background:var(--bg);padding:10px 12px;border-radius:10px;white-space:pre-wrap;line-height:1.5;max-height:160px;overflow-y:auto;border:1px solid var(--border-2)">${escapeHtml(m.minutes || "Sin minuta registrada aún.")}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:.7rem;color:var(--muted);border-top:1px solid var(--border-2);padding-top:8px">
+        <span>Convocó: <strong>${escapeHtml(m.created_by || 'Equipo')}</strong></span>
+        <span style="color:var(--accent);font-weight:700">🔒 Minuta Archivada</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ==========================================
+// SINCRONIZACIÓN Y ARRANQUE GENERAL
+// ==========================================
+async function syncMeetingsWithSupabase() {
+  const storedMeeting = localStorage.getItem(MEETINGS_STORAGE_KEY);
+  if (storedMeeting) {
+    try { currentMeeting = JSON.parse(storedMeeting); } catch (e) { currentMeeting = null; }
+  }
+
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("team_meetings")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (!error && data && data.length > 0) {
+        currentMeeting = {
+          id: data[0].id.toString(),
+          title: data[0].title,
+          reason: data[0].reason,
+          scheduled_at: data[0].scheduled_at,
+          meet_url: data[0].meet_url,
+          created_by: data[0].created_by,
+          status: data[0].status,
+          votes: data[0].votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
+          close_votes: data[0].close_votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
+          minutes: data[0].minutes || "",
+          closed_at: data[0].closed_at || null
+        };
+        localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+      }
+    } catch (err) {
+      console.warn("Sync meetings offline:", err);
+    }
+  }
+
+  renderMeetingBanner();
+  renderMinutesHistory();
+}
+
+// Iniciar componentes
+init();
+checkAuth();
+renderTeamCards();
+updatePresencialCountdown();
+setInterval(updatePresencialCountdown, 60000);
+syncMeetingsWithSupabase();

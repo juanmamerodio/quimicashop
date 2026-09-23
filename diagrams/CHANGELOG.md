@@ -24,6 +24,17 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-22] Desacople y Modularización Arquitectónica: Extracción de style.css y tasks.js
+- **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
+- **Artefactos Modificados:** `style.css`, `tasks.js`, `index.html`, `tasks.html`, `diagrams/CHANGELOG.md`
+- **¿Por qué se hizo? (Motivo):** Reducir drásticamente el peso y la redundancia de código incrustado en los archivos HTML (`tasks.html` tenía 2859 líneas y 970+ líneas de CSS; `index.html` tenía 1929 líneas con estilos duplicados). Mejorar la mantenibilidad, legibilidad y separación de incumbencias (Separation of Concerns).
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - Se creó [`style.css`](./style.css) unificando el design system M3 Expressive + iOS 26, componentes de Hub, Kanban, modales, meetings y tarjetas de equipo.
+  - Se vinculó `<link rel="stylesheet" href="./style.css" />` en `index.html` y `tasks.html`, eliminando cerca de 1900 líneas de CSS repetidas.
+  - Se extrajo toda la lógica operativa del cliente en [`tasks.js`](./tasks.js) (660 líneas de JS modular) y se enlazó como script externo en `tasks.html`, reduciendo el archivo a solo 636 líneas de marcado semántico limpio.
+
+---
+
 ### [2026-09-22] Resolución de Auditoría QA: Cancelación de Llamadas, Edición de Roles, Reunión Presencial y Minutas
 - **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
 - **Artefactos Modificados:** `tasks.html`, `AGENTS.md`, `diagrams/CHANGELOG.md`
