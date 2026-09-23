@@ -33,6 +33,12 @@
       --amber-lt: #fef3c7;
       --violet: #7c3aed;
       --violet-lt: #ede9fe;
+      --blue: #2563eb;
+      --blue-lt: #eff6ff;
+      --rose: #e11d48;
+      --rose-lt: #fff1f2;
+      --teal: #0d9488;
+      --teal-lt: #f0fdfa;
       --text: #1c1c1e;
       --text-2: #3a3a3c;
       --muted: #8e8e93;
@@ -302,6 +308,24 @@
       border-color: rgba(124, 58, 237, .2)
     }
 
+    .cb {
+      background: var(--blue-lt);
+      color: var(--blue);
+      border-color: rgba(37, 99, 235, .2)
+    }
+
+    .cr {
+      background: var(--rose-lt);
+      color: var(--rose);
+      border-color: rgba(225, 29, 72, .2)
+    }
+
+    .ct-teal {
+      background: var(--teal-lt);
+      color: var(--teal);
+      border-color: rgba(13, 148, 136, .2)
+    }
+
     .sec-line {
       flex: 1;
       height: 1px;
@@ -385,6 +409,18 @@
       background: rgba(124, 58, 237, .06)
     }
 
+    .cb.card::before {
+      background: rgba(37, 99, 235, .06)
+    }
+
+    .cr.card::before {
+      background: rgba(225, 29, 72, .06)
+    }
+
+    .ct-teal.card::before {
+      background: rgba(13, 148, 136, .06)
+    }
+
     .card:hover {
       transform: translateY(-3px) scale(1.005);
       box-shadow: var(--sh-lg);
@@ -430,6 +466,18 @@
       background: var(--violet-lt)
     }
 
+    .ib {
+      background: var(--blue-lt)
+    }
+
+    .ir {
+      background: var(--rose-lt)
+    }
+
+    .it {
+      background: var(--teal-lt)
+    }
+
     .ig svg {
       color: var(--accent)
     }
@@ -440,6 +488,18 @@
 
     .iv svg {
       color: var(--violet)
+    }
+
+    .ib svg {
+      color: var(--blue)
+    }
+
+    .ir svg {
+      color: var(--rose)
+    }
+
+    .it svg {
+      color: var(--teal)
     }
 
     .cbadge {
@@ -519,6 +579,144 @@
     .bv {
       background: var(--violet);
       color: #fff
+    }
+
+    .bb {
+      background: var(--blue);
+      color: #fff
+    }
+
+    .br {
+      background: var(--rose);
+      color: #fff
+    }
+
+    .bt {
+      background: var(--teal);
+      color: #fff
+    }
+
+    /* TIMELINE / CAMBIOS */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 14px;
+      bottom: 14px;
+      width: 2px;
+      background: rgba(0, 0, 0, .06);
+    }
+
+    .tl-item {
+      display: flex;
+      gap: 16px;
+      position: relative;
+    }
+
+    .tl-dot {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--sh-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .tl-card {
+      flex: 1;
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 20px;
+      box-shadow: var(--sh-sm);
+      transition: transform 180ms var(--ease), box-shadow 180ms ease;
+    }
+
+    .tl-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--sh-md);
+    }
+
+    .tl-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tl-title {
+      font-size: .98rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: var(--text);
+    }
+
+    .tl-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .73rem;
+      color: var(--muted);
+      font-family: "DM Mono", monospace;
+    }
+
+    .tl-who {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(0, 0, 0, .04);
+      padding: 2px 8px;
+      border-radius: 6px;
+      color: var(--text-2);
+      font-weight: 500;
+    }
+
+    .tl-body {
+      font-size: .83rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .tl-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-2);
+    }
+
+    .tl-box {
+      font-size: .76rem;
+      background: rgba(255, 255, 255, .5);
+      border: 1px solid var(--border-2);
+      border-radius: 10px;
+      padding: 8px 12px;
+    }
+
+    .tl-box-t {
+      font-weight: 600;
+      color: var(--text-2);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      font-size: .67rem;
+      letter-spacing: .04em;
     }
 
     /* MEGA */
@@ -795,6 +993,15 @@
       </div>
     </a>
     <div class="nav-r">
+      <a href="#sec-cambios" class="nav-pill"
+        style="text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="12 8 12 12 14 14" />
+          <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+        </svg>
+        Cambios
+      </a>
       <span class="nav-pill">Hub del Proyecto</span>
       <span class="nav-dot" aria-hidden="true"></span>
     </div>
@@ -836,6 +1043,33 @@
         <span class="spill">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="4" />
+            <path d="M5.5 21a6.5 6.5 0 0 1 13 0" />
+          </svg>
+          1 DCU
+        </span>
+        <span class="spill">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h20v14H2z" />
+            <path d="M8 21h8" />
+            <path d="M12 17v4" />
+          </svg>
+          1 Presentación
+        </span>
+        <span class="spill">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          1 Informe Técnico
+        </span>
+        <span class="spill">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="14" height="20" x="5" y="2" rx="2" />
             <path d="M9 7h6" />
             <path d="M9 11h6" />
@@ -843,6 +1077,14 @@
           </svg>
           2 Prototipos
         </span>
+        <a href="#sec-cambios" class="spill" style="text-decoration:none;cursor:pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="12 8 12 12 14 14" />
+            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+          </svg>
+          5 Hitos · Cambios
+        </a>
         <span class="spill">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -980,7 +1222,7 @@
           </div>
           <div>
             <div class="ct">DFD Nivel 3</div>
-            <p class="cd">Maximo detalle. Logica de verificacion con Gemini IA, sync con Sheets y gestion de stock.</p>
+            <p class="cd">Máximo detalle. Validación manual de comprobantes por Admin, emisión de remitos por email y cron semanal de ajuste de stock.</p>
           </div>
           <div class="cf">
             <span class="csrc">
@@ -1043,7 +1285,8 @@
                 style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">pedidos</code>
               y <code
                 style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">verificaciones</code>
-              con sus relaciones e integridad referencial.</p>
+              con sus relaciones e integridad referencial.
+            </p>
           </div>
           <div class="cf">
             <span class="csrc">
@@ -1068,7 +1311,188 @@
       </div>
     </section>
 
-    <!-- SEC 3 â€” PROTOTIPOS -->
+    <!-- SEC 3 — DCU (CASOS DE USO) -->
+    <section class="sec" aria-labelledby="s-dcu">
+      <div class="sec-head">
+        <div class="sec-chip cb" id="s-dcu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="4" />
+            <path d="M5.5 21a6.5 6.5 0 0 1 13 0" />
+          </svg>
+          Casos de Uso
+        </div>
+        <div class="sec-line"></div>
+        <span class="sec-cnt">1 diagrama UML</span>
+      </div>
+      <div class="ga">
+
+        <a id="dcu-quimica" class="card cb" target="_blank" rel="noopener noreferrer"
+          href="https://lucid.app/lucidchart/de071bba-d13d-4a71-b526-a51c6a221fe4/edit?viewport_loc=-369%2C-372%2C1914%2C1009%2C0_0&invitationId=inv_9f3cd595-05a1-4d10-859e-041abc5394ce">
+          <div class="card-top">
+            <div class="ci ib">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="7" r="4" />
+                <path d="M5.5 21a6.5 6.5 0 0 1 13 0" />
+                <circle cx="19" cy="11" r="2.5" />
+                <path d="M22 19a4 4 0 0 0-5.5-3.7" />
+              </svg>
+            </div>
+            <span class="cbadge">DCU UML</span>
+          </div>
+          <div>
+            <div class="ct">Diagrama de Casos de Uso</div>
+            <p class="cd">Interacciones y límites del sistema. Define los actores <strong
+                style="color:var(--text-2)">Cliente</strong> y <strong style="color:var(--text-2)">Admin</strong>,
+              flujos de carrito, confirmación, subida y validación IA de comprobantes, gestión de stock, alertas y
+              remito de entrega con relaciones <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">&lt;&lt;incluye&gt;&gt;</code>
+              y <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">&lt;&lt;extend&gt;&gt;</code>.
+            </p>
+          </div>
+          <div class="cf">
+            <span class="csrc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M9 9h6" />
+                <path d="M9 12h6" />
+                <path d="M9 15h4" />
+              </svg>
+              Lucidchart
+            </span>
+            <span class="btn bb">Abrir <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M7 17L17 7" />
+                <path d="M7 7h10v10" />
+              </svg></span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- SEC 4 — PRESENTACIÓN & PLANIFICACIÓN -->
+    <section class="sec" aria-labelledby="s-pres">
+      <div class="sec-head">
+        <div class="sec-chip cr" id="s-pres">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h20v14H2z" />
+            <path d="M8 21h8" />
+            <path d="M12 17v4" />
+          </svg>
+          Presentación y Planificación
+        </div>
+        <div class="sec-line"></div>
+        <span class="sec-cnt">Documento interactivo</span>
+      </div>
+      <div class="ga">
+
+        <a id="pres-gamma" class="card cr" target="_blank" rel="noopener noreferrer"
+          href="https://gamma.app/docs/-rvc9k5s41kxgrr3?mode=doc">
+          <div class="card-top">
+            <div class="ci ir">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="6 3 20 12 6 21 6 3" />
+              </svg>
+            </div>
+            <span class="cbadge" style="background:var(--rose-lt);color:var(--rose)">GAMMA DOC</span>
+          </div>
+          <div>
+            <div class="ct">Presentación Ejecutiva del Proyecto</div>
+            <p class="cd">Definición estratégica integral: Delimitación, Alcance del Sistema, Análisis del mercado para
+              el ciclo lectivo 2026, Localización y Layout de la Planta, Recursos, Descripción del Proceso y Variables
+              Críticas, y CMP (Método de la Ruta Crítica).</p>
+          </div>
+          <div class="cf">
+            <span class="csrc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+              Gamma App
+            </span>
+            <span class="btn br">Presentar <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M7 17L17 7" />
+                <path d="M7 7h10v10" />
+              </svg></span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- SEC 5 — INFORME TÉCNICO (ESENCIA TÉCNICA) -->
+    <section class="sec" aria-labelledby="s-informe">
+      <div class="sec-head">
+        <div class="sec-chip ct-teal" id="s-informe">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          Informe &amp; Memoria Técnica
+        </div>
+        <div class="sec-line"></div>
+        <span class="sec-cnt">Documento de Cátedra</span>
+      </div>
+      <div class="ga">
+
+        <a id="informe-esencia" class="card ct-teal" target="_blank" rel="noopener noreferrer"
+          href="https://docs.google.com/document/d/1sj786oaLvUvs2rioqoO-XvJPsVaMz30vHRI7H6R3TGU/edit?tab=t.0#heading=h.l6ysgqrfc1fd">
+          <div class="card-top">
+            <div class="ci it">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <path d="M16 13H8" />
+                <path d="M16 17H8" />
+                <path d="M10 9H8" />
+              </svg>
+            </div>
+            <span class="cbadge" style="background:var(--teal-lt);color:var(--teal)">DOC ACADÉMICO</span>
+          </div>
+          <div>
+            <div class="ct">Informe: Esencia Técnica</div>
+            <p class="cd">Memoria técnica institucional de 7mo Año. Automatización del proceso de venta de productos
+              cosméticos de la especialidad Química. Detalla objetivos generales/específicos, alcance
+              (inclusiones/exclusiones), análisis de mercado y asignación del equipo de programación (Infante, Merodio,
+              Caceres, Queipo).</p>
+          </div>
+          <div class="cf">
+            <span class="csrc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              Google Docs · Cátedra EEST N°1
+            </span>
+            <span class="btn bt">Ver Documento <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M7 17L17 7" />
+                <path d="M7 7h10v10" />
+              </svg></span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- SEC 6 — PROTOTIPOS -->
     <section class="sec" aria-labelledby="s-proto">
       <div class="sec-head">
         <div class="sec-chip cv" id="s-proto">
@@ -1166,9 +1590,9 @@
                   </div>
                   <span class="cbadge" style="background:var(--accent-lt);color:var(--accent)">PROTO v2 Â· LIVE</span>
                 </div>
-                <div class="mega-t">Aplicacion en Vercel â€” Framework real</div>
-                <p class="mega-d">Prototipo funcional Nivel 2. Es el estado actual del proyecto: Next.js 15 + Supabase
-                  con las 3 tablas migradas + Gemini IA integrada. El framework en donde estamos parados hoy.</p>
+                <div class="mega-t">Aplicación en Vercel — Framework real</div>
+                <p class="mega-d">Prototipo funcional Nivel 2. Estado actual de desarrollo: Next.js 15 + Supabase
+                  con arquitectura relacional extendida, control de stock y panel de validación para el administrador.</p>
               </div>
               <div class="live-badge"><span class="ldot"></span>Live</div>
             </div>
@@ -1177,7 +1601,7 @@
               <span class="stag">Supabase</span>
               <span class="stag">TypeScript</span>
               <span class="stag">Tailwind CSS</span>
-              <span class="stag">Gemini IA</span>
+              <span class="stag">Admin Flow</span>
               <span class="stag">Resend</span>
             </div>
             <div class="mega-links">
@@ -1209,11 +1633,202 @@
       </div>
     </section>
 
+    <!-- SEC 7 — BITÁCORA DE CAMBIOS & RELEVAMIENTO TÉCNICO -->
+    <section class="sec" id="sec-cambios" aria-labelledby="s-cambios">
+      <div class="sec-head">
+        <div class="sec-chip cg" id="s-cambios">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="12 8 12 12 14 14" />
+            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+          </svg>
+          Control de Cambios
+        </div>
+        <div class="sec-line"></div>
+        <span class="sec-cnt">Registro cronológico</span>
+      </div>
+
+      <div class="timeline">
+
+        <!-- CAMBIO: ALCANCE FINAL Y SIN IA -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Ajuste de Alcance: Sin IA y Deprecación de React Native</span>
+              <div class="tl-meta">
+                <span class="tl-who">Equipo</span>
+                <span>Sep 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Se fijó el alcance formal de cátedra: la validación de pagos es 100% manual por el Administrador escolar (sin IA externa). A su vez, se declara inválido y descartado el prototipo React Native por desfase con el nuevo DER de 13 tablas.</p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Alinear el software al informe de cátedra, garantizando control docente sobre los comprobantes y simplificando el desarrollo en Web App.</div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Actualización de DFD N3, DER, AGENTS.md, README.md y priorización de prototype1.html como referencia web.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMBIO 2 -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="7" r="4" />
+              <path d="M5.5 21a6.5 6.5 0 0 1 13 0" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Modelado del Diagrama de Casos de Uso (DCU)</span>
+              <div class="tl-meta">
+                <span class="tl-who">Equipo</span>
+                <span>Sep 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Definición de roles del sistema (Cliente y Administrador). Mapeo de casos de uso con
+              relaciones <code>&lt;&lt;incluye&gt;&gt;</code> para compras/comprobantes y
+              <code>&lt;&lt;extend&gt;&gt;</code> para validación de estados y catálogo.
+            </p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Clarificar la interacción del usuario final y del administrador del departamento de química antes
+                  de cerrar las rutas.</div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Anclado al hub partiendo del csv: <code>/diagrams/DCU-Quimica.csv</code> y acceso directo al
+                  archivo editable en Lucidchart.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMBIO 3 -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h20v14H2z" />
+              <path d="M8 21h8" />
+              <path d="M12 17v4" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Adición de Presentación Gamma con Ruta Crítica (CMP)</span>
+              <div class="tl-meta">
+                <span class="tl-who">Equipo</span>
+                <span>Ago 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Integración de la presentación en Gamma App con delimitación, layout de planta, análisis
+              de variables críticas del proceso y método de ruta crítica (CMP) incluyendo los tiempos reales del
+              proyecto.</p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Proveer una vista de presentacion rápida para que TODOS entiendan en que se invierte el tiempo y
+                  el porque de los mismos.
+                </div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Agregamos un link en el hub para acceder a la presentacion en Gamma App.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMBIO 4 -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#3d8c6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Diagramas de Flujo de Datos (DFD N1, N2 y N3)</span>
+              <div class="tl-meta">
+                <span class="tl-who">Equipo</span>
+                <span>Ago 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Modelado en 3 niveles de abstracción: contexto global (N1), procesos y flujos intermedios
+              (N2) y lógica de validación de pago(N3).</p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Entender el flujo del sistema y definir la factibilidad y complejidad del proyecto, como la
+                  generacion de comprobantes, pagos y stock.</div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Archivos CSV y diagramas en Lucidchart. ambos con links directos en el hub.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMBIO 5 -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3" />
+              <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+              <path d="M3 12A9 3 0 0 0 21 12" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Diseño del Modelo Relacional (DER)</span>
+              <div class="tl-meta">
+                <span class="tl-who">Equipo</span>
+                <span>Jul 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Creación del esquema relacional con las 13 tablas del proyecto (DER).
+            </p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Entender las relaciones de la base de datos y asegurar una auditoría estricta para futuro
+                  desarrollo
+                  SQL y control backend del sistema.</div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Desarrollo en Supabase SQL (serverless) y documentación del DER en Lucidchart enlazado al Hub.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </div>
 
   <div class="fdiv"></div>
   <footer class="foot">
-    <p>QuimicaShop Â· E.E.S.T N1 Luciano Reyes Â· Campana, Buenos Aires Â· <strong>7mo Anio Programacion 2026</strong>
+    <p>QuimicaShop · E.E.S.T N1 Luciano Reyes · Campana, Buenos Aires · <strong>7mo Año Programacion 2026</strong>
     </p>
   </footer>
 

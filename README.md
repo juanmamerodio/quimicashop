@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Esencia Técnica · QuimicaShop
+> Sistema de Ventas de Productos Cosméticos y Control de Stock  
+> **E.E.S.T N°1 Luciano Reyes** · Campana, Buenos Aires · 7mo Año Programación 2026
 
-## Getting Started
+**Integrantes:** Isabella Infante, Juan Manuel Merodio, Celeste Caceres, Enzo Queipo  
+**Docentes de Cátedra:** Ariel Leibouski, Cecilia Maldonado, Alejandro Nieva  
+**Materias:** Proy. de Diseño e Implementación de Sistemas, Evaluación de Proyectos, Diseño de Web Dinámico  
 
-First, run the development server:
+---
+
+## 📌 Alcance del Sistema Vigente
+
+El proyecto automatiza el proceso de ventas del departamento de Química de la institución escolar:
+- **Gestión de Stock e Inventario:** Control de stock disponible, porcentaje de reserva y reingreso de stock reservado no ejecutado (cron semanal de los viernes).
+- **Flujo de Pedidos y Validación:** Subida de comprobante bancario por el cliente y **validación manual por parte del Administrador** a través de su panel de gestión (aprobación/rechazo y cambio de estados).
+- **Emisión de Remitos:** Generación de remitos de venta tras la validación del comprobante y envío de confirmaciones.
+- **Acceso:** Panel de administración autenticado y catálogo público con información de productos químicos y cosméticos.
+
+> [!NOTE]
+> **Aclaración sobre IA y Prototipos:**
+> - **Sin Validación por IA:** No se utiliza inteligencia artificial para validar comprobantes bancarios; el flujo es 100% supervisado por el administrador humano de la cátedra.
+> - **Prototipos:** El prototipo en React Native ha quedado **inválido/obsoleto** debido a cambios de arquitectura y flujos de reserva. El prototipo web funcional y maqueta UX/UI de referencia oficial es [`diagrams/prototype1.html`](./diagrams/prototype1.html).
+
+---
+
+## 📂 Diagramas y Modelos del Sistema
+
+Todos los diagramas técnicos se encuentran en la carpeta `diagrams/` y están anclados con enlaces editables en el **Hub de Documentación** ([`index.html`](./index.html)):
+
+1. **DER (Modelo Relacional):** [`diagrams/DER-quimica.csv`](./diagrams/DER-quimica.csv) — 13 entidades normalizadas (Cliente, Pedido, Detalle_del_pedido, Producto, Stock, Alerta_de_estado, Estados_pedidos, Comprobante, Estados_comprobante, remitos_de_venta, Detalle_carrito, Admin, Roll).
+2. **DCU (Casos de Uso UML):** [`diagrams/DCU-Quimica.csv`](./diagrams/DCU-Quimica.csv) — Actores Cliente y Admin, flujos con `<<incluye>>` y `<<extend>>`.
+3. **DFD (Flujo de Datos):**
+   - Nivel 1: [`diagrams/DFD1-Quimica.csv`](./diagrams/DFD1-Quimica.csv) — Visión de contexto y procesos principales.
+   - Nivel 2: [`diagrams/DFD2-Quimica.csv`](./diagrams/DFD2-Quimica.csv) — Descomposición de pedidos, stock y alertas.
+   - Nivel 3: [`diagrams/DFD3-Quimica.csv`](./diagrams/DFD3-Quimica.csv) — Validación humana por admin, temporizador semanal y remitos.
+4. **Memoria Técnica:** [`diagrams/informe_Escencia_Tecnica.md`](./diagrams/informe_Escencia_Tecnica.md).
+5. **Historial de Decisiones:** [`diagrams/CHANGELOG.md`](./diagrams/CHANGELOG.md).
+
+---
+
+## 🚀 Puesta en Marcha (Entorno de Desarrollo)
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Abre [http://localhost:3000](http://localhost:3000) en el navegador.
+El hub de documentación estática y diagramas se visualiza abriendo directamente [`index.html`](./index.html).
