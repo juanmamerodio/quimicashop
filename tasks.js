@@ -140,9 +140,27 @@ async function init() {
 
   render();
 
-  // 2. Sincronización con Supabase (team_tasks y task_notes)
+  // 2. Sincronización con Supabase (team_members, team_tasks, task_notes y Realtime)
   if (supabaseClient) {
     try {
+      // Sincronizar perfiles y roles oficiales desde team_members
+      const { data: membersData, error: membersError } = await supabaseClient
+        .from("team_members")
+        .select("*");
+
+      if (!membersError && membersData && membersData.length > 0) {
+        membersData.forEach(m => {
+          if (USERS[m.key]) {
+            USERS[m.key].role = m.role || USERS[m.key].role;
+            USERS[m.key].badge = m.badge || USERS[m.key].badge;
+            USERS[m.key].email = m.email || USERS[m.key].email || "";
+            if (m.name) USERS[m.key].name = m.name;
+          }
+        });
+        renderTeamCards();
+      }
+
+      // Cargar tareas
       const { data, error } = await supabaseClient
         .from("team_tasks")
         .select("*");
@@ -156,6 +174,8 @@ async function init() {
           status: item.status || "backlog",
           tag: item.tag || "DATABASE",
           prio: item.priority || item.prio || "MEDIA",
+          der_entity: item.der_entity || "General",
+          estimated_hours: item.estimated_hours || 2,
           completed_at: item.completed_at || null,
           created_at: item.created_at || null
         }));
@@ -203,6 +223,48 @@ async function init() {
         localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(taskNotes));
         render();
       }
+
+      // Suscripción Realtime (PostgreSQL Changes)
+      if (typeof supabaseClient.channel === "function") {
+        supabaseClient.channel('realtime_teams_hub')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'team_tasks' }, async () => {
+            const { data: freshTasks } = await supabaseClient.from("team_tasks").select("*");
+            if (freshTasks) {
+              tasks = freshTasks.map(item => ({
+                id: (item.id || Date.now()).toString(),
+                title: item.title || "",
+                desc: item.description || item.desc || "",
+                assignee: item.assignee || "Juanma",
+                status: item.status || "backlog",
+                tag: item.tag || "DATABASE",
+                prio: item.priority || item.prio || "MEDIA",
+                der_entity: item.der_entity || "General",
+                estimated_hours: item.estimated_hours || 2,
+                completed_at: item.completed_at || null,
+                created_at: item.created_at || null
+              }));
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+              render();
+            }
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'team_meetings' }, async () => {
+            syncMeetingsWithSupabase();
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'team_members' }, async () => {
+            const { data: freshMembers } = await supabaseClient.from("team_members").select("*");
+            if (freshMembers) {
+              freshMembers.forEach(m => {
+                if (USERS[m.key]) {
+                  USERS[m.key].role = m.role || USERS[m.key].role;
+                  USERS[m.key].badge = m.badge || USERS[m.key].badge;
+                  USERS[m.key].email = m.email || USERS[m.key].email || "";
+                }
+              });
+              renderTeamCards();
+            }
+          })
+          .subscribe();
+      }
     } catch (err) {
       console.warn("Supabase sync offline, usando almacenamiento local:", err);
       const badge = document.getElementById("db-status-badge");
@@ -211,11 +273,12 @@ async function init() {
   }
 }
 
-async function save(taskItem = null) {
+async function save(taskItem = null, previousTaskState = null) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   if (supabaseClient && taskItem) {
     try {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskItem.id);
+      const modifier = (currentUser && !currentUser.isGuest) ? currentUser.key : "Juanma";
       const payload = {
         title: taskItem.title,
         description: taskItem.desc,
@@ -223,21 +286,51 @@ async function save(taskItem = null) {
         status: taskItem.status,
         tag: taskItem.tag,
         priority: taskItem.prio,
+        der_entity: taskItem.der_entity || "General",
+        estimated_hours: parseFloat(taskItem.estimated_hours) || 2.0,
+        last_modified_by: modifier,
         completed_at: taskItem.status === 'done' ? (taskItem.completed_at || new Date().toISOString()) : null,
         updated_at: new Date().toISOString()
       };
 
       if (isUuid) {
         await supabaseClient.from("team_tasks").update(payload).eq("id", taskItem.id);
+
+        // Registro de Auditoría de Cambios (Change Data Capture)
+        try {
+          await supabaseClient.from("task_audit_logs").insert([{
+            task_id: taskItem.id,
+            action: previousTaskState && previousTaskState.status !== taskItem.status ? 'STATUS_CHANGE' : 'UPDATE',
+            changed_by: modifier,
+            previous_state: previousTaskState || null,
+            new_state: payload,
+            diff_summary: `Actualizado por ${modifier} (Estado: ${taskItem.status}, DER: ${taskItem.der_entity || 'General'})`
+          }]);
+        } catch (auditErr) {
+          console.warn("Audit log no disponible o tabla no creada aún:", auditErr);
+        }
       } else {
+        payload.created_by = modifier;
         const { data } = await supabaseClient.from("team_tasks").insert([payload]).select();
         if (data && data[0]) {
           taskItem.id = data[0].id.toString();
           localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+
+          // Log de creación
+          try {
+            await supabaseClient.from("task_audit_logs").insert([{
+              task_id: data[0].id,
+              action: 'CREATE',
+              changed_by: modifier,
+              previous_state: null,
+              new_state: payload,
+              diff_summary: `Tarea creada por ${modifier} para ${taskItem.assignee}`
+            }]);
+          } catch (auditErr) { }
         }
       }
     } catch (e) {
-      console.error("Error guardando en Supabase:", e);
+      console.error("Error guardando tarea en Supabase:", e);
     }
   }
 }
@@ -1058,6 +1151,7 @@ function renderTeamCards() {
         </div>
         <p>${escapeHtml(u.role)}</p>
         <span class="role-badge" style="background:${u.bg};color:${u.color}">${escapeHtml(u.badge)}</span>
+        ${u.email ? `<div style="font-size:.68rem;color:var(--muted);margin-top:6px;font-family:'DM Mono',monospace">📧 ${escapeHtml(u.email)}</div>` : ''}
       </div>
     `;
     grid.appendChild(card);
@@ -1080,6 +1174,8 @@ function openEditRoleModal(userKey) {
   document.getElementById("editRoleUserName").value = u.name;
   document.getElementById("editRoleTitleInput").value = u.role;
   document.getElementById("editRoleBadgeInput").value = u.badge;
+  const emailInput = document.getElementById("editRoleEmailInput");
+  if (emailInput) emailInput.value = u.email || "";
   document.getElementById("editRoleModalTitle").textContent = `Editar Mi Rol (${u.name.split(" ")[0]})`;
 
   document.getElementById("editRoleModal").classList.add("open");
@@ -1089,11 +1185,13 @@ function closeEditRoleModal() {
   document.getElementById("editRoleModal").classList.remove("open");
 }
 
-function handleSaveRole(e) {
+async function handleSaveRole(e) {
   e.preventDefault();
   const userKey = document.getElementById("editRoleUserKey").value;
   const newRole = document.getElementById("editRoleTitleInput").value.trim();
   const newBadge = document.getElementById("editRoleBadgeInput").value.trim();
+  const emailInput = document.getElementById("editRoleEmailInput");
+  const newEmail = emailInput ? emailInput.value.trim() : "";
 
   if (!currentUser || currentUser.key !== userKey) {
     alert("Operación rechazada: No tienes permisos para alterar roles de otros integrantes.");
@@ -1104,12 +1202,32 @@ function handleSaveRole(e) {
 
   USERS[userKey].role = newRole;
   USERS[userKey].badge = newBadge;
+  USERS[userKey].email = newEmail;
 
+  // 1. Persistencia local
   const rolesToStore = {};
   Object.keys(USERS).forEach(k => {
-    rolesToStore[k] = { role: USERS[k].role, badge: USERS[k].badge };
+    rolesToStore[k] = { role: USERS[k].role, badge: USERS[k].badge, email: USERS[k].email || "" };
   });
   localStorage.setItem(ROLES_STORAGE_KEY, JSON.stringify(rolesToStore));
+
+  // 2. Persistencia en Supabase (team_members)
+  if (supabaseClient) {
+    try {
+      await supabaseClient
+        .from("team_members")
+        .update({
+          role: newRole,
+          badge: newBadge,
+          email: newEmail || null,
+          updated_at: new Date().toISOString(),
+          updated_by: userKey
+        })
+        .eq("key", userKey);
+    } catch (dbErr) {
+      console.warn("No se pudo actualizar team_members en Supabase:", dbErr);
+    }
+  }
 
   renderTeamCards();
   closeEditRoleModal();

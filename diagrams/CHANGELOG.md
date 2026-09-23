@@ -24,6 +24,18 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-22] Sincronización Realtime con Supabase, Persistencia Remota de Roles y Gestión de Emails
+- **Autor / Responsable:** Juan Manuel Merodio (QA & Arquitectura) & Senior Full-Stack Lead
+- **Artefactos Modificados:** `tasks.js`, `tasks.html`, `diagrams/CHANGELOG.md`
+- **¿Por qué se hizo? (Motivo):** Conectar la interfaz de Teams con las tablas recientemente migradas en Supabase (`team_members`, `team_tasks`, `team_meetings`, `task_notes`), permitiendo persistencia remota de roles con auditoría, recolección de correos electrónicos para Meet y sincronización en vivo mediante WebSockets de PostgreSQL (`supabase.channel`).
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Persistencia en `team_members`:** `handleSaveRole()` ahora ejecuta un `UPDATE team_members` con marca de tiempo UTC y usuario autor en Supabase, además de la copia en caché local.
+  - **Campo y Display de Email:** Se agregó el input de correo en `editRoleModal` y visualización sutil en las tarjetas de perfil para viabilizar el sistema de notificaciones.
+  - **Suscripción Realtime:** Se implementó `supabaseClient.channel('realtime_teams_hub')` escuchando eventos `INSERT`, `UPDATE` y `DELETE` en `team_tasks`, `team_meetings` y `team_members`.
+  - **Verificación de Producción:** Se validó la compilación de producción (`npm run build` en Next.js 15) resultando en 0 errores.
+
+---
+
 ### [2026-09-22] Auditoría Senior Full-Stack: Seguridad de Roles, Autoría Estricta, Minutas Presenciales y Planes Técnicos
 - **Autor / Responsable:** Juan Manuel Merodio (QA & Arquitectura) & Senior Full-Stack Lead
 - **Artefactos Modificados:** `tasks.html`, `tasks.js`, `AGENTS.md`, `diagrams/CHANGELOG.md`, `diagrams/PLAN_NOTIFICACIONES_EMAIL.md`, `diagrams/PLAN_MOBILE_MEDIA_QUERIES_IOS27.md`, `.agents/skills/media-queries-ios-pro/SKILL.md`
