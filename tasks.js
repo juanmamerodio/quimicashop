@@ -88,13 +88,24 @@ const TAG_COLORS = {
   DOCS: { bg: "#f0fdfa", txt: "#0f766e" }
 };
 
+// GENERADOR DE UUID SEGURO PARA SUPABASE
+function generateUuid() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 // CONFIGURACIÓN DE PERFILES Y CREDENCIALES (DNI) CON ROLES PERSISTENTES
 const ROLES_STORAGE_KEY = "quimicashop_team_roles_v1";
 const DEFAULT_USERS = {
-  Juanma: { name: "Juan Manuel Merodio", pass: "48134318", role: "Full-Stack & Arquitectura", badge: "Next.js / Supabase / CI-CD", avatar: "JM", color: "#0284c7", bg: "#e0f2fe" },
-  Isabella: { name: "Isabella Infante", pass: "96131444", role: "Diseño UX/UI & Frontend", badge: "M3 / Tailwind / Vistas", avatar: "II", color: "#db2777", bg: "#fce7f3" },
-  Celeste: { name: "Celeste Cáceres", pass: "48021520", role: "Lógica de Stock & QA", badge: "Reglas de Stock / Testing", avatar: "CC", color: "#d97706", bg: "#fef3c7" },
-  Enzo: { name: "Enzo Queipo", pass: "48290048", role: "Base de Datos & Remitos", badge: "SQL 13 Tablas / Resend", avatar: "EQ", color: "#16a34a", bg: "#dcfce7" }
+  Juanma: { name: "Juan Manuel Merodio", pass: "48134318", role: "Frontend & JS Lead", badge: "Next.js 15 / React / UI Logic", avatar: "JM", color: "#0284c7", bg: "#e0f2fe" },
+  Isabella: { name: "Isabella Infante", pass: "96131444", role: "Database & SQL Architecture", badge: "Supabase / PostgreSQL 13 Tablas / DDL", avatar: "II", color: "#db2777", bg: "#fce7f3" },
+  Celeste: { name: "Celeste Cáceres", pass: "48021520", role: "Diseño UX/UI & Testing QA", badge: "Figma / M3 Expressive / Test Cases", avatar: "CC", color: "#d97706", bg: "#fef3c7" },
+  Enzo: { name: "Enzo Queipo", pass: "48290048", role: "Backend, Admin Panel & Relaciones", badge: "APIs / RBAC / Automatizaciones", avatar: "EQ", color: "#16a34a", bg: "#dcfce7" }
 };
 
 let USERS = { ...DEFAULT_USERS };
@@ -1019,7 +1030,7 @@ async function handleSaveMeeting(e) {
   let meetUrl = document.getElementById("mUrl").value.trim() || "https://meet.google.com/new";
 
   const newMeeting = {
-    id: "meeting-" + Date.now(),
+    id: generateUuid(),
     title,
     reason,
     scheduled_at: scheduledAt,
@@ -1046,7 +1057,7 @@ async function handleSaveMeeting(e) {
 
   if (supabaseClient) {
     try {
-      await supabaseClient.from("team_meetings").insert([{
+      const { data, error } = await supabaseClient.from("team_meetings").insert([{
         id: newMeeting.id,
         title: newMeeting.title,
         reason: newMeeting.reason,
@@ -1057,7 +1068,11 @@ async function handleSaveMeeting(e) {
         votes: newMeeting.votes,
         close_votes: newMeeting.close_votes,
         minutes: newMeeting.minutes
-      }]);
+      }]).select();
+
+      if (error) {
+        console.error("Error al guardar reunión en Supabase:", error);
+      }
     } catch (err) {
       console.warn("No se pudo guardar la reunión en Supabase:", err);
     }
@@ -1095,87 +1110,98 @@ async function voteForMeeting() {
 
 function renderMeetingBanner() {
   const banner = document.getElementById("meetingBanner");
-  if (!currentMeeting || currentMeeting.status === "closed") {
-    if (banner) banner.classList.remove("active");
+  if (!banner) return;
+
+  if (!currentMeeting || currentMeeting.status === "closed" || currentMeeting.status === "cancelled") {
+    banner.classList.remove("active");
     if (countdownTimer) clearInterval(countdownTimer);
     return;
   }
 
   banner.classList.add("active");
-  document.getElementById("meetingReasonBadge").textContent = currentMeeting.reason.toUpperCase();
-  document.getElementById("meetingTitleDisplay").textContent = currentMeeting.title;
+  const badgeEl = document.getElementById("meetingReasonBadge");
+  if (badgeEl) badgeEl.textContent = (currentMeeting.reason || "SEMANAL").toUpperCase();
+  const titleEl = document.getElementById("meetingTitleDisplay");
+  if (titleEl) titleEl.textContent = currentMeeting.title || "Reunión de Equipo";
 
   const schedDate = new Date(currentMeeting.scheduled_at);
-  document.getElementById("meetingTimeDisplay").textContent = `Programada: ${schedDate.toLocaleDateString("es-AR", { weekday: 'long', day: 'numeric', month: 'short' })} · ${schedDate.toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' })} hs`;
-
-  const votersEl = document.getElementById("meetingVotersList");
-  votersEl.innerHTML = "";
-  let votedCount = 0;
-
-  Object.keys(USERS).forEach(key => {
-    const hasVoted = currentMeeting.votes[key] === true;
-    if (hasVoted) votedCount++;
-    const pill = document.createElement("span");
-    pill.className = `voter-pill ${hasVoted ? 'voted' : 'pending'}`;
-    pill.innerHTML = `
-      <span>${hasVoted ? '✓' : '⏳'}</span>
-      <span>${key}</span>
-    `;
-    votersEl.appendChild(pill);
-  });
-
-  const actionBtns = document.getElementById("meetingActionBtns");
-  actionBtns.innerHTML = "";
-
-  const userAlreadyVoted = currentUser && USERS[currentUser.key] && currentMeeting.votes[currentUser.key] === true;
-  const isUnanimous = votedCount === 4;
-
-  if (!isUnanimous) {
-    if (currentUser && !currentUser.isGuest && !userAlreadyVoted) {
-      const voteBtn = document.createElement("button");
-      voteBtn.className = "btn-create";
-      voteBtn.innerHTML = `✓ Votar a Favor (${votedCount}/4)`;
-      voteBtn.onclick = voteForMeeting;
-      actionBtns.appendChild(voteBtn);
-    } else {
-      const waitPill = document.createElement("span");
-      waitPill.className = "nav-pill";
-      waitPill.style.color = "#b45309";
-      waitPill.style.fontWeight = "700";
-      waitPill.textContent = `Esperando votación (${votedCount}/4)`;
-      actionBtns.appendChild(waitPill);
-    }
-  } else {
-    const meetBtn = document.createElement("a");
-    meetBtn.href = currentMeeting.meet_url;
-    meetBtn.target = "_blank";
-    meetBtn.className = "btn-meeting";
-    meetBtn.style.textDecoration = "none";
-    meetBtn.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-      </svg>
-      Unirse a Meet
-    `;
-    actionBtns.appendChild(meetBtn);
-
-    const hubBtn = document.createElement("button");
-    hubBtn.className = "btn-create";
-    hubBtn.innerHTML = `📺 Abrir Pizarra & Minutas`;
-    hubBtn.onclick = openMeetingFullscreen;
-    actionBtns.appendChild(hubBtn);
+  const timeEl = document.getElementById("meetingTimeDisplay");
+  if (timeEl) {
+    timeEl.textContent = `Programada: ${schedDate.toLocaleDateString("es-AR", { weekday: 'long', day: 'numeric', month: 'short' })} · ${schedDate.toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' })} hs`;
   }
 
-  if (currentUser && !currentUser.isGuest) {
-    const cancelBtn = document.createElement("button");
-    cancelBtn.className = "btn-export";
-    cancelBtn.style.background = "#fee2e2";
-    cancelBtn.style.color = "#991b1b";
-    cancelBtn.style.borderColor = "rgba(239,68,68,.3)";
-    cancelBtn.title = "Cancelar y descartar esta reunión";
-    cancelBtn.innerHTML = `✕ Cancelar`;
-    cancelBtn.onclick = cancelCurrentMeeting;
-    actionBtns.appendChild(cancelBtn);
+  const votersEl = document.getElementById("meetingVotersList");
+  if (votersEl) {
+    votersEl.innerHTML = "";
+    let votedCount = 0;
+
+    Object.keys(USERS).forEach(key => {
+      const hasVoted = currentMeeting.votes && currentMeeting.votes[key] === true;
+      if (hasVoted) votedCount++;
+      const pill = document.createElement("span");
+      pill.className = `voter-pill ${hasVoted ? 'voted' : 'pending'}`;
+      pill.innerHTML = `
+        <span>${hasVoted ? '✓' : '⏳'}</span>
+        <span>${key}</span>
+      `;
+      votersEl.appendChild(pill);
+    });
+
+    const actionBtns = document.getElementById("meetingActionBtns");
+    if (actionBtns) {
+      actionBtns.innerHTML = "";
+
+      const userAlreadyVoted = currentUser && USERS[currentUser.key] && currentMeeting.votes && currentMeeting.votes[currentUser.key] === true;
+      const isUnanimous = votedCount === 4;
+
+      if (!isUnanimous) {
+        if (currentUser && !currentUser.isGuest && !userAlreadyVoted) {
+          const voteBtn = document.createElement("button");
+          voteBtn.className = "btn-create";
+          voteBtn.innerHTML = `✓ Votar a Favor (${votedCount}/4)`;
+          voteBtn.onclick = voteForMeeting;
+          actionBtns.appendChild(voteBtn);
+        } else {
+          const waitPill = document.createElement("span");
+          waitPill.className = "nav-pill";
+          waitPill.style.color = "#b45309";
+          waitPill.style.fontWeight = "700";
+          waitPill.textContent = `Esperando votación (${votedCount}/4)`;
+          actionBtns.appendChild(waitPill);
+        }
+      } else {
+        const meetBtn = document.createElement("a");
+        meetBtn.href = currentMeeting.meet_url;
+        meetBtn.target = "_blank";
+        meetBtn.className = "btn-meeting";
+        meetBtn.style.textDecoration = "none";
+        meetBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+          </svg>
+          Unirse a Meet
+        `;
+        actionBtns.appendChild(meetBtn);
+
+        const hubBtn = document.createElement("button");
+        hubBtn.className = "btn-create";
+        hubBtn.innerHTML = `📺 Abrir Pizarra & Minutas`;
+        hubBtn.onclick = openMeetingFullscreen;
+        actionBtns.appendChild(hubBtn);
+      }
+
+      if (currentUser && !currentUser.isGuest) {
+        const cancelBtn = document.createElement("button");
+        cancelBtn.className = "btn-export";
+        cancelBtn.style.background = "#fee2e2";
+        cancelBtn.style.color = "#991b1b";
+        cancelBtn.style.borderColor = "rgba(239,68,68,.3)";
+        cancelBtn.title = "Cancelar y descartar esta reunión";
+        cancelBtn.innerHTML = `✕ Cancelar`;
+        cancelBtn.onclick = cancelCurrentMeeting;
+        actionBtns.appendChild(cancelBtn);
+      }
+    }
   }
 
   startCountdown(schedDate);

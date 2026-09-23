@@ -24,6 +24,22 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-23] Corrección de Card de Votación de Meetings & Redistribución Oficial de Roles de Equipo
+- **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
+- **Artefactos Modificados:** `tasks.js`, `tasks.html`, `diagrams/supabase_teams_schema.sql`, `AGENTS.md`, `diagrams/CHANGELOG.md`
+- **¿Por qué se hizo? (Motivo):** Se detectó que al crear una reunión en Teams no se mostraba la tarjeta para votar en los demás clientes debido a un fallo en la generación de ID (`22P02 invalid input syntax for type uuid`) y manejo de excepciones en `handleSaveMeeting()`, lo que impedía que se insertara la fila en Supabase `team_meetings`. Además, el equipo acordó una reasignación formal de responsabilidades técnicas según preferencias de especialización.
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Corrección de Meetings UUID:** Se implementó `generateUuid()` compatible con el tipo `UUID` exigido por PostgreSQL en `team_meetings.id`. La inserción se ejecuta con `.select()` y validación explícita de errores.
+  - **Redistribución Oficial de Roles:**
+    - **Juan Manuel Merodio:** *Frontend & JS Lead* (Next.js 15, React, lógica de componentes e interactividad UI).
+    - **Isabella Infante:** *Database & SQL Architecture* (Supabase, PostgreSQL 13 Tablas, DDL y constraints).
+    - **Celeste Cáceres:** *Diseño UX/UI & Testing QA* (Figma, Material 3 Expressive, responsive iOS 27 y casos de prueba).
+    - **Enzo Queipo:** *Backend, Admin Panel & Relaciones* (Endpoints, RBAC, automatizaciones y panel `/admin`).
+  - **Sincronización en Base de Datos:** Se actualizaron los registros de `team_members` en Supabase y las tarjetas de inicio tipo Netflix en `tasks.html`.
+- **Efectos Secundarios / Verificación:** Se probó la inserción y eliminación de reuniones en Supabase con retorno exitoso (`error: null`), verificación de actualización de miembros y compilación en Next.js.
+
+---
+
 ### [2026-09-23] Incorporación de Módulo de Papelera de Tareas (Soft-Delete, Restauración y Vaciado)
 - **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
 - **Artefactos Modificados:** `tasks.html`, `tasks.js`, `style.css`, `diagrams/CHANGELOG.md`

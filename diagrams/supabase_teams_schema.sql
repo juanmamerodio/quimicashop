@@ -108,10 +108,10 @@ CREATE POLICY "Meetings Full Access" ON team_meetings FOR ALL USING (true) WITH 
 -- ============================================================================
 INSERT INTO team_members (key, dni, name, role, badge, email, avatar, color, bg)
 VALUES
-    ('Juanma', '48134318', 'Juan Manuel Merodio', 'Full-Stack & Arquitectura', 'Next.js / Supabase / CI-CD', NULL, 'JM', '#0284c7', '#e0f2fe'),
-    ('Isabella', '96131444', 'Isabella Infante', 'Diseño UX/UI & Frontend', 'M3 / Tailwind / Vistas', NULL, 'II', '#db2777', '#fce7f3'),
-    ('Celeste', '48021520', 'Celeste Cáceres', 'Lógica de Stock & QA', 'Reglas de Stock / Testing', NULL, 'CC', '#d97706', '#fef3c7'),
-    ('Enzo', '48290048', 'Enzo Queipo', 'Base de Datos & Remitos', 'SQL 13 Tablas / Resend', NULL, 'EQ', '#16a34a', '#dcfce7')
+    ('Juanma', '48134318', 'Juan Manuel Merodio', 'Frontend & JS Lead', 'Next.js 15 / React / UI Logic', NULL, 'JM', '#0284c7', '#e0f2fe'),
+    ('Isabella', '96131444', 'Isabella Infante', 'Database & SQL Architecture', 'Supabase / PostgreSQL 13 Tablas / DDL', NULL, 'II', '#db2777', '#fce7f3'),
+    ('Celeste', '48021520', 'Celeste Cáceres', 'Diseño UX/UI & Testing QA', 'Figma / M3 Expressive / Test Cases', NULL, 'CC', '#d97706', '#fef3c7'),
+    ('Enzo', '48290048', 'Enzo Queipo', 'Backend, Admin Panel & Relaciones', 'APIs / RBAC / Automatizaciones', NULL, 'EQ', '#16a34a', '#dcfce7')
 ON CONFLICT (key) DO UPDATE SET
     dni = EXCLUDED.dni,
     name = EXCLUDED.name,

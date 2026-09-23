@@ -123,7 +123,11 @@ colors: {
 ## ENTORNO PRIVADO TEAMS & MEETINGS (`tasks.html`)
 
 - **Autenticación tipo Netflix con persistencia continua:**
-  - Perfiles: Juan Manuel Merodio (48134318), Isabella Infante (96131444), Celeste Cáceres (48021520), Enzo Queipo (48290048).
+  - Perfiles y Roles Oficiales:
+    - **Juan Manuel Merodio** (48134318): *Frontend & JS Lead* (Next.js 15 / React / UI Logic)
+    - **Isabella Infante** (96131444): *Database & SQL Architecture* (Supabase / PostgreSQL 13 Tablas / DDL)
+    - **Celeste Cáceres** (48021520): *Diseño UX/UI & Testing QA* (Figma / M3 Expressive / Test Cases)
+    - **Enzo Queipo** (48290048): *Backend, Admin Panel & Relaciones* (APIs / RBAC / Automatizaciones)
   - Modo Invitado (Read-Only): Acceso libre para visualización sin permisos de edición, votación ni programación.
   - La sesión se mantiene indefinidamente en `localStorage` salvo click voluntario en *Logout*.
 - **Módulo de Reuniones (Meetings) & Gobernanza Unánime:**
