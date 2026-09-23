@@ -40,6 +40,13 @@ CREATE TABLE IF NOT EXISTS team_tasks (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
+-- Migraciones seguras para instancias existentes de team_tasks:
+ALTER TABLE team_tasks ADD COLUMN IF NOT EXISTS der_entity TEXT DEFAULT 'General';
+ALTER TABLE team_tasks ADD COLUMN IF NOT EXISTS estimated_hours NUMERIC(4,1) DEFAULT 2.0;
+ALTER TABLE team_tasks ADD COLUMN IF NOT EXISTS created_by TEXT;
+ALTER TABLE team_tasks ADD COLUMN IF NOT EXISTS last_modified_by TEXT;
+ALTER TABLE team_tasks ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP WITH TIME ZONE;
+
 -- 4. TABLA DE BITÁCORA Y NOTAS POR TAREA (FIRMA DE AUTOR INMUTABLE)
 CREATE TABLE IF NOT EXISTS task_notes (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

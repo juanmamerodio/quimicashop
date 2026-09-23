@@ -24,6 +24,19 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-23] Auditoría de Base de Datos Full-Stack: Persistencia Resiliente de Tareas y Eliminación de Regresión en Refresh
+- **Autor / Responsable:** Juan Manuel Merodio (Full-Stack & DB Lead)
+- **Artefactos Modificados:** `tasks.js`, `diagrams/supabase_teams_schema.sql`, `diagrams/CHANGELOG.md`
+- **¿Por qué se hizo? (Motivo):** Se reportó que al realizar cambios en una tarea dentro del Kanban y refrescar la página, los cambios se revertían al estado anterior. La auditoría en la capa de datos reveló que las actualizaciones a Supabase fallaban silenciosamente debido a que la tabla remota `team_tasks` no poseía aún las columnas extendidas (`der_entity`, `estimated_hours`), sumado a que `handleSaveTask()` no aguardaba (`await`) la resolución de `save()` antes de cerrar el modal o disparar re-fetches.
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Sincronización Asíncrona Garantizada:** `handleSaveTask()` fue convertido a función `async` y ahora aguarda `await save(savedItem, previousTaskState)` antes de continuar, previniendo condiciones de carrera con recargas o eventos Realtime.
+  - **Payload Adaptativo y Degradación Segura:** La función `save()` implementa fallback inteligente: despacha los campos extendidos (`der_entity`, `estimated_hours`, `last_modified_by`) y, ante un error `PGRST204` de Supabase (columna no indexada aún), reintenta automáticamente con el `basePayload` estándar (`title`, `description`, `assignee`, `status`, `tag`, `priority`, `updated_at`), garantizando que la actualización persista en la base de datos sin errores ni pérdidas.
+  - **Población Bidireccional de Modales:** `openEditModal()` y `openCreateModal()` sincronizan explícitamente `#taskEntity` y `#taskEstHours`.
+  - **Migración DDL Segura:** Se agregaron cláusulas `ALTER TABLE team_tasks ADD COLUMN IF NOT EXISTS ...` en [`diagrams/supabase_teams_schema.sql`](./diagrams/supabase_teams_schema.sql) para facilitar la actualización idempotente en el SQL Editor de Supabase.
+- **Efectos Secundarios / Verificación:** Se probó con scripts directos contra la API de Supabase en producción: la actualización remota devuelve `error: null` y la consulta subsecuente (`SELECT`) valida la consistencia inmediata de los datos actualizados.
+
+---
+
 ### [2026-09-22] Sincronización Realtime con Supabase, Persistencia Remota de Roles y Gestión de Emails
 - **Autor / Responsable:** Juan Manuel Merodio (QA & Arquitectura) & Senior Full-Stack Lead
 - **Artefactos Modificados:** `tasks.js`, `tasks.html`, `diagrams/CHANGELOG.md`

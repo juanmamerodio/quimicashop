@@ -160,10 +160,11 @@ async function init() {
         renderTeamCards();
       }
 
-      // Cargar tareas
+      // Cargar tareas ordenadas cronológicamente
       const { data, error } = await supabaseClient
         .from("team_tasks")
-        .select("*");
+        .select("*")
+        .order("created_at", { ascending: true });
 
       if (!error && data && data.length > 0) {
         tasks = data.map(item => ({
@@ -192,6 +193,8 @@ async function init() {
             status: t.status,
             tag: t.tag,
             priority: t.prio,
+            der_entity: t.der_entity || "General",
+            estimated_hours: t.estimated_hours || 2.0,
             completed_at: t.status === 'done' ? new Date().toISOString() : null
           }]);
         }
@@ -228,7 +231,10 @@ async function init() {
       if (typeof supabaseClient.channel === "function") {
         supabaseClient.channel('realtime_teams_hub')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'team_tasks' }, async () => {
-            const { data: freshTasks } = await supabaseClient.from("team_tasks").select("*");
+            const { data: freshTasks } = await supabaseClient
+              .from("team_tasks")
+              .select("*")
+              .order("created_at", { ascending: true });
             if (freshTasks) {
               tasks = freshTasks.map(item => ({
                 id: (item.id || Date.now()).toString(),
@@ -279,58 +285,83 @@ async function save(taskItem = null, previousTaskState = null) {
     try {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskItem.id);
       const modifier = (currentUser && !currentUser.isGuest) ? currentUser.key : "Juanma";
-      const payload = {
+      
+      // Payload base compatible con la estructura básica de team_tasks
+      const basePayload = {
         title: taskItem.title,
         description: taskItem.desc,
         assignee: taskItem.assignee,
         status: taskItem.status,
         tag: taskItem.tag,
         priority: taskItem.prio,
-        der_entity: taskItem.der_entity || "General",
-        estimated_hours: parseFloat(taskItem.estimated_hours) || 2.0,
-        last_modified_by: modifier,
-        completed_at: taskItem.status === 'done' ? (taskItem.completed_at || new Date().toISOString()) : null,
         updated_at: new Date().toISOString()
       };
 
+      // Campos extendidos de gobernanza y DER (se incorporan de forma adaptativa)
+      const extendedPayload = {
+        ...basePayload,
+        der_entity: taskItem.der_entity || "General",
+        estimated_hours: parseFloat(taskItem.estimated_hours) || 2.0,
+        last_modified_by: modifier,
+        completed_at: taskItem.status === 'done' ? (taskItem.completed_at || new Date().toISOString()) : null
+      };
+
       if (isUuid) {
-        await supabaseClient.from("team_tasks").update(payload).eq("id", taskItem.id);
-
-        // Registro de Auditoría de Cambios (Change Data Capture)
-        try {
-          await supabaseClient.from("task_audit_logs").insert([{
-            task_id: taskItem.id,
-            action: previousTaskState && previousTaskState.status !== taskItem.status ? 'STATUS_CHANGE' : 'UPDATE',
-            changed_by: modifier,
-            previous_state: previousTaskState || null,
-            new_state: payload,
-            diff_summary: `Actualizado por ${modifier} (Estado: ${taskItem.status}, DER: ${taskItem.der_entity || 'General'})`
-          }]);
-        } catch (auditErr) {
-          console.warn("Audit log no disponible o tabla no creada aún:", auditErr);
+        // Intentar actualización completa; si la columna extendida no existe aún en DB, degradar al basePayload
+        let updateRes = await supabaseClient.from("team_tasks").update(extendedPayload).eq("id", taskItem.id);
+        if (updateRes.error && updateRes.error.code === 'PGRST204') {
+          updateRes = await supabaseClient.from("team_tasks").update(basePayload).eq("id", taskItem.id);
         }
-      } else {
-        payload.created_by = modifier;
-        const { data } = await supabaseClient.from("team_tasks").insert([payload]).select();
-        if (data && data[0]) {
-          taskItem.id = data[0].id.toString();
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 
-          // Log de creación
+        if (updateRes.error) {
+          console.error("Error al actualizar tarea en Supabase:", updateRes.error);
+        } else {
+          // Registro de Auditoría de Cambios (Change Data Capture) si la tabla existe
           try {
             await supabaseClient.from("task_audit_logs").insert([{
-              task_id: data[0].id,
+              task_id: taskItem.id,
+              action: previousTaskState && previousTaskState.status !== taskItem.status ? 'STATUS_CHANGE' : 'UPDATE',
+              changed_by: modifier,
+              previous_state: previousTaskState || null,
+              new_state: extendedPayload,
+              diff_summary: `Actualizado por ${modifier} (Estado: ${taskItem.status}, DER: ${taskItem.der_entity || 'General'})`
+            }]);
+          } catch (auditErr) {
+            // Tabla task_audit_logs opcional
+          }
+        }
+      } else {
+        // Tarea nueva o proveniente del seed local con ID no-UUID
+        let insertRes = await supabaseClient.from("team_tasks").insert([{
+          ...extendedPayload,
+          created_by: modifier
+        }]).select();
+
+        if (insertRes.error && insertRes.error.code === 'PGRST204') {
+          // Degradación a columnas estándar si el esquema no tiene der_entity
+          insertRes = await supabaseClient.from("team_tasks").insert([basePayload]).select();
+        }
+
+        if (insertRes.error) {
+          console.error("Error al insertar tarea en Supabase:", insertRes.error);
+        } else if (insertRes.data && insertRes.data[0]) {
+          taskItem.id = insertRes.data[0].id.toString();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+
+          try {
+            await supabaseClient.from("task_audit_logs").insert([{
+              task_id: insertRes.data[0].id,
               action: 'CREATE',
               changed_by: modifier,
               previous_state: null,
-              new_state: payload,
+              new_state: extendedPayload,
               diff_summary: `Tarea creada por ${modifier} para ${taskItem.assignee}`
             }]);
           } catch (auditErr) { }
         }
       }
     } catch (e) {
-      console.error("Error guardando tarea en Supabase:", e);
+      console.error("Error crítico guardando tarea en Supabase:", e);
     }
   }
 }
@@ -419,6 +450,10 @@ function openCreateModal() {
   document.getElementById("modalTitle").textContent = "Nueva Tarea de Desarrollo";
   document.getElementById("taskId").value = "";
   document.getElementById("taskForm").reset();
+  const entityEl = document.getElementById("taskEntity");
+  if (entityEl) entityEl.value = "General";
+  const hoursEl = document.getElementById("taskEstHours");
+  if (hoursEl) hoursEl.value = "2";
   document.getElementById("taskNotesSection").style.display = "none";
   activeTaskId = null;
   if (currentUser && USERS[currentUser.key]) {
@@ -439,6 +474,10 @@ function openEditModal(id) {
   document.getElementById("taskStatus").value = task.status;
   document.getElementById("taskTag").value = task.tag;
   document.getElementById("taskPrio").value = task.prio;
+  const entityEl = document.getElementById("taskEntity");
+  if (entityEl) entityEl.value = task.der_entity || "General";
+  const hoursEl = document.getElementById("taskEstHours");
+  if (hoursEl) hoursEl.value = task.estimated_hours || 2;
 
   renderTaskNotes(task.id);
   const authorHidden = document.getElementById("newNoteAuthor");
@@ -525,7 +564,7 @@ function closeModal() {
   activeTaskId = null;
 }
 
-function handleSaveTask(e) {
+async function handleSaveTask(e) {
   e.preventDefault();
   const id = document.getElementById("taskId").value;
   const title = document.getElementById("taskTitle").value.trim();
@@ -534,18 +573,33 @@ function handleSaveTask(e) {
   const status = document.getElementById("taskStatus").value;
   const tag = document.getElementById("taskTag").value;
   const prio = document.getElementById("taskPrio").value;
+  const der_entity = document.getElementById("taskEntity") ? document.getElementById("taskEntity").value : "General";
+  const estimated_hours = document.getElementById("taskEstHours") ? (parseFloat(document.getElementById("taskEstHours").value) || 2.0) : 2.0;
 
   if (!title) return;
 
   let savedItem = null;
+  let previousTaskState = null;
   if (id) {
     const index = tasks.findIndex(t => t.id === id);
     if (index !== -1) {
+      previousTaskState = { ...tasks[index] };
       const wasDone = tasks[index].status === 'done';
       const isNowDone = status === 'done';
       const completed_at = isNowDone ? (wasDone ? tasks[index].completed_at : new Date().toISOString()) : null;
 
-      tasks[index] = { ...tasks[index], title, desc, assignee, status, tag, prio, completed_at };
+      tasks[index] = {
+        ...tasks[index],
+        title,
+        desc,
+        assignee,
+        status,
+        tag,
+        prio,
+        der_entity,
+        estimated_hours,
+        completed_at
+      };
       savedItem = tasks[index];
     }
   } else {
@@ -557,6 +611,8 @@ function handleSaveTask(e) {
       status,
       tag,
       prio,
+      der_entity,
+      estimated_hours,
       completed_at: status === 'done' ? new Date().toISOString() : null,
       created_at: new Date().toISOString()
     };
@@ -564,9 +620,12 @@ function handleSaveTask(e) {
     savedItem = newTask;
   }
 
-  save(savedItem);
   render();
   closeModal();
+
+  if (savedItem) {
+    await save(savedItem, previousTaskState);
+  }
 }
 
 function exportBackup() {
