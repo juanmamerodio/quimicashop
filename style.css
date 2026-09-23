@@ -43,6 +43,20 @@
       --rc: 10px;
       --ease: cubic-bezier(.34, 1.26, .64, 1);
       --eout: cubic-bezier(.16, 1, .3, 1);
+      /* TOKENS MOBILE & ESTÁNDAR VISUAL iOS 26/27 AWWWARDS */
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --ios-blur: saturate(190%) blur(26px);
+      --ios-blur-ultra: saturate(210%) blur(32px);
+      --ios-glass: rgba(255, 255, 255, 0.78);
+      --ios-glass-border: rgba(255, 255, 255, 0.75);
+      --ios-specular: inset 0 1px 1px rgba(255, 255, 255, 0.95);
+      --ios-sh-card: 0 4px 20px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+      --ios-sh-float: 0 16px 40px -8px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.04);
+      --ios-spring: cubic-bezier(0.16, 1, 0.3, 1);
+      --ios-tap-min: 44px;
     }
 
     html {
@@ -1673,16 +1687,429 @@
       border-color: rgba(61, 140, 110, 0.3);
     }
 
-    /* RESPONSIVE */
-    @media (max-width: 1024px) {
-      .kanban-board {
-        grid-template-columns: repeat(2, 1fr);
+    /* ==========================================================================
+       ARQUITECTURA RESPONSIVE MOBILE — ESTÁNDAR VISUAL iOS 26/27 AWWWARDS
+       Dynamic Island Aware · Thumb Ergonomics · Spring Snapping · 3D Glassmorphism
+       ========================================================================== */
+
+    .mobile-bottom-dock {
+      display: none;
+    }
+
+    .mobile-kanban-tabs {
+      display: none;
+    }
+
+    @keyframes sheetSlideUp {
+      from {
+        transform: translateY(100%);
+        opacity: 0.6;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
       }
     }
 
-    @media (max-width: 640px) {
+    @keyframes dockGlow {
+      0%, 100% {
+        box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+      }
+      50% {
+        box-shadow: 0 20px 48px -4px rgba(61, 140, 110, 0.24), 0 2px 10px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(255, 255, 255, 1);
+      }
+    }
+
+    /* TABLETS / IPADS (769px a 1024px) */
+    @media (max-width: 1024px) {
       .kanban-board {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .g3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .shell {
+        padding: 0 20px 32px 20px;
+      }
+    }
+
+    /* MOBILE PHABLET & SMARTPHONES (<= 768px) */
+    @media (max-width: 768px) {
+      .g3, .g2 {
         grid-template-columns: 1fr;
+      }
+      .tl-grid {
+        grid-template-columns: 1fr;
+      }
+      /* SHELL & PADDING ADAPTATIVO CON SAFE AREA */
+      body {
+        padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .shell {
+        padding: 0 max(16px, env(safe-area-inset-left, 0px)) 24px max(16px, env(safe-area-inset-right, 0px));
+      }
+
+      /* NAV CONDENSADO */
+      .nav {
+        padding: 10px max(16px, env(safe-area-inset-left, 0px));
+        gap: 8px;
+      }
+      .nav-brand .nav-sub {
+        display: none;
+      }
+      .nav-badge-priv {
+        display: none;
+      }
+      .nav-r .nav-pill:not(#logged-user-pill):not(#db-status-badge) {
+        display: none;
+      }
+
+      /* HERO ADAPTATION */
+      .hero {
+        margin-bottom: 20px;
+      }
+      .hero h1 {
+        font-size: 1.85rem;
+        letter-spacing: -.03em;
+        line-height: 1.15;
+      }
+      .hero-sub {
+        font-size: .88rem;
+        line-height: 1.5;
+        margin-bottom: 16px;
+      }
+
+      /* TARJETA FIJA PRESENCIAL */
+      .presencial-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 18px;
+      }
+      .presencial-card > div:last-child {
+        justify-content: space-between;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .presencial-card .btn-create {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+      }
+
+      /* ROLES EN GRID RESPONSIVO */
+      .team-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      /* CONTROLES DEL TABLERO */
+      .board-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .board-controls .filters {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .board-controls .filters::-webkit-scrollbar {
+        display: none;
+      }
+      .board-controls > div:last-child {
+        display: none; /* Acciones clave transferidas a la barra flotante inferior táctil */
+      }
+
+      /* BANNER DE MEETINGS */
+      .meeting-banner {
+        padding: 16px;
+        border-radius: 20px;
+      }
+      .meeting-banner > div {
+        flex-direction: column;
+        gap: 14px;
+      }
+      .meeting-banner > div > div:last-child {
+        align-items: stretch;
+        width: 100%;
+      }
+      .meeting-banner .countdown-box {
+        text-align: center;
+      }
+      .meeting-banner #meetingActionBtns {
+        width: 100%;
+        flex-direction: column;
+      }
+      .meeting-banner #meetingActionBtns button,
+      .meeting-banner #meetingActionBtns a {
+        width: 100%;
+        justify-content: center;
+      }
+
+      /* SEGMENTED CONTROL TABS KANBAN (iOS 27) */
+      .mobile-kanban-tabs {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-2);
+        border-radius: 16px;
+        margin-bottom: 14px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .m-tab {
+        flex: 1;
+        padding: 9px 4px;
+        font-size: .74rem;
+        font-weight: 600;
+        border: none;
+        background: transparent;
+        border-radius: 12px;
+        color: var(--muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+        font-family: inherit;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .m-tab.active {
+        background: var(--surface);
+        color: var(--text);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        font-weight: 750;
+      }
+      .m-tab:active {
+        transform: scale(0.96);
+      }
+      .m-tab-cnt {
+        font-size: .68rem;
+        font-family: 'DM Mono', monospace;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 1px 6px;
+        border-radius: 6px;
+      }
+      .m-tab.active .m-tab-cnt {
+        background: var(--accent-lt);
+        color: var(--accent);
+      }
+
+      /* KANBAN SNAP CAROUSEL HORIZONTAL */
+      .kanban-board {
+        display: flex !important;
+        overflow-x: auto !important;
+        scroll-snap-type: x mandatory !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 14px !important;
+        margin: 0 -16px !important;
+        padding: 0 16px 20px 16px !important;
+        scrollbar-width: none !important;
+      }
+      .kanban-board::-webkit-scrollbar {
+        display: none !important;
+      }
+      .kanban-col {
+        min-width: 85vw !important;
+        max-width: 88vw !important;
+        scroll-snap-align: center !important;
+        scroll-snap-stop: always !important;
+        flex-shrink: 0 !important;
+        min-height: 480px !important;
+        border-radius: 24px !important;
+        background: rgba(255, 255, 255, 0.65) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        box-shadow: var(--sh-sm) !important;
+      }
+
+      /* TACTILE TASK CARDS CON PROFUNDIDAD 3D */
+      .task-card {
+        border-radius: 16px;
+        padding: 14px;
+        box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 140ms ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .task-card:active {
+        transform: scale(0.975);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      /* FLOATING BOTTOM DOCK (ISLA DINÁMICA DE PULGAR) */
+      .mobile-bottom-dock {
+        position: fixed;
+        bottom: max(14px, env(safe-area-inset-bottom, 0px));
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 24px);
+        max-width: 440px;
+        height: 64px;
+        background: rgba(255, 255, 255, 0.82);
+        backdrop-filter: saturate(200%) blur(32px);
+        -webkit-backdrop-filter: saturate(200%) blur(32px);
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 0 8px;
+        z-index: 950;
+        animation: dockGlow 6s ease-in-out infinite;
+      }
+      .dock-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px 12px;
+        color: var(--muted);
+        text-decoration: none;
+        font-family: inherit;
+        font-size: .65rem;
+        font-weight: 600;
+        transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), color 140ms ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .dock-btn:active {
+        transform: scale(0.88);
+        color: var(--accent);
+      }
+      .dock-icon-box {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-2);
+        transition: all 160ms ease;
+      }
+      .dock-primary {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(61, 140, 110, 0.35);
+      }
+      .dock-btn:active .dock-primary {
+        background: var(--accent-deep);
+        transform: scale(0.94);
+      }
+      .dock-badge {
+        position: absolute;
+        top: -3px;
+        right: -5px;
+        background: var(--rose);
+        color: #fff;
+        font-size: .62rem;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 1px 5px;
+        font-family: 'DM Mono', monospace;
+      }
+
+      /* MODALES TRANSFORMADOS A BOTTOM SHEET NATIVO iOS */
+      .modal-backdrop {
+        align-items: flex-end !important;
+        padding: 0 !important;
+      }
+      .modal {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 32px 32px 0 0 !important;
+        max-height: 88vh !important;
+        padding: 16px 20px max(24px, env(safe-area-inset-bottom, 0px)) 20px !important;
+        box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+        transform: translateY(100%) !important;
+        transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain !important;
+      }
+      .modal-backdrop.open .modal {
+        transform: translateY(0) !important;
+      }
+      .modal::before {
+        content: '';
+        display: block;
+        width: 44px;
+        height: 5px;
+        background: rgba(0, 0, 0, 0.18);
+        border-radius: 999px;
+        margin: 0 auto 14px auto;
+      }
+
+      /* EVITAR AUTO-ZOOM EN INPUTS DE SAFARI iOS */
+      .form-input, .form-select, .form-textarea {
+        font-size: 16px !important;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      /* PIZARRA FULLSCREEN RESPONSIVE */
+      .meeting-fullscreen {
+        padding: 16px max(14px, env(safe-area-inset-left, 0px));
+      }
+      .meeting-fullscreen > div > div:last-child {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+      }
+
+      /* PERFILES NETFLIX EN MOBILE */
+      .profiles-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+        max-width: 340px !important;
+      }
+      .profile-card {
+        padding: 14px 10px !important;
+      }
+      .profile-avatar {
+        width: 58px !important;
+        height: 58px !important;
+        font-size: 1.3rem !important;
+      }
+    }
+
+    /* MOBILE COMPACT (<= 480px) */
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 1.65rem;
+      }
+      .m-tab span:first-child {
+        font-size: .68rem;
+      }
+      .kanban-col {
+        min-width: 88vw !important;
+      }
+      .sprint-stats-grid {
+        grid-template-columns: 1fr 1fr !important;
       }
     }
 

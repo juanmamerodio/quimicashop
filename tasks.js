@@ -452,7 +452,56 @@ function render() {
   statuses.forEach(s => {
     const cEl = document.getElementById(`count-${s}`);
     if (cEl) cEl.textContent = counts[s];
+    const mcEl = document.getElementById(`m-cnt-${s}`);
+    if (mcEl) mcEl.textContent = counts[s];
   });
+}
+
+function scrollToColumn(status) {
+  const col = document.getElementById(`col-${status}`);
+  const board = document.querySelector(".kanban-board");
+  if (col && board) {
+    const left = col.offsetLeft - board.offsetLeft - 16;
+    board.scrollTo({ left, behavior: "smooth" });
+  }
+  document.querySelectorAll(".m-tab").forEach(tab => {
+    tab.classList.toggle("active", tab.getAttribute("data-col") === status);
+  });
+}
+
+function initMobileKanbanSwipeObserver() {
+  const board = document.querySelector(".kanban-board");
+  if (!board) return;
+
+  let isTicking = false;
+  board.addEventListener("scroll", () => {
+    if (!isTicking) {
+      window.requestAnimationFrame(() => {
+        const cols = ["backlog", "in_progress", "review", "done"];
+        const boardCenter = board.scrollLeft + (board.offsetWidth / 2);
+        let closestCol = cols[0];
+        let minDiff = Infinity;
+
+        cols.forEach(status => {
+          const col = document.getElementById(`col-${status}`);
+          if (col) {
+            const colCenter = col.offsetLeft + (col.offsetWidth / 2);
+            const diff = Math.abs(boardCenter - colCenter);
+            if (diff < minDiff) {
+              minDiff = diff;
+              closestCol = status;
+            }
+          }
+        });
+
+        document.querySelectorAll(".m-tab").forEach(tab => {
+          tab.classList.toggle("active", tab.getAttribute("data-col") === closestCol);
+        });
+        isTicking = false;
+      });
+      isTicking = true;
+    }
+  }, { passive: true });
 }
 
 function filterTasks(assignee) {
@@ -662,6 +711,10 @@ function updateTrashBadge() {
   const badge = document.getElementById("trashCountBadge");
   if (badge) {
     badge.textContent = trashTasks.length.toString();
+  }
+  const dockBadge = document.getElementById("dockTrashBadge");
+  if (dockBadge) {
+    dockBadge.textContent = trashTasks.length.toString();
   }
 }
 
@@ -968,9 +1021,13 @@ function applyUserSession() {
   if (currentUser.isGuest) {
     if (btnCreateMeeting) btnCreateMeeting.style.display = "none";
     if (btnCreateTask) btnCreateTask.style.display = "none";
+    const dockBtnMeeting = document.getElementById("dock-btn-meeting");
+    if (dockBtnMeeting) dockBtnMeeting.style.display = "none";
   } else {
     if (btnCreateMeeting) btnCreateMeeting.style.display = "inline-flex";
     if (btnCreateTask) btnCreateTask.style.display = "inline-flex";
+    const dockBtnMeeting = document.getElementById("dock-btn-meeting");
+    if (dockBtnMeeting) dockBtnMeeting.style.display = "flex";
     const authorHidden = document.getElementById("newNoteAuthor");
     const authorBadge = document.getElementById("noteAuthorBadge");
     const authorAvatar = document.getElementById("noteAuthorAvatar");
@@ -1778,3 +1835,4 @@ renderTeamCards();
 updatePresencialCountdown();
 setInterval(updatePresencialCountdown, 60000);
 syncMeetingsWithSupabase();
+initMobileKanbanSwipeObserver();

@@ -24,6 +24,20 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-23] Ejecución Integral: Media Queries Móviles & Estándar Visual iOS 27 (Teams)
+- **Autor / Responsable:** Juan Manuel Merodio (Frontend & JS Lead) & UI/UX Expert
+- **Artefactos Modificados:** `style.css`, `tasks.html`, `tasks.js`, `diagrams/CHANGELOG.md`
+- **¿Por qué se hizo? (Motivo):** Ejecutar la especificación técnica establecida en `diagrams/PLAN_MOBILE_MEDIA_QUERIES_IOS27.md` para elevar la experiencia móvil del sistema Teams a un nivel ultra premium y ergonómico tipo aplicación nativa de iOS 27 con Awwwards-tier visual fidelity.
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Floating Bottom Dock (Dynamic Island):** Barra flotante inferior táctil (`.mobile-bottom-dock`) con desenfoque ultra vítreo (`backdrop-filter: saturate(200%) blur(32px)`), brillo especular 3D, animación de pulso y acceso con pulgar a creación de tareas, convocatorias de reuniones, papelera reactiva y minuta de cátedra.
+  - **Kanban Horizontal Snap Carousel:** En pantallas móviles (`<= 768px`), las 4 columnas del Kanban se transforman en un carrusel por gestos con snapping suave (`scroll-snap-type: x mandatory`). Se incorporó un Segmented Control (`.mobile-kanban-tabs`) con contadores dinámicos y navegación táctil sincronizada bidireccionalmente mediante un observador de scroll.
+  - **Modales en Bottom Sheets Nativos:** Los modales centrados (`#taskModal`, `#trashModal`, `#meetingModal`, `#editRoleModal`, `#presencialMinuteModal`) se transforman en Bottom Sheets ergonómicos con manija de arrastre (grab handle), bordes orgánicos (`border-radius: 32px 32px 0 0`) y animación elástica (`cubic-bezier(0.16, 1, 0.3, 1)`).
+  - **Prevención de Zoom en iOS:** Todos los campos de entrada (`.form-input`, `.form-select`, `.form-textarea`) fuerzan un tamaño base de `16px` en mobile para impedir el zoom involuntario de Safari en iPhone.
+  - **Protección de Invitados y Safe Areas:** Los controles del dock flotante respetan los permisos de solo lectura para invitados y los márgenes seguros `env(safe-area-inset-*)`.
+- **Efectos Secundarios / Verificación:** Validación de compilación en Next.js (`npm run build`) con 0 errores y compatibilidad fluida en resoluciones desde 320px hasta 1024px+.
+
+---
+
 ### [2026-09-23] Hub Central: Panel de Progreso del Sprint (Teams) e Incorporación de Nuevos Hitos Técnicos
 - **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
 - **Artefactos Modificados:** `index.html`, `style.css`, `diagrams/CHANGELOG.md`
