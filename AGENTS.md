@@ -117,3 +117,20 @@ colors: {
 2. **Validación manual del Administrador** — Panel `/admin` con visualización directa de comprobantes de Supabase Storage.
 3. **Sin dependencias de IA** — No se utiliza Gemini Flash para validación bancaria ni rutas asíncronas de IA.
 4. **Prototipo Mobile Descartado** — El desarrollo se enfoca en Web App responsiva (Desktop / Mobile web).
+
+---
+
+## ENTORNO PRIVADO TEAMS & MEETINGS (`tasks.html`)
+
+- **Autenticación tipo Netflix con persistencia continua:**
+  - Perfiles: Juan Manuel Merodio (48134318), Isabella Infante (96131444), Celeste Cáceres (48021520), Enzo Queipo (48290048).
+  - Modo Invitado (Read-Only): Acceso libre para visualización sin permisos de edición, votación ni programación.
+  - La sesión se mantiene indefinidamente en `localStorage` salvo click voluntario en *Logout*.
+- **Módulo de Reuniones (Meetings) & Gobernanza Unánime:**
+  - Votación de apertura: Se requiere la unanimidad (4/4) de votos de los integrantes para confirmar la reunión y habilitar el enlace de Google Meet.
+  - Pizarra Colaborativa en Vivo: Minutas, acuerdos, temas discutidos y tareas sprint en pantalla completa.
+  - Votación de cierre: Todos los 4 integrantes deben votar el cierre de la reunión; al completarse, la pizarra se vuelve inmutable (read-only) y se archiva en la base de datos.
+- **Tablas de Supabase complementarias para Teams:**
+  - `team_tasks`: Sprint Backlog y estado kanban.
+  - `task_notes`: Bitácoras y avances por integrante.
+  - `team_meetings`: Registro de reuniones, enlaces Meet, votos de apertura, votos de cierre y minutas inmutables.

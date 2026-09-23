@@ -24,6 +24,18 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-22] Implementación de Teams Hub: Login Netflix, Módulo Meetings con Votación Unánime y Minutas
+- **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
+- **Artefactos Modificados:** `tasks.html`, `index.html`, `AGENTS.md`, `diagrams/CHANGELOG.md`
+- **¿Por qué se hizo? (Motivo):** Proporcionar al equipo un entorno privado y ágil de organización interna (Sprint Backlog, bitácoras) y gobernanza de reuniones, exigiendo el consenso total del grupo antes de convocar y cerrar llamadas.
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Login tipo Netflix:** Selector visual de perfiles (Juanma, Isabella, Celeste, Enzo) con autenticación por DNI y persistencia continua en `localStorage`. Opción de acceso para Invitados (read-only estricto).
+  - **Módulo Meetings & Cuenta Regresiva:** Botón distintivo "Crear Meeting", banner dinámico con countdown y sistema de votación unánime (4/4) para habilitar el link de Google Meet.
+  - **Pizarra Fullscreen & Minutas Inmutables:** Modal en pantalla completa con redacción de minutas colaborativas y tareas del sprint. El cierre requiere votación de todos los integrantes, archivando la minuta de forma permanente e inmutable.
+  - **Esquema Supabase:** Diseñado para tabla `team_meetings` y `task_notes`.
+
+---
+
 ### [2026-09-22] Ajuste de Alcance Final: Eliminación de Validación por IA y Deprecación de React Native
 - **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
 - **Artefactos Modificados:** `AGENTS.md`, `README.md`, `diagrams/CHANGELOG.md`, `index.html`
