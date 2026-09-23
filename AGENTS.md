@@ -128,8 +128,12 @@ colors: {
   - La sesión se mantiene indefinidamente en `localStorage` salvo click voluntario en *Logout*.
 - **Módulo de Reuniones (Meetings) & Gobernanza Unánime:**
   - Votación de apertura: Se requiere la unanimidad (4/4) de votos de los integrantes para confirmar la reunión y habilitar el enlace de Google Meet.
+  - Cancelación: El creador (o integrantes) pueden cancelar y descartar una convocatoria antes de que se consume.
   - Pizarra Colaborativa en Vivo: Minutas, acuerdos, temas discutidos y tareas sprint en pantalla completa.
   - Votación de cierre: Todos los 4 integrantes deben votar el cierre de la reunión; al completarse, la pizarra se vuelve inmutable (read-only) y se archiva en la base de datos.
+  - **Reunión Presencial Periódica:** Todos los Jueves de 13:00 a 15:00 hs (Aula Taller E.E.S.T N°1) con temporizador dinámico y minuta presencial.
+  - **Historial Explayado de Minutas:** Sección en página para consultar minutas archivadas, acuerdos y actas de reuniones anteriores.
+  - **Edición de Roles Dinámica:** Cada integrante puede modificar su rol y especialidades técnicas con persistencia local.
 - **Tablas de Supabase complementarias para Teams:**
   - `team_tasks`: Sprint Backlog y estado kanban.
   - `task_notes`: Bitácoras y avances por integrante.

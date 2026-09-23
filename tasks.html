@@ -903,6 +903,78 @@
     .meeting-fullscreen.open {
       display: flex;
     }
+
+    /* TARJETA DE REUNIÓN PRESENCIAL PERIÓDICA */
+    .presencial-card {
+      background: linear-gradient(135deg, rgba(224, 242, 254, .7) 0%, rgba(255, 255, 255, .9) 100%);
+      border: 1px solid rgba(2, 132, 199, .25);
+      border-radius: var(--r);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: var(--sh-sm);
+    }
+
+    /* BOTÓN EDITAR ROL */
+    .btn-edit-role {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: .68rem;
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 150ms ease;
+    }
+
+    .btn-edit-role:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #fff;
+    }
+
+    /* HISTORIAL DE MINUTAS */
+    .minutes-history-sec {
+      margin-top: 48px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: var(--sh-sm);
+    }
+
+    .minutes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .minute-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: var(--sh-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+
+    .minute-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--sh-md);
+      border-color: rgba(61, 140, 110, .3);
+    }
   </style>
 </head>
 
@@ -932,9 +1004,12 @@
         Supabase Conectado
       </span>
       <div id="logged-user-pill" class="nav-pill" style="display:none;align-items:center;gap:7px;font-weight:700">
-        <span id="user-badge-avatar" style="width:20px;height:20px;border-radius:6px;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem">JM</span>
+        <span id="user-badge-avatar"
+          style="width:20px;height:20px;border-radius:6px;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem">JM</span>
         <span id="user-badge-name">Usuario</span>
-        <button onclick="handleLogout()" title="Cerrar Sesión" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:.75rem;padding:0 2px;margin-left:4px">✕ Salir</button>
+        <button onclick="handleLogout()" title="Cerrar Sesión"
+          style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:.75rem;padding:0 2px;margin-left:4px">✕
+          Salir</button>
       </div>
       <span class="nav-badge-priv">🔒 Entorno Privado</span>
       <a href="./index.html" class="nav-pill">
@@ -964,44 +1039,41 @@
         entidades de base de datos y control de versiones del equipo de trabajo.</p>
     </header>
 
-    <!-- ROLES & EQUIPO -->
-    <section class="team-grid">
-      <!-- JUANMA -->
-      <div class="member-card">
-        <div class="member-avatar" style="background:#e0f2fe;color:#0284c7">JM</div>
-        <div class="member-info">
-          <h3>Juan Manuel Merodio</h3>
-          <p>Full-Stack & Arquitectura</p>
-          <span class="role-badge" style="background:#e0f2fe;color:#0284c7">Next.js / Supabase / CI-CD</span>
+    <!-- TARJETA FIJA: REUNIÓN PRESENCIAL PERIÓDICA (JUEVES 13:00 - 15:00) -->
+    <div class="presencial-card">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div
+          style="width:46px;height:46px;border-radius:14px;background:#e0f2fe;color:#0284c7;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">
+          🏫
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span
+              style="background:#e0f2fe;color:#0369a1;font-weight:700;font-size:.68rem;padding:2px 8px;border-radius:6px;border:1px solid #bae6fd">PRESENCIAL
+              FIJA</span>
+            <strong style="font-size:.92rem;color:var(--text)">Reunión de Cátedra & Equipo Semanal</strong>
+          </div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:3px">
+            📅 Todos los <strong>Jueves de 13:00 a 15:00 hs</strong> · Aula Taller E.E.S.T N°1 Luciano Reyes (Campana)
+          </div>
         </div>
       </div>
-      <!-- ISABELLA -->
-      <div class="member-card">
-        <div class="member-avatar" style="background:#fce7f3;color:#db2777">II</div>
-        <div class="member-info">
-          <h3>Isabella Infante</h3>
-          <p>Diseño UX/UI & Frontend</p>
-          <span class="role-badge" style="background:#fce7f3;color:#db2777">M3 / Tailwind / Vistas</span>
-        </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span
+          style="font-family:'DM Mono',monospace;font-size:.76rem;background:rgba(2,132,199,.1);color:#0369a1;padding:5px 12px;border-radius:8px;font-weight:700"
+          id="presencialCountdown">
+          Calculando próxima sesión...
+        </span>
+        <button class="btn-create" onclick="openCreateMeetingModal('Auditoría Presencial')"
+          style="background:#0284c7;color:#fff;border-color:#0284c7;font-size:.78rem">
+          📋 Abrir Minuta Presencial
+        </button>
       </div>
-      <!-- CELESTE -->
-      <div class="member-card">
-        <div class="member-avatar" style="background:#fef3c7;color:#d97706">CC</div>
-        <div class="member-info">
-          <h3>Celeste Caceres</h3>
-          <p>Lógica de Stock & QA</p>
-          <span class="role-badge" style="background:#fef3c7;color:#d97706">Reglas de Stock / Testing</span>
-        </div>
-      </div>
-      <!-- ENZO -->
-      <div class="member-card">
-        <div class="member-avatar" style="background:#dcfce7;color:#16a34a">EQ</div>
-        <div class="member-info">
-          <h3>Enzo Queipo</h3>
-          <p>Base de Datos & Remitos</p>
-          <span class="role-badge" style="background:#dcfce7;color:#16a34a">SQL 13 Tablas / Resend</span>
-        </div>
-      </div>
+    </div>
+
+    <!-- ROLES & EQUIPO (EDITABLES) -->
+    <section class="team-grid" id="teamGridSection">
+      <!-- Generado dinámicamente con renderTeamCards() -->
     </section>
 
     <!-- BOARD CONTROLS -->
@@ -1048,12 +1120,17 @@
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px">
         <div style="flex:1;min-width:280px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="background:#fef3c7;color:#b45309;font-weight:700;font-size:.7rem;padding:3px 8px;border-radius:6px;border:1px solid #fde68a" id="meetingReasonBadge">SEMANAL</span>
-            <span style="font-size:.82rem;font-weight:700;color:var(--text)" id="meetingTitleDisplay">Sincronización de Avance</span>
+            <span
+              style="background:#fef3c7;color:#b45309;font-weight:700;font-size:.7rem;padding:3px 8px;border-radius:6px;border:1px solid #fde68a"
+              id="meetingReasonBadge">SEMANAL</span>
+            <span style="font-size:.82rem;font-weight:700;color:var(--text)" id="meetingTitleDisplay">Sincronización de
+              Avance</span>
           </div>
-          <div style="font-size:.8rem;color:var(--muted);margin-bottom:12px" id="meetingTimeDisplay">Programada: Cargando fecha...</div>
-          
-          <div style="font-size:.75rem;font-weight:700;color:var(--text);margin-bottom:6px">VOTACIÓN UNÁNIME REQUERIDA (4/4):</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-bottom:12px" id="meetingTimeDisplay">Programada:
+            Cargando fecha...</div>
+
+          <div style="font-size:.75rem;font-weight:700;color:var(--text);margin-bottom:6px">VOTACIÓN UNÁNIME REQUERIDA
+            (4/4):</div>
           <div class="voters-list" id="meetingVotersList">
             <!-- Píldoras de votantes -->
           </div>
@@ -1061,11 +1138,12 @@
 
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px">
           <div style="text-align:right">
-            <div style="font-size:.7rem;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.05em">Tiempo Restante</div>
+            <div style="font-size:.7rem;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.05em">
+              Tiempo Restante</div>
             <div class="countdown-box" id="meetingCountdown">--:--:--</div>
           </div>
           <div style="display:flex;gap:8px" id="meetingActionBtns">
-            <!-- Botones Votar / Unirse a Meet / Abrir Hub -->
+            <!-- Botones Votar / Cancelar / Unirse a Meet / Abrir Hub -->
           </div>
         </div>
       </div>
@@ -1120,6 +1198,33 @@
 
     </div>
 
+    <!-- APARTADO DE HISTORIAL DE MINUTAS & REUNIONES -->
+    <section class="minutes-history-sec" id="minutesHistorySection">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="eyebrow" style="margin-bottom:6px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            Registro Histórico de Reuniones
+          </div>
+          <h2 style="font-size:1.35rem;font-weight:750;letter-spacing:-.02em">Minutas y Acuerdos de Sesiones</h2>
+          <p style="font-size:.78rem;color:var(--muted);margin-top:2px">Detalle explayado de discusiones, decisiones y
+            minutas inmutables cerradas por votación del equipo.</p>
+        </div>
+        <span class="nav-pill" id="minutesCountBadge" style="font-family:'DM Mono',monospace;font-size:.72rem">0 Minutas
+          Registradas</span>
+      </div>
+
+      <div class="minutes-grid" id="minutesHistoryGrid">
+        <!-- Renderizado dinámicamente con renderMinutesHistory() -->
+      </div>
+    </section>
+
   </div>
 
   <!-- MODAL CREACIÓN / EDICIÓN -->
@@ -1134,7 +1239,8 @@
 
         <div class="form-group">
           <label class="form-label" for="taskTitle">Título de la tarea</label>
-          <input type="text" id="taskTitle" class="form-input" required placeholder="Ej: Migración de tabla Comprobante" />
+          <input type="text" id="taskTitle" class="form-input" required
+            placeholder="Ej: Migración de tabla Comprobante" />
         </div>
 
         <div class="form-group">
@@ -1190,7 +1296,8 @@
         <div class="notes-sec" id="taskNotesSection" style="display:none">
           <label class="form-label" style="display:flex;justify-content:space-between;align-items:center">
             <span>Bitácora y Notas por Integrante</span>
-            <span id="notesCount" style="font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted)">0 notas</span>
+            <span id="notesCount" style="font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted)">0
+              notas</span>
           </label>
           <div class="notes-list" id="taskNotesList">
             <!-- Notas renderizadas aquí -->
@@ -1202,7 +1309,8 @@
               <option value="Celeste">Celeste</option>
               <option value="Enzo">Enzo</option>
             </select>
-            <input type="text" id="newNoteText" class="note-input" placeholder="Escribir avance, requerimiento o bloqueo..." />
+            <input type="text" id="newNoteText" class="note-input"
+              placeholder="Escribir avance, requerimiento o bloqueo..." />
             <button type="button" class="btn-add-note" onclick="handleAddNote()">
               <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1232,7 +1340,8 @@
       <form id="meetingForm" onsubmit="handleSaveMeeting(event)">
         <div class="form-group">
           <label class="form-label" for="mTitle">Título o Asunto de la Reunión</label>
-          <input type="text" id="mTitle" class="form-input" required placeholder="Ej: Sincronización Arquitectura y DDL de Supabase" />
+          <input type="text" id="mTitle" class="form-input" required
+            placeholder="Ej: Sincronización Arquitectura y DDL de Supabase" />
         </div>
 
         <div class="form-row">
@@ -1255,7 +1364,8 @@
           <label class="form-label" for="mUrl">Enlace de Google Meet (o se genera automáticamente)</label>
           <input type="url" id="mUrl" class="form-input" placeholder="https://meet.google.com/xxx-yyyy-zzz" />
           <span style="font-size:.7rem;color:var(--muted);margin-top:4px;display:block">
-            * Se requiere la aprobación unánime de los 4 integrantes (Juanma, Isabella, Celeste, Enzo) para confirmar la llamada.
+            * Se requiere la aprobación unánime de los 4 integrantes (Juanma, Isabella, Celeste, Enzo) para confirmar la
+            llamada.
           </span>
         </div>
 
@@ -1267,21 +1377,62 @@
     </div>
   </div>
 
+  <!-- MODAL PARA EDITAR ROL DE INTEGRANTE -->
+  <div class="modal-backdrop" id="editRoleModal">
+    <div class="modal" style="max-width:440px">
+      <div class="modal-hd">
+        <h3 class="modal-title" id="editRoleModalTitle">Editar Rol de Integrante</h3>
+        <button class="modal-close" onclick="closeEditRoleModal()">✕</button>
+      </div>
+      <form id="editRoleForm" onsubmit="handleSaveRole(event)">
+        <input type="hidden" id="editRoleUserKey" />
+
+        <div class="form-group">
+          <label class="form-label">Integrante</label>
+          <input type="text" id="editRoleUserName" class="form-input" disabled
+            style="opacity:.7;background:var(--bg)" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editRoleTitleInput">Título del Rol</label>
+          <input type="text" id="editRoleTitleInput" class="form-input" required
+            placeholder="Ej: Full-Stack & Arquitectura" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editRoleBadgeInput">Especialidad / Tecnologías (Badge)</label>
+          <input type="text" id="editRoleBadgeInput" class="form-input" required
+            placeholder="Ej: Next.js / Supabase / CI-CD" />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-export" onclick="closeEditRoleModal()">Cancelar</button>
+          <button type="submit" class="btn-create">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- PIZARRA FULLSCREEN DE MEETING ACTIVA & MINUTAS -->
   <div class="meeting-fullscreen" id="meetingFullscreen">
     <div style="max-width:1100px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:24px;flex:1">
       <!-- HEADER PIZARRA -->
-      <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px">
+      <div
+        style="display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px">
         <div style="display:flex;align-items:center;gap:12px">
-          <span style="background:#fef3c7;color:#b45309;font-weight:700;font-size:.78rem;padding:4px 10px;border-radius:8px;border:1px solid #fde68a" id="hubMeetingReason">SEMANAL</span>
+          <span
+            style="background:#fef3c7;color:#b45309;font-weight:700;font-size:.78rem;padding:4px 10px;border-radius:8px;border:1px solid #fde68a"
+            id="hubMeetingReason">SEMANAL</span>
           <div>
-            <h2 style="font-size:1.4rem;font-weight:750;letter-spacing:-.02em" id="hubMeetingTitle">Reunión de Equipo</h2>
+            <h2 style="font-size:1.4rem;font-weight:750;letter-spacing:-.02em" id="hubMeetingTitle">Reunión de Equipo
+            </h2>
             <div style="font-size:.78rem;color:var(--muted)" id="hubMeetingDate">Programada para...</div>
           </div>
         </div>
 
         <div style="display:flex;align-items:center;gap:10px">
-          <a id="hubMeetLink" href="#" target="_blank" class="btn-meeting" style="text-decoration:none;padding:10px 18px">
+          <a id="hubMeetLink" href="#" target="_blank" class="btn-meeting"
+            style="text-decoration:none;padding:10px 18px">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="23 7 16 12 23 17 23 7" />
@@ -1289,17 +1440,21 @@
             </svg>
             Entrar a Google Meet
           </a>
-          <button class="btn-export" style="background:#fee2e2;color:#991b1b;border-color:rgba(239,68,68,.3)" onclick="voteToCloseMeeting()">
+          <button class="btn-export" style="background:#fee2e2;color:#991b1b;border-color:rgba(239,68,68,.3)"
+            onclick="voteToCloseMeeting()">
             🔒 Votar Cierre de Reunión
           </button>
-          <button class="modal-close" style="font-size:1.5rem;padding:6px 12px" onclick="closeMeetingFullscreen()">✕ Salir</button>
+          <button class="modal-close" style="font-size:1.5rem;padding:6px 12px" onclick="closeMeetingFullscreen()">✕
+            Salir</button>
         </div>
       </div>
 
       <!-- ESTADO DE CIERRE UNÁNIME -->
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div
+        style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
         <div style="font-size:.8rem;font-weight:650">
-          Votos para Bloquear y Archivar Pizarra: <span id="closeVotesCount" style="color:var(--accent);font-weight:700">0/4</span>
+          Votos para Bloquear y Archivar Pizarra: <span id="closeVotesCount"
+            style="color:var(--accent);font-weight:700">0/4</span>
         </div>
         <div class="voters-list" id="hubCloseVotersList">
           <!-- Píldoras de votos de cierre -->
@@ -1309,13 +1464,19 @@
       <!-- CUERPO DE LA PIZARRA Y MINUTAS -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1">
         <!-- COLUMNA 1: DISCUSIONES, CAMBIOS Y MINUTAS EN VIVO -->
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px">
-          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-2);padding-bottom:10px">
+        <div
+          style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div
+            style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-2);padding-bottom:10px">
             <h3 style="font-size:.95rem;font-weight:700">📝 Minutas y Acuerdos de la Reunión</h3>
-            <span id="hubMinutesStatus" style="font-size:.7rem;font-family:'DM Mono',monospace;color:var(--accent)">● En Vivo</span>
+            <span id="hubMinutesStatus" style="font-size:.7rem;font-family:'DM Mono',monospace;color:var(--accent)">● En
+              Vivo</span>
           </div>
-          <p style="font-size:.76rem;color:var(--muted)">Escribe aquí las decisiones tomadas, temas discutidos y acuerdos alcanzados. Al cerrarse la reunión con el voto de todos, esta minuta se guardará de forma inmutable en el historial.</p>
-          <textarea id="hubMinutesText" class="form-textarea" style="flex:1;min-height:220px;font-family:inherit;font-size:.85rem;line-height:1.6"
+          <p style="font-size:.76rem;color:var(--muted)">Escribe aquí las decisiones tomadas, temas discutidos y
+            acuerdos alcanzados. Al cerrarse la reunión con el voto de todos, esta minuta se guardará de forma inmutable
+            en el historial.</p>
+          <textarea id="hubMinutesText" class="form-textarea"
+            style="flex:1;min-height:220px;font-family:inherit;font-size:.85rem;line-height:1.6"
             placeholder="- Se acordó migrar las 13 entidades normalizadas a Supabase...&#10;- Isabella finaliza la vista de comprobantes el jueves...&#10;- El viernes se prueba el cron de reintegro de stock..."></textarea>
           <button class="btn-create" id="btn-save-minutes" onclick="saveMeetingMinutes()" style="align-self:flex-end">
             Guardar Minuta
@@ -1323,12 +1484,15 @@
         </div>
 
         <!-- COLUMNA 2: TAREAS TRATADAS Y PRÓXIMOS PASOS -->
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px">
-          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-2);padding-bottom:10px">
+        <div
+          style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div
+            style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-2);padding-bottom:10px">
             <h3 style="font-size:.95rem;font-weight:700">🚀 Tareas Completadas & Próximos Cambios</h3>
             <span style="font-size:.7rem;font-family:'DM Mono',monospace;color:var(--muted)">Sprint Actual</span>
           </div>
-          <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;max-height:360px" id="hubTasksSummary">
+          <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;max-height:360px"
+            id="hubTasksSummary">
             <!-- Resumen de tareas completadas o tratadas -->
           </div>
         </div>
@@ -1355,32 +1519,37 @@
     <!-- SELECCIÓN DE PERFIL -->
     <div id="profilesView" style="display:flex;flex-direction:column;align-items:center">
       <h2 class="auth-title">¿Quién está desarrollando hoy?</h2>
-      <p class="auth-sub">Selecciona tu perfil de equipo para acceder a tus tareas, votaciones de reuniones y bitácoras.</p>
+      <p class="auth-sub">Selecciona tu perfil de equipo para acceder a tus tareas, votaciones de reuniones y bitácoras.
+      </p>
 
       <div class="profiles-grid">
         <!-- JUANMA -->
-        <div class="profile-card" onclick="selectProfile('Juanma', 'Juan Manuel Merodio', '48134318', '#e0f2fe', '#0284c7', 'JM')">
+        <div class="profile-card"
+          onclick="selectProfile('Juanma', 'Juan Manuel Merodio', '48134318', '#e0f2fe', '#0284c7', 'JM')">
           <div class="profile-avatar" style="background:#e0f2fe;color:#0284c7">JM</div>
           <div class="profile-name">Juan Manuel</div>
           <div class="profile-role">Arquitectura</div>
         </div>
 
         <!-- ISABELLA -->
-        <div class="profile-card" onclick="selectProfile('Isabella', 'Isabella Infante', '96131444', '#fce7f3', '#db2777', 'II')">
+        <div class="profile-card"
+          onclick="selectProfile('Isabella', 'Isabella Infante', '96131444', '#fce7f3', '#db2777', 'II')">
           <div class="profile-avatar" style="background:#fce7f3;color:#db2777">II</div>
           <div class="profile-name">Isabella</div>
           <div class="profile-role">UX / UI</div>
         </div>
 
         <!-- CELESTE -->
-        <div class="profile-card" onclick="selectProfile('Celeste', 'Celeste Cáceres', '48021520', '#fef3c7', '#d97706', 'CC')">
+        <div class="profile-card"
+          onclick="selectProfile('Celeste', 'Celeste Cáceres', '48021520', '#fef3c7', '#d97706', 'CC')">
           <div class="profile-avatar" style="background:#fef3c7;color:#d97706">CC</div>
           <div class="profile-name">Celeste</div>
           <div class="profile-role">Stock & QA</div>
         </div>
 
         <!-- ENZO -->
-        <div class="profile-card" onclick="selectProfile('Enzo', 'Enzo Queipo', '48290048', '#dcfce7', '#16a34a', 'EQ')">
+        <div class="profile-card"
+          onclick="selectProfile('Enzo', 'Enzo Queipo', '48290048', '#dcfce7', '#16a34a', 'EQ')">
           <div class="profile-avatar" style="background:#dcfce7;color:#16a34a">EQ</div>
           <div class="profile-name">Enzo</div>
           <div class="profile-role">Base de Datos</div>
@@ -1405,12 +1574,15 @@
       </div>
       <div>
         <h3 style="font-size:1.05rem;font-weight:700" id="passUserName">Juan Manuel Merodio</h3>
-        <p style="font-size:.76rem;color:var(--muted);margin-top:2px">Ingresa tu contraseña (DNI) para iniciar sesión permanente</p>
+        <p style="font-size:.76rem;color:var(--muted);margin-top:2px">Ingresa tu contraseña (DNI) para iniciar sesión
+          permanente</p>
       </div>
 
       <form onsubmit="handlePasswordSubmit(event)" style="display:flex;flex-direction:column;gap:12px">
-        <input type="password" id="passInput" class="form-input" style="text-align:center;letter-spacing:.2em;font-size:1.1rem" placeholder="••••••••" required />
-        <div id="passError" style="font-size:.75rem;color:#dc2626;display:none;font-weight:600">Contraseña incorrecta. Intenta nuevamente.</div>
+        <input type="password" id="passInput" class="form-input"
+          style="text-align:center;letter-spacing:.2em;font-size:1.1rem" placeholder="••••••••" required />
+        <div id="passError" style="font-size:.75rem;color:#dc2626;display:none;font-weight:600">Contraseña incorrecta.
+          Intenta nuevamente.</div>
 
         <div style="display:flex;gap:8px;margin-top:6px">
           <button type="button" class="btn-export" style="flex:1" onclick="cancelProfileSelection()">Volver</button>
@@ -1508,13 +1680,28 @@
       DOCS: { bg: "#f0fdfa", txt: "#0f766e" }
     };
 
-    // CONFIGURACIÓN DE PERFILES Y CREDENCIALES (DNI)
-    const USERS = {
-      Juanma: { name: "Juan Manuel Merodio", pass: "48134318", role: "Arquitectura", avatar: "JM", color: "#0284c7", bg: "#e0f2fe" },
-      Isabella: { name: "Isabella Infante", pass: "96131444", role: "UX / UI", avatar: "II", color: "#db2777", bg: "#fce7f3" },
-      Celeste: { name: "Celeste Cáceres", pass: "48021520", role: "Stock & QA", avatar: "CC", color: "#d97706", bg: "#fef3c7" },
-      Enzo: { name: "Enzo Queipo", pass: "48290048", role: "Base de Datos", avatar: "EQ", color: "#16a34a", bg: "#dcfce7" }
+    // CONFIGURACIÓN DE PERFILES Y CREDENCIALES (DNI) CON ROLES PERSISTENTES
+    const ROLES_STORAGE_KEY = "quimicashop_team_roles_v1";
+    const DEFAULT_USERS = {
+      Juanma: { name: "Juan Manuel Merodio", pass: "48134318", role: "Full-Stack & Arquitectura", badge: "Next.js / Supabase / CI-CD", avatar: "JM", color: "#0284c7", bg: "#e0f2fe" },
+      Isabella: { name: "Isabella Infante", pass: "96131444", role: "Diseño UX/UI & Frontend", badge: "M3 / Tailwind / Vistas", avatar: "II", color: "#db2777", bg: "#fce7f3" },
+      Celeste: { name: "Celeste Cáceres", pass: "48021520", role: "Lógica de Stock & QA", badge: "Reglas de Stock / Testing", avatar: "CC", color: "#d97706", bg: "#fef3c7" },
+      Enzo: { name: "Enzo Queipo", pass: "48290048", role: "Base de Datos & Remitos", badge: "SQL 13 Tablas / Resend", avatar: "EQ", color: "#16a34a", bg: "#dcfce7" }
     };
+
+    let USERS = { ...DEFAULT_USERS };
+    try {
+      const storedRoles = localStorage.getItem(ROLES_STORAGE_KEY);
+      if (storedRoles) {
+        const parsed = JSON.parse(storedRoles);
+        Object.keys(parsed).forEach(k => {
+          if (USERS[k]) {
+            USERS[k].role = parsed[k].role || USERS[k].role;
+            USERS[k].badge = parsed[k].badge || USERS[k].badge;
+          }
+        });
+      }
+    } catch (e) { }
 
     const AUTH_STORAGE_KEY = "quimicashop_logged_user_v1";
     let currentUser = null; // { key, name, isGuest, avatar, color, bg }
@@ -1664,9 +1851,14 @@
         return true;
       });
 
-      const filtered = currentFilter === "ALL" 
-        ? activeTasks 
-        : activeTasks.filter(t => t.assignee === currentFilter);
+      const filtered = currentFilter === "ALL"
+        ? activeTasks
+        : activeTasks.filter(t => {
+          if (!t.assignee) return false;
+          const a = t.assignee.toLowerCase().trim();
+          const f = currentFilter.toLowerCase().trim();
+          return a === f || a.includes(f) || f.includes(a);
+        });
 
       filtered.forEach(task => {
         counts[task.status] = (counts[task.status] || 0) + 1;
@@ -1674,7 +1866,8 @@
         if (!colEl) return;
 
         const tagStyle = TAG_COLORS[task.tag] || { bg: "#f3f4f6", txt: "#374151" };
-        const avStyle = AVATAR_COLORS[task.assignee] || { bg: "#6b7280", txt: "#fff" };
+        const normKey = Object.keys(AVATAR_COLORS).find(k => k.toLowerCase() === (task.assignee || '').toLowerCase()) || "Enzo";
+        const avStyle = AVATAR_COLORS[normKey] || { bg: "#16a34a", txt: "#fff" };
         const notes = taskNotes[task.id] || [];
 
         const card = document.createElement("div");
@@ -1689,7 +1882,7 @@
           <div class="task-desc">${escapeHtml(task.desc)}</div>
           <div class="task-meta">
             <div class="task-assignee">
-              <span class="task-avatar-sm" style="background:${avStyle.bg};color:${avStyle.txt}">${task.assignee.substring(0, 2).toUpperCase()}</span>
+              <span class="task-avatar-sm" style="background:${avStyle.bg};color:${avStyle.txt}">${(task.assignee || 'EQ').substring(0, 2).toUpperCase()}</span>
               <span>${task.assignee}</span>
             </div>
             <span class="task-prio" style="color:${task.prio === 'ALTA' ? 'var(--rose)' : 'var(--muted)'}">● ${task.prio}</span>
@@ -1712,11 +1905,18 @@
     }
 
     function openCreateModal() {
+      if (currentUser && currentUser.isGuest) {
+        alert("El modo invitado es de solo lectura. No puedes crear tareas.");
+        return;
+      }
       document.getElementById("modalTitle").textContent = "Nueva Tarea de Desarrollo";
       document.getElementById("taskId").value = "";
       document.getElementById("taskForm").reset();
       document.getElementById("taskNotesSection").style.display = "none";
       activeTaskId = null;
+      if (currentUser && USERS[currentUser.key]) {
+        document.getElementById("taskAssignee").value = currentUser.key;
+      }
       document.getElementById("taskModal").classList.add("open");
     }
 
@@ -1732,7 +1932,7 @@
       document.getElementById("taskStatus").value = task.status;
       document.getElementById("taskTag").value = task.tag;
       document.getElementById("taskPrio").value = task.prio;
-      
+
       // Mostrar y renderizar notas de esta tarea
       renderTaskNotes(task.id);
       document.getElementById("taskNotesSection").style.display = "block";
@@ -1854,7 +2054,7 @@
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tasks, null, 2));
       const dlAnchor = document.createElement('a');
       dlAnchor.setAttribute("href", dataStr);
-      dlAnchor.setAttribute("download", `quimicashop_backlog_${new Date().toISOString().slice(0,10)}.json`);
+      dlAnchor.setAttribute("download", `quimicashop_backlog_${new Date().toISOString().slice(0, 10)}.json`);
       dlAnchor.click();
     }
 
@@ -1995,7 +2195,7 @@
     // ==========================================
     // SISTEMA DE MEETINGS, VOTACIÓN & MINUTAS
     // ==========================================
-    function openCreateMeetingModal() {
+    function openCreateMeetingModal(defaultReason = null) {
       if (currentUser && currentUser.isGuest) {
         alert("El modo invitado no puede programar reuniones.");
         return;
@@ -2006,6 +2206,9 @@
       const defaultDate = now.toISOString().slice(0, 16);
       document.getElementById("mDate").value = defaultDate;
       document.getElementById("mUrl").value = "https://meet.google.com/new";
+      if (defaultReason) {
+        document.getElementById("mTitle").value = defaultReason === 'Auditoría Presencial' ? 'Reunión Presencial de Cátedra & Equipo (Aula Taller)' : '';
+      }
       document.getElementById("meetingModal").classList.add("open");
     }
 
@@ -2169,6 +2372,19 @@
         hubBtn.innerHTML = `📺 Abrir Pizarra & Minutas`;
         hubBtn.onclick = openMeetingFullscreen;
         actionBtns.appendChild(hubBtn);
+      }
+
+      // Botón para cancelar la reunión / convocatoria
+      if (currentUser && !currentUser.isGuest) {
+        const cancelBtn = document.createElement("button");
+        cancelBtn.className = "btn-export";
+        cancelBtn.style.background = "#fee2e2";
+        cancelBtn.style.color = "#991b1b";
+        cancelBtn.style.borderColor = "rgba(239,68,68,.3)";
+        cancelBtn.title = "Cancelar y descartar esta reunión";
+        cancelBtn.innerHTML = `✕ Cancelar`;
+        cancelBtn.onclick = cancelCurrentMeeting;
+        actionBtns.appendChild(cancelBtn);
       }
 
       // Iniciar / Actualizar Countdown
@@ -2346,54 +2562,290 @@
               .eq("id", currentMeeting.id);
           } catch (e) {
             console.warn("Error en voto de cierre:", e);
-          }
-        }
-        alert(`Tu voto de cierre ha sido registrado (${document.getElementById("closeVotesCount").textContent}). Se requiere el voto de todos los miembros para archivar.`);
-      }
-    }
+            // ==========================================
+            // CANCELACIÓN DE REUNIÓN / VOTACIÓN POR EL CREADOR
+            // ==========================================
+            async function cancelCurrentMeeting() {
+              if (!currentMeeting) return;
+              if (!currentUser || currentUser.isGuest) {
+                alert("Los invitados no pueden cancelar reuniones.");
+                return;
+              }
+              if (currentUser.key !== currentMeeting.created_by && currentUser.name !== currentMeeting.created_by) {
+                if (!confirm(`Esta reunión fue convocada por "${currentMeeting.created_by}". ¿Deseas cancelarla de todos modos como integrante del equipo?`)) {
+                  return;
+                }
+              } else {
+                if (!confirm("¿Estás seguro de que deseas cancelar la convocatoria de esta reunión?")) {
+                  return;
+                }
+              }
 
-    async function syncMeetingsWithSupabase() {
-      // Cargar meeting guardada en local
-      const storedMeeting = localStorage.getItem(MEETINGS_STORAGE_KEY);
-      if (storedMeeting) {
-        try { currentMeeting = JSON.parse(storedMeeting); } catch (e) { currentMeeting = null; }
-      }
+              const meetingIdToCancel = currentMeeting.id;
+              currentMeeting = null;
+              localStorage.removeItem(MEETINGS_STORAGE_KEY);
 
-      if (supabaseClient) {
-        try {
-          const { data, error } = await supabaseClient
-            .from("team_meetings")
-            .select("*")
-            .order("created_at", { ascending: false })
-            .limit(1);
+              if (countdownTimer) clearInterval(countdownTimer);
 
-          if (!error && data && data.length > 0) {
-            currentMeeting = {
-              id: data[0].id.toString(),
-              title: data[0].title,
-              reason: data[0].reason,
-              scheduled_at: data[0].scheduled_at,
-              meet_url: data[0].meet_url,
-              created_by: data[0].created_by,
-              status: data[0].status,
-              votes: data[0].votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
-              close_votes: data[0].close_votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
-              minutes: data[0].minutes || "",
-              closed_at: data[0].closed_at || null
-            };
-            localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
-          }
-        } catch (err) {
-          console.warn("Sync meetings offline:", err);
-        }
-      }
+              if (supabaseClient) {
+                try {
+                  await supabaseClient.from("team_meetings").delete().eq("id", meetingIdToCancel);
+                } catch (e) {
+                  console.warn("Error borrando reunión de Supabase:", e);
+                }
+              }
 
-      renderMeetingBanner();
-    }
+              renderMeetingBanner();
+              alert("La convocatoria de la reunión ha sido cancelada.");
+            }
 
-    init();
-    checkAuth();
-    syncMeetingsWithSupabase();
+            // ==========================================
+            // GESTIÓN Y EDICIÓN DE ROLES DE EQUIPO
+            // ==========================================
+            function renderTeamCards() {
+              const grid = document.getElementById("teamGridSection");
+              if (!grid) return;
+              grid.innerHTML = "";
+
+              Object.keys(USERS).forEach(key => {
+                const u = USERS[key];
+                const card = document.createElement("div");
+                card.className = "member-card";
+                card.innerHTML = `
+          <div class="member-avatar" style="background:${u.bg};color:${u.color}">${u.avatar}</div>
+          <div class="member-info" style="flex:1">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <h3>${escapeHtml(u.name)}</h3>
+              ${currentUser && !currentUser.isGuest ? `<button class="btn-edit-role" onclick="openEditRoleModal('${key}')" title="Editar rol">✏️ Editar</button>` : ''}
+            </div>
+            <p>${escapeHtml(u.role)}</p>
+            <span class="role-badge" style="background:${u.bg};color:${u.color}">${escapeHtml(u.badge)}</span>
+          </div>
+        `;
+                grid.appendChild(card);
+              });
+            }
+
+            function openEditRoleModal(userKey) {
+              if (currentUser && currentUser.isGuest) {
+                alert("El modo invitado no puede modificar roles de equipo.");
+                return;
+              }
+              const u = USERS[userKey];
+              if (!u) return;
+
+              document.getElementById("editRoleUserKey").value = userKey;
+              document.getElementById("editRoleUserName").value = u.name;
+              document.getElementById("editRoleTitleInput").value = u.role;
+              document.getElementById("editRoleBadgeInput").value = u.badge;
+              document.getElementById("editRoleModalTitle").textContent = `Editar Rol: ${u.name.split(" ")[0]}`;
+
+              document.getElementById("editRoleModal").classList.add("open");
+            }
+
+            function closeEditRoleModal() {
+              document.getElementById("editRoleModal").classList.remove("open");
+            }
+
+            function handleSaveRole(e) {
+              e.preventDefault();
+              const userKey = document.getElementById("editRoleUserKey").value;
+              const newRole = document.getElementById("editRoleTitleInput").value.trim();
+              const newBadge = document.getElementById("editRoleBadgeInput").value.trim();
+
+              if (!USERS[userKey]) return;
+
+              USERS[userKey].role = newRole;
+              USERS[userKey].badge = newBadge;
+
+              // Guardar en localStorage
+              const rolesToStore = {};
+              Object.keys(USERS).forEach(k => {
+                rolesToStore[k] = { role: USERS[k].role, badge: USERS[k].badge };
+              });
+              localStorage.setItem(ROLES_STORAGE_KEY, JSON.stringify(rolesToStore));
+
+              renderTeamCards();
+              closeEditRoleModal();
+            }
+
+            // ==========================================
+            // REUNIÓN PRESENCIAL FIJA (JUEVES 13:00 - 15:00)
+            // ==========================================
+            function updatePresencialCountdown() {
+              const now = new Date();
+              // Jueves es día 4 en getDay()
+              const nextThursday = new Date(now.getTime());
+              const dayOfWeek = now.getDay();
+              let daysToAdd = (4 - dayOfWeek + 7) % 7;
+
+              // Si es jueves hoy, verificar si ya pasaron las 15:00 hs
+              if (daysToAdd === 0 && now.getHours() >= 15) {
+                daysToAdd = 7;
+              }
+
+              nextThursday.setDate(now.getDate() + daysToAdd);
+              nextThursday.setHours(13, 0, 0, 0);
+
+              const diff = nextThursday.getTime() - now.getTime();
+              const el = document.getElementById("presencialCountdown");
+              if (!el) return;
+
+              if (dayOfWeek === 4 && now.getHours() >= 13 && now.getHours() < 15) {
+                el.textContent = "● EN CURSO AHORA (Aula Taller 7mo)";
+                el.style.background = "#dcfce7";
+                el.style.color = "#15803d";
+                return;
+              }
+
+              const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+              const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+              el.textContent = `Próxima sesión en: ${days > 0 ? `${days}d ` : ''}${hours}h ${mins}m`;
+            }
+
+            // ==========================================
+            // HISTORIAL Y ARCHIVO DE MINUTAS
+            // ==========================================
+            const MINUTES_ARCHIVE_KEY = "quimicashop_meetings_archive_v1";
+
+            async function renderMinutesHistory() {
+              const grid = document.getElementById("minutesHistoryGrid");
+              const countBadge = document.getElementById("minutesCountBadge");
+              if (!grid) return;
+              grid.innerHTML = "";
+
+              let meetingsList = [];
+
+              // 1. Obtener de localStorage
+              const localArchive = localStorage.getItem(MINUTES_ARCHIVE_KEY);
+              if (localArchive) {
+                try { meetingsList = JSON.parse(localArchive); } catch (e) { }
+              }
+
+              // 2. Si hay Supabase, consultar team_meetings cerradas
+              if (supabaseClient) {
+                try {
+                  const { data, error } = await supabaseClient
+                    .from("team_meetings")
+                    .select("*")
+                    .order("scheduled_at", { ascending: false });
+
+                  if (!error && data && data.length > 0) {
+                    meetingsList = data;
+                    localStorage.setItem(MINUTES_ARCHIVE_KEY, JSON.stringify(data));
+                  }
+                } catch (e) { }
+              }
+
+              // Si la meeting actual tiene minuta o está cerrada, incluirla si no está ya
+              if (currentMeeting && (currentMeeting.status === "closed" || (currentMeeting.minutes && currentMeeting.minutes.trim()))) {
+                if (!meetingsList.some(m => m.id === currentMeeting.id)) {
+                  meetingsList.unshift(currentMeeting);
+                }
+              }
+
+              // Minutas de ejemplo inicial si no hay ninguna
+              if (meetingsList.length === 0) {
+                meetingsList = [
+                  {
+                    id: "m-seed-1",
+                    title: "Auditoría Presencial de Relevamiento & DER",
+                    reason: "Auditoría Presencial",
+                    scheduled_at: "2026-09-17T13:00:00",
+                    status: "closed",
+                    minutes: "- Revisión conjunta con los profesores Leibouski y Maldonado.\n- Se acordó el descarte de validación bancaria automática por IA (Gemini) en favor de la aprobación manual por el Administrador escolar.\n- El prototipo mobile en React Native queda deprecado para concentrar el esfuerzo en Next.js 15 Web App.\n- Se consolidan las 13 entidades relacionales con integridad referencial.",
+                    created_by: "Juanma"
+                  },
+                  {
+                    id: "m-seed-2",
+                    title: "Sincronización Sprint Backlog & Supabase Setup",
+                    reason: "Semanal",
+                    scheduled_at: "2026-09-22T21:00:00",
+                    status: "closed",
+                    minutes: "- Enzo inicia la migración del script SQL para las 13 tablas en Supabase.\n- Isabella avanza con la maqueta de subida de comprobantes en el checkout.\n- Celeste define los umbrales de stock warning y reintegro semanal de stock no ejecutado los viernes.\n- Juanma configura el Teams Hub con autenticación Netflix y sistema unánime de llamadas.",
+                    created_by: "Juanma"
+                  }
+                ];
+              }
+
+              if (countBadge) countBadge.textContent = `${meetingsList.length} Minutas Registradas`;
+
+              meetingsList.forEach(m => {
+                const d = new Date(m.scheduled_at);
+                const card = document.createElement("div");
+                card.className = "minute-card";
+                card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <span style="background:#fef3c7;color:#b45309;font-weight:700;font-size:.68rem;padding:2px 7px;border-radius:6px;border:1px solid #fde68a">
+              ${escapeHtml(m.reason || 'Reunión')}
+            </span>
+            <span style="font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted)">
+              ${d.toLocaleDateString("es-AR", { day: '2-digit', month: '2-digit', year: 'numeric' })}
+            </span>
+          </div>
+          <h4 style="font-size:.9rem;font-weight:700;color:var(--text);line-height:1.35">${escapeHtml(m.title)}</h4>
+          <div style="font-size:.78rem;color:var(--text-2);background:var(--bg);padding:10px 12px;border-radius:10px;white-space:pre-wrap;line-height:1.5;max-height:160px;overflow-y:auto;border:1px solid var(--border-2)">${escapeHtml(m.minutes || "Sin minuta registrada aún.")}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.7rem;color:var(--muted);border-top:1px solid var(--border-2);padding-top:8px">
+            <span>Convocó: <strong>${escapeHtml(m.created_by || 'Equipo')}</strong></span>
+            <span style="color:var(--accent);font-weight:700">🔒 Minuta Archivada</span>
+          </div>
+        `;
+                grid.appendChild(card);
+              });
+            }
+
+            // ==========================================
+            // SINCRONIZACIÓN Y ARRANQUE GENERAL
+            // ==========================================
+            async function syncMeetingsWithSupabase() {
+              const storedMeeting = localStorage.getItem(MEETINGS_STORAGE_KEY);
+              if (storedMeeting) {
+                try { currentMeeting = JSON.parse(storedMeeting); } catch (e) { currentMeeting = null; }
+              }
+
+              if (supabaseClient) {
+                try {
+                  const { data, error } = await supabaseClient
+                    .from("team_meetings")
+                    .select("*")
+                    .order("created_at", { ascending: false })
+                    .limit(1);
+
+                  if (!error && data && data.length > 0) {
+                    currentMeeting = {
+                      id: data[0].id.toString(),
+                      title: data[0].title,
+                      reason: data[0].reason,
+                      scheduled_at: data[0].scheduled_at,
+                      meet_url: data[0].meet_url,
+                      created_by: data[0].created_by,
+                      status: data[0].status,
+                      votes: data[0].votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
+                      close_votes: data[0].close_votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
+                      minutes: data[0].minutes || "",
+                      closed_at: data[0].closed_at || null
+                    };
+                    localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+                  }
+                } catch (err) {
+                  console.warn("Sync meetings offline:", err);
+                }
+              }
+
+              renderMeetingBanner();
+              renderMinutesHistory();
+            }
+
+            // Iniciar componentes
+            init();
+            checkAuth();
+            renderTeamCards();
+            updatePresencialCountdown();
+            setInterval(updatePresencialCountdown, 60000);
+            syncMeetingsWithSupabase();
+
   </script>
 
 </body>

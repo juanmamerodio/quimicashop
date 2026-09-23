@@ -24,6 +24,20 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-09-22] Resolución de Auditoría QA: Cancelación de Llamadas, Edición de Roles, Reunión Presencial y Minutas
+- **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
+- **Artefactos Modificados:** `tasks.html`, `AGENTS.md`, `diagrams/CHANGELOG.md`
+- **¿Por qué se hizo? (Motivo):** Resolver las 6 observaciones reportadas en la auditoría de calidad (cancelación de convocatorias, apertura del modal de creación de tareas, apartado visible de historial de minutas, recordatorio y minuta para reunión presencial fija de los jueves de 13 a 15 hs, edición de roles y visualización uniforme de tareas de Enzo).
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Cancelación de Votación / Reunión:** Se incorporó el botón "✕ Cancelar" en el banner de la reunión que permite al creador (o integrantes) anular la convocatoria, borrándola de `localStorage` y de la tabla `team_meetings` de Supabase.
+  - **Creación de Tareas:** Se reforzó la apertura de `taskModal` con reseteo de campos y asignación automática del perfil activo.
+  - **Historial Explayado de Minutas:** Se integró la sección `#minutesHistorySection` con grid de tarjetas de minutas archivadas, fechas, motivos y acuerdos inmutables.
+  - **Reunión Presencial de Cátedra:** Tarjeta fija interactiva con temporizador al próximo **Jueves (13:00 - 15:00 hs)** y botón directo para levantar minuta presencial de cátedra.
+  - **Edición de Roles Dinámica:** Se añadieron botones de edición en cada tarjeta de integrante (`#editRoleModal`) que permiten actualizar el rol y las tecnologías asociadas con persistencia local (`quimicashop_team_roles_v1`).
+  - **Visualización de Tareas de Enzo:** Normalización insensible a mayúsculas/minúsculas y subcadenas para el filtro de asignación, garantizando que las tareas de Enzo Queipo se listen tanto en "Todas" como en el filtro "Enzo".
+
+---
+
 ### [2026-09-22] Implementación de Teams Hub: Login Netflix, Módulo Meetings con Votación Unánime y Minutas
 - **Autor / Responsable:** Juan Manuel Merodio & Equipo de Programación
 - **Artefactos Modificados:** `tasks.html`, `index.html`, `AGENTS.md`, `diagrams/CHANGELOG.md`
