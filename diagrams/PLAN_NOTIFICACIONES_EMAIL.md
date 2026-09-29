@@ -17,6 +17,9 @@ El sistema de notificaciones por email tiene dos propósitos centrales en Quimic
    - Notificación a los 4 integrantes (Juanma, Isabella, Celeste, Enzo) cuando se convoca una reunión (link de votación).
    - Aviso de confirmación de Meet una vez alcanzada la unanimidad (4/4).
    - Envío de minutas archivadas y tareas asignadas.
+   - Envío de avances de tareas.
+   - Recordatorios de tareas pendientes (todos los domingos).
+   
 
 ---
 

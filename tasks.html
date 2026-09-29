@@ -153,6 +153,13 @@
           </svg>
           Exportar JSON
         </button>
+        <button class="btn-meeting" id="btn-create-discussion" onclick="openNewDiscussionModal()" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Nueva Nota / Avance
+        </button>
         <button class="btn-create" id="btn-create-task" onclick="openCreateModal()">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -262,6 +269,70 @@
       </div>
 
     </div>
+
+    <!-- SECCIÓN: BANDEJA DE ENTRADA · NOTAS NUEVAS, AVANCES & FORO DE DEBATE -->
+    <section class="inbox-section" id="teamDiscussionsSection">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="eyebrow" style="margin-bottom:6px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Bandeja de Avances & Foro de Debate
+          </div>
+          <h2 style="font-size:1.35rem;font-weight:750;letter-spacing:-.02em">Notas Nuevas & Discusiones de Equipo</h2>
+          <p style="font-size:.78rem;color:var(--muted);margin-top:2px">
+            Registro tipo bandeja de correo de avances personales, trabas de desarrollo, peticiones de ayuda y debates técnicos colaborativos.
+          </p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="nav-pill" id="unreadNotesBadge" style="font-family:'DM Mono',monospace;font-size:.74rem">
+            0 a visualizar
+          </span>
+          <button class="btn-create" onclick="openNewDiscussionModal()" style="font-size:.78rem;padding:7px 14px">
+            Redactar Nota
+          </button>
+        </div>
+      </div>
+
+      <!-- MAILBOX CONTAINER: LISTA (IZQ) + LECTOR / FORO (DER) -->
+      <div class="inbox-container">
+        <!-- COLUMNA BANDEJA -->
+        <aside class="inbox-list-col">
+          <div class="inbox-list-header">
+            <input type="text" id="inboxSearchInput" class="form-input" style="font-size:.78rem;padding:7px 12px"
+              placeholder="Buscar por asunto, autor o tarea..." oninput="handleFilterDiscussions()" />
+            <div class="inbox-filter-chips">
+              <button class="inbox-chip active" data-filter="ALL" onclick="setDiscussionCategoryFilter('ALL')">Todas</button>
+              <button class="inbox-chip" data-filter="UNREAD" onclick="setDiscussionCategoryFilter('UNREAD')">A visualizar</button>
+              <button class="inbox-chip" data-filter="BLOQUEO" onclick="setDiscussionCategoryFilter('BLOQUEO')">Trabas / Bloqueos</button>
+              <button class="inbox-chip" data-filter="AYUDA" onclick="setDiscussionCategoryFilter('AYUDA')">Ayuda</button>
+              <button class="inbox-chip" data-filter="AVANCE" onclick="setDiscussionCategoryFilter('AVANCE')">Avances</button>
+              <button class="inbox-chip" data-filter="DEBATE" onclick="setDiscussionCategoryFilter('DEBATE')">Debates</button>
+            </div>
+          </div>
+
+          <div class="inbox-items-scroll" id="inboxItemsList">
+            <!-- Renderizado dinámico de notas -->
+          </div>
+        </aside>
+
+        <!-- COLUMNA LECTOR Y HILO DE DEBATE -->
+        <section class="inbox-reader-col" id="inboxReaderView">
+          <!-- Renderizado dinámico de la nota seleccionada o vista vacía -->
+          <div class="inbox-empty-view">
+            <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.4">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <div style="font-weight:600;font-size:.9rem">Selecciona una nota para ver el detalle</div>
+            <p style="font-size:.76rem;max-width:300px">Explora los avances y bloqueos de tus compañeros o redacta una nota para abrir un nuevo debate.</p>
+          </div>
+        </section>
+      </div>
+    </section>
 
     <!-- APARTADO DE HISTORIAL DE MINUTAS & REUNIONES -->
     <section class="minutes-history-sec" id="minutesHistorySection">
@@ -631,6 +702,67 @@
     </div>
   </div>
 
+  <!-- MODAL DE REDACCIÓN DE NOTA NUEVA / AVANCE / DEBATE -->
+  <div class="modal-backdrop" id="newDiscussionModal">
+    <div class="modal" style="max-width:560px">
+      <div class="modal-hd">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:10px;background:#eff6ff;color:#2563eb;display:flex;align-items:center;justify-content:center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="modal-title" style="margin:0">Redactar Avance / Nota / Debate</h3>
+            <p style="font-size:.76rem;color:var(--muted);margin:2px 0 0">Comparte qué hiciste, en qué te trabaste, qué necesitas o abre un hilo de discusión.</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeNewDiscussionModal()">✕</button>
+      </div>
+
+      <form id="newDiscussionForm" onsubmit="handleSaveDiscussion(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="discCategory">Categoría / Tipo de Nota</label>
+            <select id="discCategory" class="form-select" required>
+              <option value="AVANCE">Avance de Tarea</option>
+              <option value="BLOQUEO">Traba / Bloqueo Técnico</option>
+              <option value="AYUDA">Petición de Ayuda</option>
+              <option value="DEBATE">Debate de Arquitectura</option>
+              <option value="IDEA">Propuesta / Idea</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="discTaskId">Tarea Vinculada (Opcional)</label>
+            <select id="discTaskId" class="form-select">
+              <option value="none">Sin tarea vinculada (General / Debate libre)</option>
+              <!-- Opciones dinámicas de tareas cargadas por script -->
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="discTitle">Asunto / Título</label>
+          <input type="text" id="discTitle" class="form-input" required
+            placeholder="Ej: Traba con la relación Pedido-Comprobante o Avance de UI" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="discContent">Cuerpo del Mensaje (Detalle)</label>
+          <textarea id="discContent" class="form-textarea" style="min-height:160px;font-size:.84rem;line-height:1.55" required
+            placeholder="Describe qué lograste, dónde te trabaste, qué alternativas consideras o en qué tema necesitamos llegar a un consenso como equipo..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-export" onclick="closeNewDiscussionModal()">Cancelar</button>
+          <button type="submit" class="btn-create">Publicar Nota</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- PIZARRA FULLSCREEN DE MEETING ACTIVA & MINUTAS -->
   <div class="meeting-fullscreen" id="meetingFullscreen">
     <div style="max-width:1100px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:24px;flex:1">
@@ -844,6 +976,17 @@
         <span class="dock-badge" id="dockTrashBadge">0</span>
       </div>
       <span>Papelera</span>
+    </button>
+
+    <button class="dock-btn" id="dock-btn-discussions" onclick="scrollToSection('teamDiscussionsSection')" title="Notas y Debates">
+      <div class="dock-icon-box" style="position:relative">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span class="dock-badge" id="dockUnreadBadge" style="display:none">0</span>
+      </div>
+      <span>Notas</span>
     </button>
 
     <button class="dock-btn" onclick="openPresencialMinuteModal()" title="Minuta Jueves">

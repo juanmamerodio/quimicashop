@@ -139,6 +139,65 @@ let activeTaskId = null;
 const TRASH_STORAGE_KEY = "quimicashop_team_trash_v1";
 let trashTasks = [];
 
+// ESTADO DE BANDEJA DE ENTRADA, AVANCES & FORO DE DEBATE
+const DISCUSSIONS_STORAGE_KEY = "quimicashop_team_discussions_v1";
+const DISCUSSION_COMMENTS_STORAGE_KEY = "quimicashop_team_disc_comments_v1";
+let teamDiscussions = [];
+let discussionComments = [];
+let selectedDiscussionId = null;
+let currentDiscussionFilter = "ALL"; // ALL | UNREAD | BLOQUEO | AYUDA | AVANCE | DEBATE
+let discussionSearchQuery = "";
+
+const INITIAL_DISCUSSIONS = [
+  {
+    id: "disc-seed-1",
+    title: "Traba con las claves foráneas de Comprobante y Estados_comprobante",
+    content: "Hola equipo! Al revisar el DER-quimica.csv noté que Comprobante y Estados_comprobante comparten id_pedido como relación fuerte. ¿Les parece si id_estado en Estados_comprobante es un id propio y dejamos id_pedido como FK? Necesito que Isabella y Enzo me confirmen esto antes de cerrar el script SQL.",
+    author_key: "Juanma",
+    author_name: "Juan Manuel Merodio",
+    category: "BLOQUEO",
+    task_id: "task-1",
+    read_by: ["Juanma"],
+    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 4).toISOString()
+  },
+  {
+    id: "disc-seed-2",
+    title: "Avance: Pantalla de checkout y previsualización de imagen",
+    content: "Ya dejé listo el dropzone para arrastrar el comprobante de transferencia y la compresión previa a enviar a Supabase Storage. Solo falta definir si aceptamos únicamente JPG/PNG o también PDF.",
+    author_key: "Isabella",
+    author_name: "Isabella Infante",
+    category: "AVANCE",
+    task_id: "task-2",
+    read_by: ["Isabella"],
+    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 2).toISOString()
+  },
+  {
+    id: "disc-seed-3",
+    title: "Debate: Política de horario para la liberación de stock semanal",
+    content: "El informe de cátedra fija la liberación de stock reservado los días viernes. Propongo que se ejecute a las 18:00 hs al finalizar el horario lectivo del taller de Química para no interferir con las compras del mediodía. ¿Opiniones?",
+    author_key: "Celeste",
+    author_name: "Celeste Cáceres",
+    category: "DEBATE",
+    task_id: "task-3",
+    read_by: ["Celeste"],
+    created_at: new Date(Date.now() - 3600000 * 1).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 1).toISOString()
+  }
+];
+
+const INITIAL_COMMENTS = [
+  {
+    id: "comm-seed-1",
+    discussion_id: "disc-seed-1",
+    author_key: "Isabella",
+    author_name: "Isabella Infante",
+    comment: "Coincido totalmente Juanma. En el DDL puse id_estado como PK serial y id_pedido como FK para que podamos registrar el historial de estados de un mismo comprobante sin colisión.",
+    created_at: new Date(Date.now() - 3600000 * 3).toISOString()
+  }
+];
+
 async function init() {
   // 1. Carga local inmediata
   const storedTasks = localStorage.getItem(STORAGE_KEY);
@@ -158,8 +217,23 @@ async function init() {
     try { trashTasks = JSON.parse(storedTrash); } catch (e) { trashTasks = []; }
   }
 
+  const storedDiscussions = localStorage.getItem(DISCUSSIONS_STORAGE_KEY);
+  if (storedDiscussions) {
+    try { teamDiscussions = JSON.parse(storedDiscussions); } catch (e) { teamDiscussions = INITIAL_DISCUSSIONS; }
+  } else {
+    teamDiscussions = INITIAL_DISCUSSIONS;
+  }
+
+  const storedComments = localStorage.getItem(DISCUSSION_COMMENTS_STORAGE_KEY);
+  if (storedComments) {
+    try { discussionComments = JSON.parse(storedComments); } catch (e) { discussionComments = INITIAL_COMMENTS; }
+  } else {
+    discussionComments = INITIAL_COMMENTS;
+  }
+
   render();
   updateTrashBadge();
+  renderDiscussions();
 
   // 2. Sincronización con Supabase (team_members, team_tasks, task_notes y Realtime)
   if (supabaseClient) {
@@ -248,6 +322,50 @@ async function init() {
         render();
       }
 
+      // Cargar team_discussions desde Supabase si existe
+      try {
+        const { data: discData, error: discError } = await supabaseClient
+          .from("team_discussions")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (!discError && discData && discData.length > 0) {
+          teamDiscussions = discData.map(d => ({
+            id: d.id.toString(),
+            title: d.title,
+            content: d.content,
+            author_key: d.author_key,
+            author_name: d.author_name,
+            category: d.category || "AVANCE",
+            task_id: d.task_id || "none",
+            read_by: Array.isArray(d.read_by) ? d.read_by : (typeof d.read_by === "string" ? JSON.parse(d.read_by) : []),
+            created_at: d.created_at,
+            updated_at: d.updated_at
+          }));
+          localStorage.setItem(DISCUSSIONS_STORAGE_KEY, JSON.stringify(teamDiscussions));
+        }
+
+        const { data: commData, error: commError } = await supabaseClient
+          .from("team_discussion_comments")
+          .select("*")
+          .order("created_at", { ascending: true });
+
+        if (!commError && commData && commData.length > 0) {
+          discussionComments = commData.map(c => ({
+            id: c.id.toString(),
+            discussion_id: c.discussion_id.toString(),
+            author_key: c.author_key,
+            author_name: c.author_name,
+            comment: c.comment,
+            created_at: c.created_at
+          }));
+          localStorage.setItem(DISCUSSION_COMMENTS_STORAGE_KEY, JSON.stringify(discussionComments));
+        }
+        renderDiscussions();
+      } catch (errDisc) {
+        console.warn("Discussions offline/table not ready:", errDisc);
+      }
+
       // Suscripción Realtime (PostgreSQL Changes)
       if (typeof supabaseClient.channel === "function") {
         supabaseClient.channel('realtime_teams_hub')
@@ -289,6 +407,12 @@ async function init() {
               });
               renderTeamCards();
             }
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'team_discussions' }, async () => {
+            syncDiscussionsFromSupabase();
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'team_discussion_comments' }, async () => {
+            syncDiscussionsFromSupabase();
           })
           .subscribe();
       }
@@ -1047,6 +1171,7 @@ function applyUserSession() {
 
   renderTeamCards();
   renderMeetingBanner();
+  renderDiscussions();
 }
 
 function handleLogout() {
@@ -1969,6 +2094,507 @@ async function syncMeetingsWithSupabase() {
 
   renderMeetingBanner();
   renderMinutesHistory();
+}
+
+// ==========================================
+// MÓDULO BANDEJA DE ENTRADA: NOTAS, AVANCES & FORO DE DEBATE
+// ==========================================
+
+async function syncDiscussionsFromSupabase() {
+  if (!supabaseClient) return;
+  try {
+    const { data: discData, error: discError } = await supabaseClient
+      .from("team_discussions")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!discError && discData) {
+      teamDiscussions = discData.map(d => ({
+        id: d.id.toString(),
+        title: d.title,
+        content: d.content,
+        author_key: d.author_key,
+        author_name: d.author_name,
+        category: d.category || "AVANCE",
+        task_id: d.task_id || "none",
+        read_by: Array.isArray(d.read_by) ? d.read_by : (typeof d.read_by === "string" ? JSON.parse(d.read_by) : []),
+        created_at: d.created_at,
+        updated_at: d.updated_at
+      }));
+      localStorage.setItem(DISCUSSIONS_STORAGE_KEY, JSON.stringify(teamDiscussions));
+    }
+
+    const { data: commData, error: commError } = await supabaseClient
+      .from("team_discussion_comments")
+      .select("*")
+      .order("created_at", { ascending: true });
+
+    if (!commError && commData) {
+      discussionComments = commData.map(c => ({
+        id: c.id.toString(),
+        discussion_id: c.discussion_id.toString(),
+        author_key: c.author_key,
+        author_name: c.author_name,
+        comment: c.comment,
+        created_at: c.created_at
+      }));
+      localStorage.setItem(DISCUSSION_COMMENTS_STORAGE_KEY, JSON.stringify(discussionComments));
+    }
+
+    renderDiscussions();
+  } catch (e) {
+    console.warn("Sync discussions error:", e);
+  }
+}
+
+function setDiscussionCategoryFilter(category) {
+  currentDiscussionFilter = category;
+  document.querySelectorAll(".inbox-chip").forEach(chip => {
+    chip.classList.toggle("active", chip.getAttribute("data-filter") === category);
+  });
+  renderDiscussions();
+}
+
+function handleFilterDiscussions() {
+  const input = document.getElementById("inboxSearchInput");
+  discussionSearchQuery = input ? input.value.trim().toLowerCase() : "";
+  renderDiscussions();
+}
+
+function updateUnreadBadge() {
+  const badge = document.getElementById("unreadNotesBadge");
+  const dockBadge = document.getElementById("dockUnreadBadge");
+  if (!badge) return;
+
+  const currentKey = currentUser ? currentUser.key : "Guest";
+  const unreadCount = teamDiscussions.filter(d => {
+    const readers = Array.isArray(d.read_by) ? d.read_by : [];
+    return !readers.includes(currentKey);
+  }).length;
+
+  badge.textContent = `${unreadCount} a visualizar`;
+  badge.style.background = unreadCount > 0 ? "#eff6ff" : "var(--bg)";
+  badge.style.color = unreadCount > 0 ? "#1d4ed8" : "var(--muted)";
+  badge.style.borderColor = unreadCount > 0 ? "#bfdbfe" : "var(--border)";
+
+  if (dockBadge) {
+    dockBadge.textContent = unreadCount;
+    dockBadge.style.display = unreadCount > 0 ? "inline-block" : "none";
+  }
+}
+
+function renderDiscussions() {
+  const listEl = document.getElementById("inboxItemsList");
+  if (!listEl) return;
+
+  updateUnreadBadge();
+
+  const currentKey = currentUser ? currentUser.key : "Guest";
+
+  // Filtrado de notas
+  let filtered = teamDiscussions.filter(d => {
+    const isUnread = !(Array.isArray(d.read_by) && d.read_by.includes(currentKey));
+
+    if (currentDiscussionFilter === "UNREAD" && !isUnread) return false;
+    if (currentDiscussionFilter !== "ALL" && currentDiscussionFilter !== "UNREAD") {
+      if (d.category !== currentDiscussionFilter) return false;
+    }
+
+    if (discussionSearchQuery) {
+      const matchTitle = (d.title || "").toLowerCase().includes(discussionSearchQuery);
+      const matchAuthor = (d.author_name || "").toLowerCase().includes(discussionSearchQuery);
+      const matchContent = (d.content || "").toLowerCase().includes(discussionSearchQuery);
+      return matchTitle || matchAuthor || matchContent;
+    }
+
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = `
+      <div style="padding:40px 20px;text-align:center;color:var(--muted);font-size:.8rem">
+        No hay notas en esta vista
+      </div>
+    `;
+    return;
+  }
+
+  // Si no hay seleccionada y hay elementos, pre-seleccionar la primera
+  if (!selectedDiscussionId && filtered.length > 0) {
+    selectedDiscussionId = filtered[0].id;
+  }
+
+  listEl.innerHTML = filtered.map(d => {
+    const isSelected = d.id === selectedDiscussionId;
+    const isUnread = !(Array.isArray(d.read_by) && d.read_by.includes(currentKey));
+    const authorUser = USERS[d.author_key] || { avatar: "EQ", color: "#16a34a", bg: "#dcfce7" };
+    
+    // Categoría visual sin emojis (con colores)
+    const catClass = `cat-${(d.category || "avance").toLowerCase()}`;
+    
+    // Fecha formateada
+    const dDate = d.created_at ? new Date(d.created_at) : new Date();
+    const timeStr = dDate.toLocaleDateString("es-AR", { day: '2-digit', month: '2-digit' }) + ' ' + 
+                    dDate.toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' });
+
+    // Tarea vinculada si existe
+    let taskSnippet = "";
+    if (d.task_id && d.task_id !== "none") {
+      const linkedTask = tasks.find(t => t.id === d.task_id);
+      if (linkedTask) {
+        taskSnippet = `<span class="task-link-badge" title="${linkedTask.title}"># ${linkedTask.title}</span>`;
+      }
+    }
+
+    // Cantidad de comentarios
+    const commentsCount = discussionComments.filter(c => c.discussion_id === d.id).length;
+    const commBadge = commentsCount > 0 
+      ? `<span style="font-size:.68rem;font-family:'DM Mono',monospace;color:var(--muted);margin-left:auto">${commentsCount} resp.</span>` 
+      : "";
+
+    return `
+      <div class="inbox-item ${isSelected ? 'selected' : ''} ${isUnread ? 'unread' : ''}" onclick="selectDiscussion('${d.id}')">
+        <div class="inbox-item-top">
+          <div class="inbox-item-author-wrap">
+            <span class="inbox-unread-dot" title="A visualizar"></span>
+            <span style="width:20px;height:20px;border-radius:6px;background:${authorUser.bg};color:${authorUser.color};display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700">
+              ${authorUser.avatar}
+            </span>
+            <span class="inbox-item-author">${d.author_name}</span>
+          </div>
+          <span class="inbox-item-time">${timeStr}</span>
+        </div>
+        <div class="inbox-item-title">${d.title}</div>
+        <div class="inbox-item-preview">${d.content}</div>
+        <div class="inbox-item-badges">
+          <span class="cat-pill ${catClass}">${d.category}</span>
+          ${taskSnippet}
+          ${commBadge}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  renderReaderView();
+}
+
+function selectDiscussion(discId) {
+  selectedDiscussionId = discId;
+  const disc = teamDiscussions.find(d => d.id === discId);
+  const currentKey = currentUser ? currentUser.key : "Guest";
+
+  if (disc && Array.isArray(disc.read_by) && !disc.read_by.includes(currentKey)) {
+    disc.read_by.push(currentKey);
+    localStorage.setItem(DISCUSSIONS_STORAGE_KEY, JSON.stringify(teamDiscussions));
+
+    if (supabaseClient) {
+      try {
+        supabaseClient
+          .from("team_discussions")
+          .update({ read_by: disc.read_by })
+          .eq("id", disc.id)
+          .then();
+      } catch (err) { }
+    }
+  }
+
+  renderDiscussions();
+}
+
+function toggleMarkAsRead(discId) {
+  const disc = teamDiscussions.find(d => d.id === discId);
+  if (!disc) return;
+  const currentKey = currentUser ? currentUser.key : "Guest";
+
+  if (!Array.isArray(disc.read_by)) disc.read_by = [];
+
+  if (disc.read_by.includes(currentKey)) {
+    disc.read_by = disc.read_by.filter(k => k !== currentKey);
+  } else {
+    disc.read_by.push(currentKey);
+  }
+
+  localStorage.setItem(DISCUSSIONS_STORAGE_KEY, JSON.stringify(teamDiscussions));
+
+  if (supabaseClient) {
+    try {
+      supabaseClient
+        .from("team_discussions")
+        .update({ read_by: disc.read_by })
+        .eq("id", disc.id)
+        .then();
+    } catch (err) { }
+  }
+
+  renderDiscussions();
+}
+
+function renderReaderView() {
+  const readerEl = document.getElementById("inboxReaderView");
+  if (!readerEl) return;
+
+  const disc = teamDiscussions.find(d => d.id === selectedDiscussionId);
+  if (!disc) {
+    readerEl.innerHTML = `
+      <div class="inbox-empty-view">
+        <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.4">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+          <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+        <div style="font-weight:600;font-size:.9rem">Selecciona una nota para ver el detalle</div>
+        <p style="font-size:.76rem;max-width:300px">Explora los avances y bloqueos de tus compañeros o redacta una nota para abrir un nuevo debate.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const currentKey = currentUser ? currentUser.key : "Guest";
+  const isReadByMe = Array.isArray(disc.read_by) && disc.read_by.includes(currentKey);
+  const authorUser = USERS[disc.author_key] || { avatar: "EQ", color: "#16a34a", bg: "#dcfce7" };
+  const catClass = `cat-${(disc.category || "avance").toLowerCase()}`;
+
+  const dDate = disc.created_at ? new Date(disc.created_at) : new Date();
+  const dateStr = dDate.toLocaleDateString("es-AR", { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }) + 
+                  ' a las ' + dDate.toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' }) + ' hs';
+
+  // Tarea vinculada
+  let taskInfo = "Sin tarea vinculada";
+  if (disc.task_id && disc.task_id !== "none") {
+    const linkedTask = tasks.find(t => t.id === disc.task_id);
+    if (linkedTask) {
+      taskInfo = `Tarea: <strong>${linkedTask.title}</strong> (${linkedTask.status})`;
+    }
+  }
+
+  // Comentarios del hilo
+  const threadComments = discussionComments.filter(c => c.discussion_id === disc.id);
+  const commentsHtml = threadComments.length > 0 
+    ? threadComments.map(c => {
+        const u = USERS[c.author_key] || { avatar: "US", color: "var(--accent)", bg: "var(--accent-lt)" };
+        const cDate = c.created_at ? new Date(c.created_at) : new Date();
+        const cTimeStr = cDate.toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="thread-comment-card">
+            <div class="thread-comment-header">
+              <div style="display:flex;align-items:center;gap:7px">
+                <span style="width:20px;height:20px;border-radius:6px;background:${u.bg};color:${u.color};display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700">
+                  ${u.avatar}
+                </span>
+                <span style="font-size:.78rem;font-weight:700;color:var(--text)">${c.author_name}</span>
+              </div>
+              <span style="font-size:.68rem;font-family:'DM Mono',monospace;color:var(--muted)">${cTimeStr}</span>
+            </div>
+            <div class="thread-comment-content">${c.comment}</div>
+          </div>
+        `;
+      }).join("")
+    : `<div style="text-align:center;padding:16px;color:var(--muted);font-size:.78rem">Aún no hay comentarios en este hilo. ¡Sé el primero en responder!</div>`;
+
+  readerEl.innerHTML = `
+    <div class="inbox-reader-header">
+      <div class="inbox-reader-title-row">
+        <div>
+          <span class="cat-pill ${catClass}" style="margin-bottom:6px">${disc.category}</span>
+          <h3 class="inbox-reader-title">${disc.title}</h3>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-export" style="font-size:.74rem;padding:4px 10px" onclick="toggleMarkAsRead('${disc.id}')" title="Alternar estado de lectura">
+            ${isReadByMe ? 'Marcar como no leído' : 'Marcar como leído'}
+          </button>
+        </div>
+      </div>
+
+      <div class="inbox-reader-meta">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:26px;height:26px;border-radius:8px;background:${authorUser.bg};color:${authorUser.color};display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700">
+            ${authorUser.avatar}
+          </span>
+          <div>
+            <div style="font-size:.82rem;font-weight:700;color:var(--text)">${disc.author_name}</div>
+            <div style="font-size:.7rem;color:var(--muted)">${dateStr}</div>
+          </div>
+        </div>
+        <div style="font-size:.74rem;color:var(--muted)">${taskInfo}</div>
+      </div>
+    </div>
+
+    <!-- CUERPO DE LA NOTA -->
+    <div class="inbox-reader-body">${disc.content}</div>
+
+    <!-- HILO DE COMENTARIOS / FORO -->
+    <div class="inbox-thread-section">
+      <div style="font-size:.78rem;font-weight:700;color:var(--muted);letter-spacing:.02em;text-transform:uppercase">
+        Hilo de Debate & Aportes (${threadComments.length})
+      </div>
+      ${commentsHtml}
+    </div>
+
+    <!-- INPUT DE RESPUESTA DIRECTA -->
+    <form class="inbox-reply-box" onsubmit="handleAddDiscussionComment(event, '${disc.id}')">
+      <input type="text" id="replyCommentInput" class="form-input" style="font-size:.82rem"
+        placeholder="Responder a ${disc.author_name} o aportar una solución..." required />
+      <button type="submit" class="btn-create" style="white-space:nowrap;font-size:.78rem;padding:8px 14px">
+        Responder
+      </button>
+    </form>
+  `;
+}
+
+// CREACIÓN DE NUEVA NOTA / AVANCE / DEBATE
+function openNewDiscussionModal() {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado no puede publicar notas. Por favor inicia sesión con tu perfil.");
+    return;
+  }
+
+  // Poblar tareas disponibles en el select
+  const select = document.getElementById("discTaskId");
+  if (select) {
+    let optionsHtml = `<option value="none">Sin tarea vinculada (General / Debate libre)</option>`;
+    tasks.forEach(t => {
+      optionsHtml += `<option value="${t.id}">[${t.status.toUpperCase()}] ${t.title}</option>`;
+    });
+    select.innerHTML = optionsHtml;
+  }
+
+  const modal = document.getElementById("newDiscussionModal");
+  if (modal) modal.classList.add("active");
+}
+
+function closeNewDiscussionModal() {
+  const modal = document.getElementById("newDiscussionModal");
+  if (modal) modal.classList.remove("active");
+  const form = document.getElementById("newDiscussionForm");
+  if (form) form.reset();
+}
+
+async function handleSaveDiscussion(event) {
+  event.preventDefault();
+
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado no puede publicar notas.");
+    return;
+  }
+
+  const title = document.getElementById("discTitle").value.trim();
+  const content = document.getElementById("discContent").value.trim();
+  const category = document.getElementById("discCategory").value;
+  const taskId = document.getElementById("discTaskId").value;
+
+  const currentAuthorKey = currentUser ? currentUser.key : "Juanma";
+  const currentAuthorName = currentUser ? currentUser.name : "Juan Manuel Merodio";
+  const newId = generateUuid();
+  const nowIso = new Date().toISOString();
+
+  const newDiscussion = {
+    id: newId,
+    title: title,
+    content: content,
+    author_key: currentAuthorKey,
+    author_name: currentAuthorName,
+    category: category,
+    task_id: taskId,
+    read_by: [currentAuthorKey], // Quien la escribe ya la leyó
+    created_at: nowIso,
+    updated_at: nowIso
+  };
+
+  teamDiscussions.unshift(newDiscussion);
+  selectedDiscussionId = newId;
+  localStorage.setItem(DISCUSSIONS_STORAGE_KEY, JSON.stringify(teamDiscussions));
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient.from("team_discussions").insert([{
+        id: newId,
+        title: title,
+        content: content,
+        author_key: currentAuthorKey,
+        author_name: currentAuthorName,
+        category: category,
+        task_id: taskId,
+        read_by: [currentAuthorKey]
+      }]);
+    } catch (err) {
+      console.warn("No se pudo guardar la nota en Supabase:", err);
+    }
+  }
+
+  closeNewDiscussionModal();
+  renderDiscussions();
+}
+
+async function handleAddDiscussionComment(event, discId) {
+  event.preventDefault();
+
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado no puede comentar notas.");
+    return;
+  }
+
+  const input = document.getElementById("replyCommentInput");
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+
+  const currentAuthorKey = currentUser ? currentUser.key : "Juanma";
+  const currentAuthorName = currentUser ? currentUser.name : "Juan Manuel Merodio";
+  const commentId = generateUuid();
+  const nowIso = new Date().toISOString();
+
+  const newComment = {
+    id: commentId,
+    discussion_id: discId,
+    author_key: currentAuthorKey,
+    author_name: currentAuthorName,
+    comment: text,
+    created_at: nowIso
+  };
+
+  discussionComments.push(newComment);
+  localStorage.setItem(DISCUSSION_COMMENTS_STORAGE_KEY, JSON.stringify(discussionComments));
+
+  // Al haber un nuevo comentario, desmarcar 'read_by' para los demás para que vuelvan a tenerlo en negrita
+  const disc = teamDiscussions.find(d => d.id === discId);
+  if (disc) {
+    disc.read_by = [currentAuthorKey];
+    disc.updated_at = nowIso;
+    localStorage.setItem(DISCUSSIONS_STORAGE_KEY, JSON.stringify(teamDiscussions));
+
+    if (supabaseClient) {
+      try {
+        await supabaseClient
+          .from("team_discussions")
+          .update({ read_by: [currentAuthorKey], updated_at: nowIso })
+          .eq("id", discId);
+      } catch (e) { }
+    }
+  }
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient.from("team_discussion_comments").insert([{
+        id: commentId,
+        discussion_id: discId,
+        author_key: currentAuthorKey,
+        author_name: currentAuthorName,
+        comment: text
+      }]);
+    } catch (err) {
+      console.warn("No se pudo guardar el comentario en Supabase:", err);
+    }
+  }
+
+  input.value = "";
+  renderDiscussions();
+}
+
+function scrollToSection(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // Iniciar componentes
