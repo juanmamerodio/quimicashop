@@ -3071,3 +3071,150 @@
       gap: 10px;
     }
 
+    /* BOTÓN PAPELERA EN EL VISOR DE NOTAS */
+    .btn-trash-note {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: .74rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 140ms ease;
+    }
+    .btn-trash-note:hover {
+      background: #fef2f2;
+      color: #dc2626;
+      border-color: #fecaca;
+    }
+    .btn-trash-note:active {
+      transform: scale(0.96);
+    }
+
+    /* BOTÓN RETROCEDER EN MOBILE (INBOX READER -> LIST) */
+    .btn-inbox-back-mobile {
+      display: none;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: .74rem;
+      font-weight: 600;
+      color: var(--text-2);
+      cursor: pointer;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    /* ==========================================================================
+       MEDIA QUERIES ULTRA-CLEAN iOS 27 PARA BANDEJA DE ENTRADA Y NOTAS
+       (Ergonomía táctil, safe-areas, inputs 16px para evitar auto-zoom y minimalismo)
+       ========================================================================== */
+    @media (max-width: 768px) {
+      .inbox-section {
+        padding: 16px 12px;
+        margin-top: 20px;
+        border-radius: 20px;
+      }
+
+      .inbox-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        border-radius: 14px;
+      }
+
+      /* Cuando hay una nota abierta en mobile, mostramos visor y ocultamos la lista */
+      .inbox-container.mobile-reading .inbox-list-col {
+        display: none !important;
+      }
+      .inbox-container.mobile-reading .inbox-reader-col {
+        display: flex !important;
+      }
+      .inbox-reader-col {
+        display: none;
+        max-height: none;
+        height: auto;
+      }
+      .btn-inbox-back-mobile {
+        display: inline-flex;
+      }
+
+      .inbox-list-col {
+        border-right: none;
+        max-height: 520px;
+      }
+
+      .inbox-list-header {
+        padding: 12px 14px;
+      }
+
+      .inbox-filter-chips {
+        padding-bottom: 4px;
+      }
+
+      .inbox-chip {
+        padding: 5px 12px;
+        font-size: .74rem;
+      }
+
+      .inbox-item {
+        padding: 12px 14px;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .inbox-item:active {
+        background: var(--accent-lt);
+      }
+
+      .inbox-reader-header {
+        padding: 14px 16px;
+      }
+
+      .inbox-reader-title {
+        font-size: 1.05rem;
+      }
+
+      .inbox-reader-body {
+        padding: 14px 16px;
+        font-size: .84rem;
+      }
+
+      .inbox-thread-section {
+        padding: 14px 16px;
+        gap: 10px;
+      }
+
+      .thread-comment-card {
+        padding: 10px 12px;
+      }
+
+      .inbox-reply-box {
+        padding: 10px 14px;
+      }
+      .inbox-reply-box .form-input {
+        font-size: 16px !important; /* Impide zoom indeseado en iOS Safari */
+      }
+    }
+
+    @media (max-width: 480px) {
+      .inbox-reader-title-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .inbox-reader-title-row > div:last-child {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .inbox-section h2 {
+        font-size: 1.15rem;
+      }
+    }
+
+

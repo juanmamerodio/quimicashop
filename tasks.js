@@ -142,8 +142,10 @@ let trashTasks = [];
 // ESTADO DE BANDEJA DE ENTRADA, AVANCES & FORO DE DEBATE
 const DISCUSSIONS_STORAGE_KEY = "quimicashop_team_discussions_v1";
 const DISCUSSION_COMMENTS_STORAGE_KEY = "quimicashop_team_disc_comments_v1";
+const TRASH_DISCUSSIONS_STORAGE_KEY = "quimicashop_team_trash_discussions_v1";
 let teamDiscussions = [];
 let discussionComments = [];
+let trashDiscussions = [];
 let selectedDiscussionId = null;
 let currentDiscussionFilter = "ALL"; // ALL | UNREAD | BLOQUEO | AYUDA | AVANCE | DEBATE
 let discussionSearchQuery = "";
@@ -231,8 +233,16 @@ async function init() {
     discussionComments = INITIAL_COMMENTS;
   }
 
+  const storedTrashDiscussions = localStorage.getItem(TRASH_DISCUSSIONS_STORAGE_KEY);
+  if (storedTrashDiscussions) {
+    try { trashDiscussions = JSON.parse(storedTrashDiscussions); } catch (e) { trashDiscussions = []; }
+  } else {
+    trashDiscussions = [];
+  }
+
   render();
   updateTrashBadge();
+  updateDiscussionsTrashBadge();
   renderDiscussions();
 
   // 2. Sincronización con Supabase (team_members, team_tasks, task_notes y Realtime)
@@ -2354,6 +2364,11 @@ function renderDiscussions() {
 
 function selectDiscussion(discId) {
   selectedDiscussionId = discId;
+  const container = document.querySelector(".inbox-container");
+  if (container) {
+    container.classList.add("mobile-reading");
+  }
+
   const disc = teamDiscussions.find(d => d.id === discId);
   const currentKey = currentUser ? currentUser.key : "Guest";
 
@@ -2373,6 +2388,13 @@ function selectDiscussion(discId) {
   }
 
   renderDiscussions();
+}
+
+function closeMobileReaderView() {
+  const container = document.querySelector(".inbox-container");
+  if (container) {
+    container.classList.remove("mobile-reading");
+  }
 }
 
 function toggleMarkAsRead(discId) {
@@ -2467,6 +2489,14 @@ function renderReaderView() {
 
   readerEl.innerHTML = `
     <div class="inbox-reader-header">
+      <button class="btn-inbox-back-mobile" onclick="closeMobileReaderView()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Volver a la bandeja
+      </button>
+
       <div class="inbox-reader-title-row">
         <div>
           <span class="cat-pill ${catClass}" style="margin-bottom:6px">${disc.category}</span>
@@ -2475,6 +2505,14 @@ function renderReaderView() {
         <div style="display:flex;gap:6px">
           <button class="btn-export" style="font-size:.74rem;padding:4px 10px" onclick="toggleMarkAsRead('${disc.id}')" title="Alternar estado de lectura">
             ${isReadByMe ? 'Marcar como no leído' : 'Marcar como leído'}
+          </button>
+          <button class="btn-trash-note" onclick="handleTrashDiscussion('${disc.id}')" title="Mover nota a la papelera">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Papelera
           </button>
         </div>
       </div>
@@ -2695,6 +2733,171 @@ function scrollToSection(sectionId) {
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+}
+
+// ==========================================
+// MÓDULO DE PAPELERA DE NOTAS Y DEBATES
+// ==========================================
+
+function updateDiscussionsTrashBadge() {
+  const badge = document.getElementById("discussionsTrashCount");
+  if (badge) {
+    badge.textContent = trashDiscussions.length.toString();
+  }
+}
+
+function openDiscussionsTrashModal() {
+  renderTrashDiscussions();
+  const modal = document.getElementById("discussionsTrashModal");
+  if (modal) modal.classList.add("open");
+}
+
+function closeDiscussionsTrashModal() {
+  const modal = document.getElementById("discussionsTrashModal");
+  if (modal) modal.classList.remove("open");
+}
+
+function renderTrashDiscussions() {
+  const container = document.getElementById("trashDiscussionsList");
+  if (!container) return;
+
+  updateDiscussionsTrashBadge();
+
+  if (trashDiscussions.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:32px 16px;color:var(--muted);font-size:.82rem">
+        La papelera de notas está vacía.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = trashDiscussions.map(disc => {
+    const u = USERS[disc.author_key] || { avatar: "US", color: "#16a34a", bg: "#dcfce7" };
+    const trashedDate = disc.trashed_at ? new Date(disc.trashed_at).toLocaleDateString("es-AR", { day: '2-digit', month: '2-digit' }) : "Reciente";
+    const catClass = `cat-${(disc.category || "avance").toLowerCase()}`;
+
+    return `
+      <div class="trash-task-card" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface)">
+        <div style="flex:1;min-width:0;padding-right:12px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span class="cat-pill ${catClass}">${disc.category || 'NOTA'}</span>
+            <span style="font-size:.72rem;color:var(--muted)">Descartada: ${trashedDate} por ${disc.trashed_by || 'Equipo'}</span>
+          </div>
+          <div style="font-size:.86rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${disc.title}</div>
+          <div style="font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${disc.content}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn-restore-task" onclick="handleRestoreDiscussion('${disc.id}')" title="Restaurar a la bandeja" style="padding:6px 12px;font-size:.74rem">
+            Restaurar
+          </button>
+          <button class="btn-delete-task" onclick="handlePermanentDeleteDiscussion('${disc.id}')" title="Eliminar definitivamente" style="padding:6px 10px;font-size:.74rem">
+            ✕
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function handleTrashDiscussion(discId) {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado no puede descartar notas.");
+    return;
+  }
+
+  const index = teamDiscussions.findIndex(d => d.id === discId);
+  if (index === -1) return;
+
+  const [removedDisc] = teamDiscussions.splice(index, 1);
+  removedDisc.trashed_at = new Date().toISOString();
+  removedDisc.trashed_by = currentUser ? currentUser.key : "Juanma";
+
+  trashDiscussions.unshift(removedDisc);
+
+  if (selectedDiscussionId === discId) {
+    selectedDiscussionId = teamDiscussions.length > 0 ? teamDiscussions[0].id : null;
+  }
+
+  localStorage.setItem(DISCUSSIONS_STORAGE_KEY, JSON.stringify(teamDiscussions));
+  localStorage.setItem(TRASH_DISCUSSIONS_STORAGE_KEY, JSON.stringify(trashDiscussions));
+
+  closeMobileReaderView();
+  renderDiscussions();
+  updateDiscussionsTrashBadge();
+
+  if (supabaseClient) {
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(removedDisc.id);
+      if (isUuid) {
+        await supabaseClient.from("team_discussions").delete().eq("id", removedDisc.id);
+      }
+    } catch (e) {
+      console.warn("No se pudo reflejar en Supabase el descarte de nota:", e);
+    }
+  }
+}
+
+async function handleRestoreDiscussion(discId) {
+  const index = trashDiscussions.findIndex(d => d.id === discId);
+  if (index === -1) return;
+
+  const [restored] = trashDiscussions.splice(index, 1);
+  delete restored.trashed_at;
+  delete restored.trashed_by;
+
+  teamDiscussions.unshift(restored);
+  selectedDiscussionId = restored.id;
+
+  localStorage.setItem(DISCUSSIONS_STORAGE_KEY, JSON.stringify(teamDiscussions));
+  localStorage.setItem(TRASH_DISCUSSIONS_STORAGE_KEY, JSON.stringify(trashDiscussions));
+
+  renderDiscussions();
+  renderTrashDiscussions();
+  updateDiscussionsTrashBadge();
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient.from("team_discussions").insert([{
+        id: restored.id,
+        title: restored.title,
+        content: restored.content,
+        author_key: restored.author_key,
+        author_name: restored.author_name,
+        category: restored.category || "AVANCE",
+        task_id: restored.task_id || "none",
+        read_by: Array.isArray(restored.read_by) ? restored.read_by : [restored.author_key]
+      }]);
+    } catch (e) { }
+  }
+}
+
+async function handlePermanentDeleteDiscussion(discId) {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado no puede borrar notas permanentemente.");
+    return;
+  }
+  const index = trashDiscussions.findIndex(d => d.id === discId);
+  if (index === -1) return;
+
+  trashDiscussions.splice(index, 1);
+  localStorage.setItem(TRASH_DISCUSSIONS_STORAGE_KEY, JSON.stringify(trashDiscussions));
+  renderTrashDiscussions();
+  updateDiscussionsTrashBadge();
+}
+
+async function handleEmptyDiscussionsTrash() {
+  if (currentUser && currentUser.isGuest) {
+    alert("El modo invitado no puede vaciar la papelera.");
+    return;
+  }
+  if (trashDiscussions.length === 0) return;
+  if (!confirm("¿Estás seguro de que deseas vaciar definitivamente todas las notas de la papelera?")) return;
+
+  trashDiscussions = [];
+  localStorage.setItem(TRASH_DISCUSSIONS_STORAGE_KEY, JSON.stringify(trashDiscussions));
+  renderTrashDiscussions();
+  updateDiscussionsTrashBadge();
 }
 
 // ==========================================
