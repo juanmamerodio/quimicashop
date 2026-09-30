@@ -265,9 +265,8 @@ export async function POST(req: Request) {
       </html>
     `;
 
-    // 5. Envío mediante Resend
-    // Nota: Si el dominio aún no está verificado en producción, Resend permite enviar desde 'onboarding@resend.dev'
-    const fromSender = process.env.RESEND_FROM || 'QuimicaShop Teams <onboarding@resend.dev>';
+    // 5. Envío mediante Resend con dominio verificado ascender.uno
+    const fromSender = process.env.RESEND_FROM || 'QuimicaShop Teams <notificaciones@ascender.uno>';
 
     const resendResponse = await resend.emails.send({
       from: fromSender,
