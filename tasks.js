@@ -2912,14 +2912,22 @@ async function handleEmptyDiscussionsTrash() {
 
 // ==========================================
 // SERVICIO DE NOTIFICACIONES POR EMAIL (RESEND)
-// ==========================================
+function getNotificationsApiUrl() {
+  // Si está corriendo en GitHub Pages o bajo una subruta de ascender.uno (/quimicashop/)
+  if (window.location.hostname.includes("github.io") || window.location.pathname.startsWith("/quimicashop")) {
+    // Si el backend de Next.js está alojado en Vercel, pegarle a Vercel
+    return "https://quimicashop.vercel.app/api/notifications";
+  }
+  // En Vercel o localhost directo
+  return "/api/notifications";
+}
 
 /**
  * Consulta la API y Supabase para obtener los emails oficiales del equipo
  */
 async function syncTeamMembersEmails() {
   try {
-    const res = await fetch("/api/notifications");
+    const res = await fetch(getNotificationsApiUrl());
     if (res.ok) {
       const data = await res.json();
       if (data && data.members && Array.isArray(data.members)) {
@@ -2933,7 +2941,7 @@ async function syncTeamMembersEmails() {
       }
     }
   } catch (err) {
-    console.warn("No se pudo sincronizar correos con /api/notifications (modo offline o estático):", err);
+    console.warn("No se pudo sincronizar correos con la API de notificaciones:", err);
   }
 }
 
@@ -2951,7 +2959,8 @@ async function sendTeamEmailNotification(payload) {
       ...payload
     };
 
-    const res = await fetch("/api/notifications", {
+    const targetUrl = getNotificationsApiUrl();
+    const res = await fetch(targetUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(fullPayload)

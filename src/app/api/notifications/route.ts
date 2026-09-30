@@ -38,6 +38,16 @@ interface NotificationPayload {
   meta?: Record<string, unknown>;
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
+
 /**
  * GET: Obtiene la lista oficial de miembros y sus correos electrónicos configurados en Supabase
  */
@@ -56,7 +66,7 @@ export async function GET() {
           email,
           source: 'fallback'
         }))
-      });
+      }, { headers: corsHeaders });
     }
 
     // Si la tabla devolvió datos, combinamos con fallback si algún email está vacío
@@ -68,10 +78,10 @@ export async function GET() {
       source: m.email ? 'supabase' : 'fallback'
     }));
 
-    return NextResponse.json({ members: mapped });
+    return NextResponse.json({ members: mapped }, { headers: corsHeaders });
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: errorMsg }, { status: 500 });
+    return NextResponse.json({ error: errorMsg }, { status: 500, headers: corsHeaders });
   }
 }
 
@@ -84,7 +94,7 @@ export async function POST(req: Request) {
     const { eventType, actorKey, actorName, title, details = '', link = 'https://quimicashop.vercel.app/tasks.html', category = 'INFO' } = body;
 
     if (!eventType || !title) {
-      return NextResponse.json({ error: 'Faltan campos obligatorios: eventType o title' }, { status: 400 });
+      return NextResponse.json({ error: 'Faltan campos obligatorios: eventType o title' }, { status: 400, headers: corsHeaders });
     }
 
     // 1. Obtener correos oficiales de la base de datos (team_members)
@@ -281,7 +291,7 @@ export async function POST(req: Request) {
         success: false,
         error: resendResponse.error.message || resendResponse.error,
         recipients: recipientEmails
-      }, { status: 400 });
+      }, { status: 400, headers: corsHeaders });
     }
 
     return NextResponse.json({
@@ -289,11 +299,11 @@ export async function POST(req: Request) {
       data: resendResponse.data,
       recipientsCount: recipientEmails.length,
       recipients: recipientEmails
-    });
+    }, { headers: corsHeaders });
 
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     console.error('Error procesando notificación:', errorMsg);
-    return NextResponse.json({ error: errorMsg }, { status: 500 });
+    return NextResponse.json({ error: errorMsg }, { status: 500, headers: corsHeaders });
   }
 }
