@@ -757,6 +757,16 @@ async function handleAddNote() {
   textInput.value = "";
   renderTaskNotes(activeTaskId);
   render();
+
+  // Notificación Resend: Bitácora / avance en tarea
+  const currentTask = tasks.find(t => t.id === activeTaskId);
+  sendTeamEmailNotification({
+    eventType: "TASK_NOTE_ADDED",
+    title: currentTask ? currentTask.title : "Tarea de Sprint",
+    details: `${author} agregó un avance/bitácora:\n\n"${text}"`,
+    link: "https://quimicashop.vercel.app/tasks.html",
+    category: "BITACORA"
+  });
 }
 
 function closeModal() {
@@ -825,6 +835,25 @@ async function handleSaveTask(e) {
 
   if (savedItem) {
     await save(savedItem, previousTaskState);
+
+    // Notificación Resend: Si fue completada o creada nueva
+    if (savedItem.status === 'done' && (!previousTaskState || previousTaskState.status !== 'done')) {
+      sendTeamEmailNotification({
+        eventType: "TASK_COMPLETED",
+        title: savedItem.title,
+        details: `Responsable: ${savedItem.assignee}\nMódulo: ${savedItem.tag}\nEntidad DER: ${savedItem.der_entity || "General"}\nDescripción: ${savedItem.desc || "Sin descripción"}`,
+        link: "https://quimicashop.vercel.app/tasks.html",
+        category: "COMPLETADA"
+      });
+    } else if (!id) {
+      sendTeamEmailNotification({
+        eventType: "TASK_CREATED",
+        title: savedItem.title,
+        details: `Asignado a: ${savedItem.assignee}\nPrioridad: ${savedItem.prio}\nMódulo: ${savedItem.tag}\nDetalle: ${savedItem.desc || "Sin descripción"}`,
+        link: "https://quimicashop.vercel.app/tasks.html",
+        category: "NUEVA_TAREA"
+      });
+    }
   }
 }
 
@@ -1260,6 +1289,15 @@ async function handleSaveMeeting(e) {
     }
   }
 
+  // Notificación Resend: Convocatoria a reunión
+  sendTeamEmailNotification({
+    eventType: "MEETING_CREATED",
+    title: title,
+    details: `Motivo: ${reason}\nFecha y Hora: ${new Date(dateVal).toLocaleString("es-AR")}\nEnlace tentativo: ${meetUrl}\n\n* Se requiere la aprobación unánime de los 4 integrantes para confirmar la sesión.`,
+    link: "https://quimicashop.vercel.app/tasks.html",
+    category: reason
+  });
+
   closeMeetingModal();
   renderMeetingBanner();
 }
@@ -1273,6 +1311,15 @@ async function voteForMeeting() {
   const allApproved = Object.keys(USERS).every(k => currentMeeting.votes[k] === true);
   if (allApproved) {
     currentMeeting.status = "confirmed";
+
+    // Notificación Resend: Reunión Confirmada (4/4) con enlace Google Meet activo
+    sendTeamEmailNotification({
+      eventType: "MEETING_CONFIRMED",
+      title: currentMeeting.title,
+      details: `¡Todos los integrantes han votado a favor!\n\nFecha Programada: ${new Date(currentMeeting.scheduled_at).toLocaleString("es-AR")}\nEnlace Directo Meet: ${currentMeeting.meet_url}`,
+      link: currentMeeting.meet_url || "https://quimicashop.vercel.app/tasks.html",
+      category: "CONFIRMADA"
+    });
   }
 
   localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
@@ -1534,6 +1581,15 @@ async function voteToCloseMeeting() {
     document.getElementById("btn-save-minutes").style.display = "none";
     alert("¡Votación unánime completada! La reunión ha finalizado y la minuta queda archivada e inmutable.");
 
+    // Notificación Resend: Cierre de reunión y Minuta archivada
+    sendTeamEmailNotification({
+      eventType: "MEETING_CLOSED",
+      title: currentMeeting.title,
+      details: `La reunión ha finalizado y los 4 integrantes votaron su cierre.\n\nMinuta y Acuerdos Registrados:\n${currentMeeting.minutes || "Sin minuta redactada."}`,
+      link: "https://quimicashop.vercel.app/tasks.html#minutesHistorySection",
+      category: "MINUTA"
+    });
+
     if (supabaseClient) {
       try {
         await supabaseClient.from("team_meetings")
@@ -1788,6 +1844,15 @@ async function handleSavePresencialMinute(e) {
       console.warn("No se pudo sincronizar minuta presencial en Supabase:", err);
     }
   }
+
+  // Notificación Resend: Minuta presencial de cátedra
+  sendTeamEmailNotification({
+    eventType: "PRESENCIAL_SAVED",
+    title: "Minuta Presencial de Cátedra & Taller (Jueves)",
+    details: `Acuerdos y temas asentados en el aula taller con los profesores:\n\n${text}`,
+    link: "https://quimicashop.vercel.app/tasks.html#presencialMinuteModal",
+    category: "PRESENCIAL"
+  });
 
   alert("Minuta presencial guardada y archivada con éxito.");
   closePresencialMinuteModal();
@@ -2523,6 +2588,21 @@ async function handleSaveDiscussion(event) {
 
   closeNewDiscussionModal();
   renderDiscussions();
+
+  // Notificación Resend: Nueva Nota / Avance / Bloqueo / Debate
+  let linkedTaskSnippet = "";
+  if (taskId && taskId !== "none") {
+    const lTask = tasks.find(t => t.id === taskId);
+    if (lTask) linkedTaskSnippet = `\nTarea Vinculada: #${lTask.title}`;
+  }
+
+  sendTeamEmailNotification({
+    eventType: "DISCUSSION_CREATED",
+    title: title,
+    details: `${content}${linkedTaskSnippet}`,
+    link: "https://quimicashop.vercel.app/tasks.html#teamDiscussionsSection",
+    category: category
+  });
 }
 
 async function handleAddDiscussionComment(event, discId) {
@@ -2588,6 +2668,17 @@ async function handleAddDiscussionComment(event, discId) {
 
   input.value = "";
   renderDiscussions();
+
+  // Notificación Resend: Respuesta en hilo de debate
+  if (disc) {
+    sendTeamEmailNotification({
+      eventType: "DISCUSSION_COMMENT",
+      title: disc.title,
+      details: `${currentAuthorName} respondió:\n\n"${text}"`,
+      link: "https://quimicashop.vercel.app/tasks.html#teamDiscussionsSection",
+      category: "DEBATE"
+    });
+  }
 }
 
 function scrollToSection(sectionId) {
@@ -2597,6 +2688,103 @@ function scrollToSection(sectionId) {
   }
 }
 
+// ==========================================
+// SERVICIO DE NOTIFICACIONES POR EMAIL (RESEND)
+// ==========================================
+
+/**
+ * Consulta la API y Supabase para obtener los emails oficiales del equipo
+ */
+async function syncTeamMembersEmails() {
+  try {
+    const res = await fetch("/api/notifications");
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.members && Array.isArray(data.members)) {
+        data.members.forEach(m => {
+          if (USERS[m.key]) {
+            if (m.email) USERS[m.key].email = m.email;
+            if (m.role) USERS[m.key].role = m.role;
+          }
+        });
+        renderTeamCards();
+      }
+    }
+  } catch (err) {
+    console.warn("No se pudo sincronizar correos con /api/notifications (modo offline o estático):", err);
+  }
+}
+
+/**
+ * Dispara una notificación por correo electrónico vía Resend mediante Next.js API
+ */
+async function sendTeamEmailNotification(payload) {
+  try {
+    const actorKey = currentUser ? currentUser.key : "Equipo";
+    const actorName = currentUser ? currentUser.name : "Integrante de Equipo";
+
+    const fullPayload = {
+      actorKey,
+      actorName,
+      ...payload
+    };
+
+    const res = await fetch("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fullPayload)
+    });
+
+    if (res.ok) {
+      const resData = await res.json();
+      console.log(`[Resend Email] Notificación ${payload.eventType} enviada con éxito:`, resData);
+      showEmailToast(`Notificación por email enviada (${payload.title})`);
+    } else {
+      console.warn(`[Resend Email] Error en respuesta de notificación:`, await res.text());
+    }
+  } catch (err) {
+    console.warn(`[Resend Email] No se pudo enviar el correo de notificación:`, err);
+  }
+}
+
+/**
+ * Toast flotante visual no intrusivo para confirmar el envío de email
+ */
+function showEmailToast(msg) {
+  let toast = document.getElementById("team-email-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "team-email-toast";
+    toast.style.position = "fixed";
+    toast.style.bottom = "24px";
+    toast.style.right = "24px";
+    toast.style.background = "var(--text)";
+    toast.style.color = "#fff";
+    toast.style.padding = "10px 18px";
+    toast.style.borderRadius = "12px";
+    toast.style.fontSize = ".78rem";
+    toast.style.fontWeight = "600";
+    toast.style.boxShadow = "0 8px 24px rgba(0,0,0,0.18)";
+    toast.style.zIndex = "99999";
+    toast.style.transition = "all .25s ease";
+    toast.style.display = "flex";
+    toast.style.alignItems = "center";
+    toast.style.gap = "8px";
+    document.body.appendChild(toast);
+  }
+
+  toast.innerHTML = `<span style="color:#10b981;font-size:.9rem">✉</span> ${msg}`;
+  toast.style.opacity = "1";
+  toast.style.transform = "translateY(0)";
+
+  setTimeout(() => {
+    if (toast) {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateY(12px)";
+    }
+  }, 4000);
+}
+
 // Iniciar componentes
 init();
 checkAuth();
@@ -2604,5 +2792,6 @@ renderTeamCards();
 updatePresencialCountdown();
 setInterval(updatePresencialCountdown, 60000);
 syncMeetingsWithSupabase();
+syncTeamMembersEmails();
 initMobileKanbanSwipeObserver();
 
