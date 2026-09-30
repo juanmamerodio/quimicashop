@@ -279,10 +279,9 @@ export async function POST(req: Request) {
       console.warn('Resend API returned error:', resendResponse.error);
       return NextResponse.json({
         success: false,
-        warning: 'Resend reportó un error en la entrega',
-        error: resendResponse.error,
+        error: resendResponse.error.message || resendResponse.error,
         recipients: recipientEmails
-      }, { status: 200 }); // Retornamos 200 para no romper la UX local si la cuenta de Resend está en modo prueba
+      }, { status: 400 });
     }
 
     return NextResponse.json({

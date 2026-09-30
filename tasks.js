@@ -2960,19 +2960,22 @@ async function sendTeamEmailNotification(payload) {
     if (res.ok) {
       const resData = await res.json();
       console.log(`[Resend Email] Notificación ${payload.eventType} enviada con éxito:`, resData);
-      showEmailToast(`Notificación por email enviada (${payload.title})`);
+      showEmailToast(`Notificación por email enviada (${payload.title})`, false);
     } else {
-      console.warn(`[Resend Email] Error en respuesta de notificación:`, await res.text());
+      const errData = await res.json().catch(() => ({ error: "Error desconocido en el servidor" }));
+      console.warn(`[Resend Email] Error en respuesta de notificación:`, errData);
+      showEmailToast(`Error al enviar correo: ${errData.error || 'Verifica dominio en Resend'}`, true);
     }
   } catch (err) {
     console.warn(`[Resend Email] No se pudo enviar el correo de notificación:`, err);
+    showEmailToast("Error de conexión al enviar email", true);
   }
 }
 
 /**
  * Toast flotante visual no intrusivo para confirmar el envío de email
  */
-function showEmailToast(msg) {
+function showEmailToast(msg, isError = false) {
   let toast = document.getElementById("team-email-toast");
   if (!toast) {
     toast = document.createElement("div");
@@ -2980,7 +2983,6 @@ function showEmailToast(msg) {
     toast.style.position = "fixed";
     toast.style.bottom = "24px";
     toast.style.right = "24px";
-    toast.style.background = "var(--text)";
     toast.style.color = "#fff";
     toast.style.padding = "10px 18px";
     toast.style.borderRadius = "12px";
@@ -2995,7 +2997,8 @@ function showEmailToast(msg) {
     document.body.appendChild(toast);
   }
 
-  toast.innerHTML = `<span style="color:#10b981;font-size:.9rem">✉</span> ${msg}`;
+  toast.style.background = isError ? "#be123c" : "var(--text)";
+  toast.innerHTML = `<span style="color:${isError ? '#fecdd3' : '#10b981'};font-size:.9rem">${isError ? '⚠️' : '✉'}</span> ${msg}`;
   toast.style.opacity = "1";
   toast.style.transform = "translateY(0)";
 
@@ -3004,7 +3007,7 @@ function showEmailToast(msg) {
       toast.style.opacity = "0";
       toast.style.transform = "translateY(12px)";
     }
-  }, 4000);
+  }, 5000);
 }
 
 // Iniciar componentes
