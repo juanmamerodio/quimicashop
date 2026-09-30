@@ -1456,6 +1456,13 @@ function startCountdown(targetDate) {
     if (!countBox) return;
 
     if (diff <= 0) {
+      // Si la reunión expiró hace más de 4 horas y seguía en pending_vote, limpiarla
+      const FOUR_HOURS = 4 * 60 * 60 * 1000;
+      if (Math.abs(diff) > FOUR_HOURS && currentMeeting && currentMeeting.status === "pending_vote") {
+        countBox.textContent = "EXPIRADA";
+        countBox.style.color = "var(--muted)";
+        return;
+      }
       countBox.textContent = "EN CURSO";
       countBox.style.color = "#16a34a";
       return;
@@ -1934,9 +1941,11 @@ async function renderMinutesHistory() {
 
   if (supabaseClient) {
     try {
+      // Filtrar a nivel de base de datos reuniones cerradas con minuta
       const { data, error } = await supabaseClient
         .from("team_meetings")
         .select("*")
+        .eq("status", "closed")
         .order("scheduled_at", { ascending: false });
 
       if (!error && data && data.length > 0) {
@@ -1946,46 +1955,13 @@ async function renderMinutesHistory() {
     } catch (e) { }
   }
 
-  if (currentMeeting && (currentMeeting.status === "closed" || (currentMeeting.minutes && currentMeeting.minutes.trim()))) {
-    if (!meetingsList.some(m => m.id === currentMeeting.id)) {
-      meetingsList.unshift(currentMeeting);
-    }
-  }
-
-  if (meetingsList.length === 0) {
-    meetingsList = [
-      {
-        id: "m-seed-1",
-        title: "Auditoría Presencial de Relevamiento & DER",
-        reason: "Auditoría Presencial",
-        scheduled_at: "2026-09-17T13:00:00",
-        status: "closed",
-        minutes: "- Revisión conjunta con los profesores Leibouski y Maldonado.\n- Se acordó el descarte de validación bancaria automática por IA (Gemini) en favor de la aprobación manual por el Administrador escolar.\n- El prototipo mobile en React Native queda deprecado para concentrar el esfuerzo en Next.js 15 Web App.\n- Se consolidan las 13 entidades relacionales con integridad referencial.",
-        created_by: "Juanma"
-      },
-      {
-        id: "m-seed-2",
-        title: "Sincronización Sprint Backlog & Supabase Setup",
-        reason: "Semanal",
-        scheduled_at: "2026-09-22T21:00:00",
-        status: "closed",
-        minutes: "- Enzo inicia la migración del script SQL para las 13 tablas en Supabase.\n- Isabella avanza con la maqueta de subida de comprobantes en el checkout.\n- Celeste define los umbrales de stock warning y reintegro semanal de stock no ejecutado los viernes.\n- Juanma configura el Teams Hub con autenticación Netflix y sistema unánime de llamadas.",
-        created_by: "Juanma"
-      },
-      {
-        id: "a2892026-0928-4000-8000-000000000028",
-        title: "Sincronización Técnica, Casos de Uso & Notificaciones Resend",
-        reason: "Semanal",
-        scheduled_at: "2026-09-28T18:56:00",
-        status: "closed",
-        minutes: "- Revisión técnica del proyecto con organización y planificación de entregas.\n- Plataforma automatizada de minutas: adoptada para generación y seguimiento en Teams Hub.\n- Tareas en ciclos semanales: registro los días lunes para control de tiempos y auditoría de horas.\n- Producción oficial: fijado el dominio quimicashop.vercel.app para reflejar todas las actualizaciones.\n- Prototipo Stitch: congelado como plantilla estática de referencia visual sin modificaciones adicionales.\n- Documentación activa: cada integrante debe registrar sus avances, trabas y resoluciones en notas del panel.\n- Repositorio unificado: uso exclusivo del repositorio central de GitHub para evitar caos de versiones.\n- Casos de uso y diagramas: Isabella finaliza el diagrama de clases para el jueves; Celeste avanza con las planillas de casos de uso estructuradas en tablas (2 ejemplos por actor).\n- Automatizaciones y alertas con Resend: Juanma y Enzo integran alertas por email para reuniones, tareas y bloqueo técnico.\n- Términos y condiciones: Celeste redactará el documento formal HTML ajustado a normativas.\n- Reuniones periódicas fijadas: Domingos 20:00 hs y Jueves 21:00 hs, además de la sesión presencial de taller de los jueves 13 a 15 hs.\n- Expo Escobar (29 de octubre): asistencia obligatoria coordinada con la profesora Cecilia Maldonado.",
-        created_by: "Juanma"
-      }
-    ];
-  }
-
-  // Filtrar las que fueron enviadas a la papelera (soft delete) o canceladas
-  const activeMinutes = meetingsList.filter(m => !m.is_trashed && m.status !== "trashed" && m.status !== "cancelled");
+  // Filtrar estrictamente: SOLO actas cerradas con contenido de minuta redactado
+  const activeMinutes = meetingsList.filter(m => 
+    !m.is_trashed && 
+    m.status === "closed" && 
+    m.minutes && 
+    m.minutes.trim().length > 0
+  );
 
   if (countBadge) countBadge.textContent = `${activeMinutes.length} Minutas Registradas`;
 
@@ -2158,44 +2134,50 @@ async function handleTrashMeeting(meetingId) {
 async function syncMeetingsWithSupabase() {
   const storedMeeting = localStorage.getItem(MEETINGS_STORAGE_KEY);
   if (storedMeeting) {
-    try { currentMeeting = JSON.parse(storedMeeting); } catch (e) { currentMeeting = null; }
+    try {
+      const parsed = JSON.parse(storedMeeting);
+      // Validación estricta: sólo puede estar en memoria si está pendiente o confirmada
+      if (parsed && (parsed.status === "pending_vote" || parsed.status === "confirmed") && !parsed.is_trashed) {
+        currentMeeting = parsed;
+      } else {
+        currentMeeting = null;
+        localStorage.removeItem(MEETINGS_STORAGE_KEY);
+      }
+    } catch (e) {
+      currentMeeting = null;
+      localStorage.removeItem(MEETINGS_STORAGE_KEY);
+    }
   }
 
   if (supabaseClient) {
     try {
-      // Buscar la última reunión que no esté cancelada ni en papelera
+      // BLINDAJE DE BACKEND: Buscar ÚNICAMENTE reuniones verdaderamente activas (pending_vote o confirmed)
       const { data, error } = await supabaseClient
         .from("team_meetings")
         .select("*")
-        .not("status", "eq", "cancelled")
+        .in("status", ["pending_vote", "confirmed"])
         .order("created_at", { ascending: false })
         .limit(1);
 
       if (!error && data && data.length > 0) {
         const m = data[0];
-        // Si el estado es 'cancelled' o 'trashed', no debe figurar como activa
-        if (m.status === "cancelled" || m.status === "trashed") {
-          currentMeeting = null;
-          localStorage.removeItem(MEETINGS_STORAGE_KEY);
-        } else {
-          currentMeeting = {
-            id: m.id.toString(),
-            title: m.title,
-            reason: m.reason,
-            scheduled_at: m.scheduled_at,
-            meet_url: m.meet_url,
-            created_by: m.created_by,
-            status: m.status,
-            votes: m.votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
-            close_votes: m.close_votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
-            minutes: m.minutes || "",
-            closed_at: m.closed_at || null,
-            is_trashed: m.status === "trashed"
-          };
-          localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
-        }
-      } else if (!error && data && data.length === 0) {
-        // No hay reuniones en la base de datos
+        currentMeeting = {
+          id: m.id.toString(),
+          title: m.title,
+          reason: m.reason,
+          scheduled_at: m.scheduled_at,
+          meet_url: m.meet_url,
+          created_by: m.created_by,
+          status: m.status,
+          votes: m.votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
+          close_votes: m.close_votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
+          minutes: m.minutes || "",
+          closed_at: m.closed_at || null,
+          is_trashed: false
+        };
+        localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+      } else {
+        // No hay ninguna reunión activa pendiente en la base de datos
         currentMeeting = null;
         localStorage.removeItem(MEETINGS_STORAGE_KEY);
       }
