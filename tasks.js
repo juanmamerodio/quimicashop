@@ -1946,6 +1946,15 @@ async function renderMinutesHistory() {
         status: "closed",
         minutes: "- Enzo inicia la migración del script SQL para las 13 tablas en Supabase.\n- Isabella avanza con la maqueta de subida de comprobantes en el checkout.\n- Celeste define los umbrales de stock warning y reintegro semanal de stock no ejecutado los viernes.\n- Juanma configura el Teams Hub con autenticación Netflix y sistema unánime de llamadas.",
         created_by: "Juanma"
+      },
+      {
+        id: "a2892026-0928-4000-8000-000000000028",
+        title: "Sincronización Técnica, Casos de Uso & Notificaciones Resend",
+        reason: "Semanal",
+        scheduled_at: "2026-09-28T18:56:00",
+        status: "closed",
+        minutes: "- Revisión técnica del proyecto con organización y planificación de entregas.\n- Plataforma automatizada de minutas: adoptada para generación y seguimiento en Teams Hub.\n- Tareas en ciclos semanales: registro los días lunes para control de tiempos y auditoría de horas.\n- Producción oficial: fijado el dominio quimicashop.vercel.app para reflejar todas las actualizaciones.\n- Prototipo Stitch: congelado como plantilla estática de referencia visual sin modificaciones adicionales.\n- Documentación activa: cada integrante debe registrar sus avances, trabas y resoluciones en notas del panel.\n- Repositorio unificado: uso exclusivo del repositorio central de GitHub para evitar caos de versiones.\n- Casos de uso y diagramas: Isabella finaliza el diagrama de clases para el jueves; Celeste avanza con las planillas de casos de uso estructuradas en tablas (2 ejemplos por actor).\n- Automatizaciones y alertas con Resend: Juanma y Enzo integran alertas por email para reuniones, tareas y bloqueo técnico.\n- Términos y condiciones: Celeste redactará el documento formal HTML ajustado a normativas.\n- Reuniones periódicas fijadas: Domingos 20:00 hs y Jueves 21:00 hs, además de la sesión presencial de taller de los jueves 13 a 15 hs.\n- Expo Escobar (29 de octubre): asistencia obligatoria coordinada con la profesora Cecilia Maldonado.",
+        created_by: "Juanma"
       }
     ];
   }
