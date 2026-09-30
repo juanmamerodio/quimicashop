@@ -1303,7 +1303,7 @@ async function handleSaveMeeting(e) {
   sendTeamEmailNotification({
     eventType: "MEETING_CREATED",
     title: title,
-    details: `Motivo: ${reason}\nFecha y Hora: ${new Date(dateVal).toLocaleString("es-AR")}\nEnlace tentativo: ${meetUrl}\n\n* Se requiere la aprobación unánime de los 4 integrantes para confirmar la sesión.`,
+    details: `Motivo: ${reason}\nFecha y Hora: ${new Date(scheduledAt).toLocaleString("es-AR")}\nEnlace tentativo: ${meetUrl}\n\n* Se requiere la aprobación unánime de los 4 integrantes para confirmar la sesión.`,
     link: "https://quimicashop.vercel.app/tasks.html",
     category: reason
   });
@@ -1657,15 +1657,30 @@ async function cancelCurrentMeeting() {
 
   if (countdownTimer) clearInterval(countdownTimer);
 
+  // Limpiar también del archivo local de minutas si estuviera
+  try {
+    const local = localStorage.getItem(MINUTES_ARCHIVE_KEY);
+    if (local) {
+      const list = JSON.parse(local).filter(m => m.id !== meetingIdToCancel);
+      localStorage.setItem(MINUTES_ARCHIVE_KEY, JSON.stringify(list));
+    }
+  } catch (e) { }
+
   if (supabaseClient) {
     try {
-      await supabaseClient.from("team_meetings").delete().eq("id", meetingIdToCancel);
+      // 1. Eliminar la reunión de la base de datos
+      const { error: delErr } = await supabaseClient.from("team_meetings").delete().eq("id", meetingIdToCancel);
+      if (delErr) {
+        console.warn("Error en delete de team_meetings, intentando marcar como cancelled:", delErr);
+        await supabaseClient.from("team_meetings").update({ status: "cancelled" }).eq("id", meetingIdToCancel);
+      }
     } catch (e) {
-      console.warn("Error borrando reunión de Supabase:", e);
+      console.warn("Error cancelando reunión de Supabase:", e);
     }
   }
 
   renderMeetingBanner();
+  renderMinutesHistory();
   alert("La convocatoria de la reunión ha sido cancelada.");
 }
 
@@ -1969,8 +1984,8 @@ async function renderMinutesHistory() {
     ];
   }
 
-  // Filtrar las que fueron enviadas a la papelera (soft delete)
-  const activeMinutes = meetingsList.filter(m => !m.is_trashed && m.status !== "trashed");
+  // Filtrar las que fueron enviadas a la papelera (soft delete) o canceladas
+  const activeMinutes = meetingsList.filter(m => !m.is_trashed && m.status !== "trashed" && m.status !== "cancelled");
 
   if (countBadge) countBadge.textContent = `${activeMinutes.length} Minutas Registradas`;
 
@@ -2148,28 +2163,41 @@ async function syncMeetingsWithSupabase() {
 
   if (supabaseClient) {
     try {
+      // Buscar la última reunión que no esté cancelada ni en papelera
       const { data, error } = await supabaseClient
         .from("team_meetings")
         .select("*")
+        .not("status", "eq", "cancelled")
         .order("created_at", { ascending: false })
         .limit(1);
 
       if (!error && data && data.length > 0) {
-        currentMeeting = {
-          id: data[0].id.toString(),
-          title: data[0].title,
-          reason: data[0].reason,
-          scheduled_at: data[0].scheduled_at,
-          meet_url: data[0].meet_url,
-          created_by: data[0].created_by,
-          status: data[0].status,
-          votes: data[0].votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
-          close_votes: data[0].close_votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
-          minutes: data[0].minutes || "",
-          closed_at: data[0].closed_at || null,
-          is_trashed: data[0].status === "trashed"
-        };
-        localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+        const m = data[0];
+        // Si el estado es 'cancelled' o 'trashed', no debe figurar como activa
+        if (m.status === "cancelled" || m.status === "trashed") {
+          currentMeeting = null;
+          localStorage.removeItem(MEETINGS_STORAGE_KEY);
+        } else {
+          currentMeeting = {
+            id: m.id.toString(),
+            title: m.title,
+            reason: m.reason,
+            scheduled_at: m.scheduled_at,
+            meet_url: m.meet_url,
+            created_by: m.created_by,
+            status: m.status,
+            votes: m.votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
+            close_votes: m.close_votes || { Juanma: false, Isabella: false, Celeste: false, Enzo: false },
+            minutes: m.minutes || "",
+            closed_at: m.closed_at || null,
+            is_trashed: m.status === "trashed"
+          };
+          localStorage.setItem(MEETINGS_STORAGE_KEY, JSON.stringify(currentMeeting));
+        }
+      } else if (!error && data && data.length === 0) {
+        // No hay reuniones en la base de datos
+        currentMeeting = null;
+        localStorage.removeItem(MEETINGS_STORAGE_KEY);
       }
     } catch (err) {
       console.warn("Sync meetings offline:", err);
