@@ -1,95 +1,149 @@
 # Esencia Técnica · QuimicaShop
-> Sistema de Ventas de Productos Cosméticos y Control de Stock  
-> **E.E.S.T N°1 Luciano Reyes** · Campana, Buenos Aires · 7mo Año Programación 2026
+> E-Commerce y Control de Stock para el Departamento de Química  
+> **E.E.S.T N°1 Luciano Reyes** · Campana, Buenos Aires · 7mo Año Programación 2026  
+> **Dominio Oficial de Producción:** [quimicashop.vercel.app](https://quimicashop.vercel.app)
 
 ---
 
-## 🌳 Árbol Estructural del Proyecto (Contexto Completo)
+## 🧭 Estado Actual del Proyecto & Dinámica de Cátedra
+
+En base a las auditorías presenciales y la reunión de cátedra del **28 de septiembre de 2026** (con los profesores Ariel Leibouski, Cecilia Maldonado y Alejandro Nieva), el proyecto se encuentra en una **etapa madura y orientada a producción web**:
+
+1. **Entorno de Producción Oficial:** Se ratifica `quimicashop.vercel.app` como el único entorno oficial donde se presentan las actualizaciones. El prototipo inicial de Stitch queda congelado como referencia estática.
+2. **Repositorio Centralizado:** Toda la base de código se concentra en este repositorio de GitHub (`juanmamerodio/quimicashop`) para evitar desincronizaciones de versiones.
+3. **Flujo de Negocio Real (Sin IA):** Se descartó definitivamente la validación automática financiera por IA (Gemini). La validación de transferencias bancarias la realiza el **Administrador escolar** a través de `/admin` con vista directa de comprobantes de Supabase Storage.
+4. **Reserva y Reintegro Semanal de Stock:** El stock de los pedidos pendientes pasa a `cantidad_reservada`. Si el pedido se aprueba, descuenta de forma definitiva; si no se abona o se cancela, un proceso semanal reintegra automáticamente el stock los **viernes al cierre del taller**.
+5. **Comunicaciones Transaccionales y Alertas:** Integración con **Resend** para despacho de remitos de venta al cliente y alertas al equipo sobre reuniones, tareas y bloqueos.
+
+---
+
+## 🌳 Árbol Estructural del Proyecto
 
 ```
-c:\Users\juanm\OneDrive\Documentos\GitHub\quimicashop\
+quimicashop/
 ├── index.html                      ← Hub central de documentación técnica y recursos
-├── tasks.html                      ← [NUEVO] Tablero privado "Teams" estilo DevOps / Scrum
-├── AGENTS.md                       ← Memoria técnica del sistema y reglas para el asistente
-├── README.md                       ← Visión general, árbol de archivos y quickstart
+├── tasks.html                      ← Panel privado "Teams": Backlog, Reuniones, Bandeja y Minutas
+├── style.css                       ← Sistema de diseño unificado M3 Expressive + iOS 26/27
+├── tasks.js                        ← Lógica de Teams, Realtime de Supabase y notificaciones Resend
+├── AGENTS.md                       ← Memoria técnica del sistema y reglas operativas
+├── README.md                       ← Visión general, arquitectura, roles y backlog vigente
 │
-├── diagrams/                       ← Documentos técnicos, memorias y diagramas
-│   ├── CHANGELOG.md                ← Historial cronológico de cambios y decisiones
+├── diagrams/                       ← Documentación técnica, acuerdos y diagramas oficiales
+│   ├── CHANGELOG.md                ← Historial cronológico de cambios de arquitectura
 │   ├── informe_Escencia_Tecnica.md ← Memoria técnica académica de cátedra
-│   ├── prototype1.html             ← Prototipo UX/UI web interactivo de referencia
-│   └── 2209D/                      ← Diagramas CSV exportados de Lucidchart
-│       ├── DCU-Quimica.csv         ← Casos de Uso (Cliente, Admin, includes/extends)
-│       ├── DER-quimica.csv         ← Modelo relacional (13 tablas normalizadas)
+│   ├── prototype1.html             ← Prototipo interactivo web de alta fidelidad
+│   ├── create_team_discussions.sql ← Script DDL para bandeja de entrada y foros en Supabase
+│   ├── minutas/                    ← Actas de reuniones oficiales (28-9_minutas.md, etc.)
+│   └── 2209D/                      ← Diagramas relacionales y de flujo (Lucidchart)
+│       ├── DCU-Quimica.csv         ← Casos de Uso (Cliente, Administrador)
+│       ├── DER-quimica.csv         ← Modelo relacional normalizado (13 entidades)
 │       ├── DFD1-Quimica.csv        ← Flujo de Datos Nivel 1 (Contexto global)
 │       ├── DFD2-Quimica.csv        ← Flujo de Datos Nivel 2 (Pedidos, Stock, Alertas)
-│       └── DFD3-Quimica.csv        ← Flujo de Datos Nivel 3 (Validación Admin, Cron semanal)
+│       └── DFD3-Quimica.csv        ← Flujo de Datos Nivel 3 (Validación Admin, Stock semanal)
 │
-├── src/                            ← Código fuente Next.js 15 (App Router + TypeScript)
-│   ├── app/                        ← Rutas principales y endpoints de API
+├── src/                            ← Código fuente Next.js 15 (App Router + TypeScript estricto)
+│   ├── app/
+│   │   ├── admin/                  ← Panel del Administrador (validación y despacho)
+│   │   ├── api/
+│   │   │   ├── notifications/      ← Endpoint de despacho de correos vía Resend
+│   │   │   ├── orders/             ← Gestión de pedidos y estados
+│   │   │   └── verify-payment/     ← Endpoints de comprobantes
+│   │   ├── [lang]/                 ← Vistas i18n (Catálogo, Checkout, Carrito)
+│   │   └── layout.tsx
 │   ├── components/                 ← Componentes modulares React
-│   └── lib/                        ← Cliente Supabase y utilidades
+│   ├── services/                   ← Servicios de negocio (OrderService, etc.)
+│   └── lib/                        ← Cliente Supabase y esquemas Zod
+│
 ├── public/                         ← Activos estáticos, logos y recursos
-├── package.json                    ← Dependencias del framework (Next 15, Tailwind)
-└── tailwind.config.ts              ← Tokens de diseño M3 Expressive + iOS 26
+├── package.json                    ← Dependencias (Next.js 15, Supabase, Resend, Tailwind)
+└── tailwind.config.ts              ← Paleta mineral y tokens de diseño
 ```
 
 ---
 
-## 👥 Equipo de Desarrollo y Roles
+## 👥 Equipo de Desarrollo y Asignación de Roles
 
-| Integrante | Rol Principal | Área de Trabajo |
+| Integrante | Rol Oficial en Teams | Foco de Trabajo & Responsabilidades Actuales |
 |---|---|---|
-| **Juan Manuel Merodio** | Full-Stack & Arquitectura | Next.js 15, Vercel CI/CD, Hub y Rutas protegidas |
-| **Isabella Infante** | Diseño UX/UI & Frontend | Vistas de Catálogo, Carrito, M3 Expressive y CSS |
-| **Celeste Caceres** | Lógica de Negocio & QA | Reglas de Stock, Pruebas de Reserva y Alertas |
-| **Enzo Queipo** | Base de Datos & Backend | DDL de 13 Tablas en Supabase, Remitos y Resend |
+| **Juan Manuel Merodio** | *Frontend & JS Lead* | Arquitectura Next.js 15, Panel `/admin`, despacho de remitos, Hub Teams e integración Resend |
+| **Isabella Infante** | *Database & SQL Architecture* | DDL de las 13 entidades en Supabase, diagramas de clases, DFD y validación de checkout |
+| **Celeste Cáceres** | *Diseño UX/UI & Testing QA* | Planillas de casos de uso (2 por actor), redacción formal de Términos y Condiciones HTML, pruebas de stock |
+| **Enzo Queipo** | *Backend, Admin Panel & Relaciones* | APIs de servicio, control de acceso basado en roles (RBAC) y automatización de alertas de stock |
 
-**Docentes de Cátedra:** Ariel Leibouski, Cecilia Maldonado, Alejandro Nieva  
-**Materias:** Proy. de Diseño e Implementación de Sistemas, Evaluación de Proyectos, Diseño de Web Dinámico  
-
----
-
-## 📌 Alcance Técnico Vigente
-
-- **Sin Validación por IA:** Se descartó Google Gemini; la validación de comprobantes bancarios la realiza el **Administrador escolar** a través de su panel privado (`/admin`).
-- **Control de Stock y Reservas:** Los pedidos en espera reservan stock (`cantidad_reservada`). Si el comprobante es aprobado, descuenta definitivamente; si no es validado o se cancela, un cron job semanal reintegra automáticamente el stock cada viernes en horario de cierre escolar.
-- **Emisión de Remitos:** Generación de `remitos_de_venta` tras la aprobación del pago y despacho por email al cliente vía Resend.
-- **Prototipo React Native:** **Inválido / obsoleto**. La referencia interactiva oficial es [`diagrams/prototype1.html`](./diagrams/prototype1.html).
+**Cátedra Docente:** Ariel Leibouski, Cecilia Maldonado, Alejandro Nieva.  
+**Cronograma Semanal de Trabajo:**  
+- **Reunión Presencial de Taller:** Jueves de 13:00 a 15:00 hs (Aula Taller E.E.S.T N°1).  
+- **Reuniones Virtuales de Sincronización:** Domingos 20:00 hs y Jueves 21:00 hs (con votación unánime 4/4 en Teams).  
+- **Evento Especial:** Asistencia y presentación en Expo Escobar el **29 de octubre de 2026**.
 
 ---
 
-## 🗄️ Base de Datos: DER (13 Tablas en Supabase)
+## 🛠️ Entorno Privado "Teams" (`tasks.html`)
 
-1. `Cliente` (id_cliente PK, dni, nombre, email, telefono, id_carrito FK)
-2. `Pedido` (id_pedido PK, id_cliente FK, id_estado FK, fecha, total)
-3. `Detalle_del_pedido` (id_pedido PK/FK, id_cliente FK, id_producto FK, estado, fecha, total, cantidad, precio_unitario)
-4. `Producto` (id_producto PK, id_stock FK, id_detalle_pedido FK, nombre, categoria, tipo, descripcion, precio, tiempo_produccion)
-5. `Stock` (id_stock PK, id_producto FK, categoria, tipo, descripcion, cantidad_actual, cantidad_warning, porcentaje, cantidad_reservada)
-6. `Alerta_de_estado` (id_alerta PK, id_stock FK, fecha, mes, año, porcentaje, descripcion, email_contacto)
-7. `Estados_pedidos` (id_estado PK, id_pedido FK, estado, fecha)
-8. `Comprobante` (id_comprobante PK, id_pedido FK, foto_comprobante, fecha, total)
-9. `Estados_comprobante` (id_estado PK, id_pedido FK, estado, fecha)
-10. `remitos_de_venta` (id_remito PK, id_comprobante FK, id_cliente FK, fecha, total, producto_selec)
-11. `Detalle_carrito` (id_carrito PK, id_cliente FK, id_producto FK, dni, nombre, email, cantidad, producto_seleccionado)
-12. `Admin` (id_admin PK, dni, nombre, contrasenia)
-13. `Roll` (id_rol PK, descripcion_rol)
+El panel privado centraliza el ciclo de vida Scrum/DevOps del equipo:
+- **Autenticación tipo Netflix:** Perfiles personales protegidos por clave/DNI con sesión continua y modo Invitado (Solo Lectura).
+- **Tablero Kanban:** Control de estados (*Backlog*, *En Progreso*, *En Revisión*, *Listo*) con auditoría de horas cátedra y entidad del DER asociada.
+- **Bandeja de Entrada & Foro de Debates:** Espacio tipo mailbox para registrar avances, trabas/bloqueos, pedidos de ayuda y discusiones técnicas con hilos de respuestas y marcado en negrita (*"A visualizar"*).
+- **Gobernanza Unánime de Reuniones:** Votación estricta 4/4 para confirmar llamadas Meet, pizarra fullscreen colaborativa y votación unánime para bloquear y archivar actas inmutables.
+- **Despacho Automático de Correos (Resend):** Notificaciones instantáneas por email al convocar reuniones, confirmar Meets, archivar minutas, completar tareas o reportar bloqueos técnicos.
 
 ---
 
-## 🛠️ Panel Privado "Teams" (`tasks.html`)
+## 🗄️ Modelo de Datos: 13 Tablas Normalizadas (Supabase)
 
-El archivo [`tasks.html`](./tasks.html) funciona como entorno privado Scrum/Kanban para Juanma, Isabella, Celeste y Enzo:
-- **Gestión Visual:** Columnas *Backlog*, *En Progreso*, *En Revisión* y *Completado*.
-- **Persistencia Inmediata:** Almacenamiento local mediante `localStorage` con opción de exportación / respaldo en JSON.
-- **Filtros por Integrante:** Vista individual por cada miembro del equipo y por etiquetas de módulo (`DATABASE`, `FRONTEND`, `BACKEND`, `STOCK`, `ADMIN`, `DOCS`).
+El sistema implementa la integridad referencial del DER oficial (`diagrams/DER-quimica.csv`):
+
+1. `Cliente` (`id_cliente PK`, `dni`, `nombre`, `email`, `telefono`, `id_carrito FK`)
+2. `Pedido` (`id_pedido PK`, `id_cliente FK`, `id_estado FK`, `fecha`, `total`)
+3. `Detalle_del_pedido` (`id_pedido PK/FK`, `id_cliente FK`, `id_producto FK`, `estado`, `fecha`, `total`, `cantidad`, `precio_unitario`)
+4. `Producto` (`id_producto PK`, `id_stock FK`, `id_detalle_pedido FK`, `nombre`, `categoria`, `tipo`, `descripcion`, `precio`, `tiempo_produccion`)
+5. `Stock` (`id_stock PK`, `id_producto FK`, `categoria`, `tipo`, `descripcion`, `cantidad_actual`, `cantidad_warning`, `porcentaje`, `cantidad_reservada`)
+6. `Alerta_de_estado` (`id_alerta PK`, `id_stock FK`, `fecha`, `mes`, `año`, `porcentaje`, `descripcion`, `email_contacto`)
+7. `Estados_pedidos` (`id_estado PK`, `id_pedido FK`, `estado`, `fecha`)
+8. `Comprobante` (`id_comprobante PK`, `id_pedido FK`, `foto_comprobante`, `fecha`, `total`)
+9. `Estados_comprobante` (`id_estado PK`, `id_pedido FK`, `estado`, `fecha`)
+10. `remitos_de_venta` (`id_remito PK`, `id_comprobante FK`, `id_cliente FK`, `fecha`, `total`, `producto_selec`)
+11. `Detalle_carrito` (`id_carrito PK`, `id_cliente FK`, `id_producto FK`, `dni`, `nombre`, `email`, `cantidad`, `producto_seleccionado`)
+12. `Admin` (`id_admin PK`, `dni`, `nombre`, `contrasenia`)
+13. `Roll` (`id_rol PK`, `descripcion_rol`)
+
+*Tablas auxiliares para el entorno de equipo:* `team_members`, `team_tasks`, `task_notes`, `team_meetings`, `team_discussions` y `team_discussion_comments`.
 
 ---
 
-## 🚀 Quickstart
+## 📋 Diagnóstico de Orientación: ¿Qué falta crear y cómo estamos orientados?
+
+### ✅ Lo que está completamente consolidado:
+- Arquitectura Next.js 15 compilando sin errores (`npm run build`).
+- DER de 13 tablas diseñado y normalizado con DFD en 3 niveles.
+- Tablero Teams con autenticación, Kanban, bandeja de avances y minutas de gobernanza.
+- Integración de Resend operativa con endpoints API y variables de entorno seguras.
+- Minuta oficial del 28 de septiembre archivada y sincronizada en Supabase.
+
+### ⏳ Próximos entregables comprometidos en las minutas:
+1. **Planillas de Casos de Uso (Celeste):** Estructurar las planillas formales en tablas con al menos 2 casos por actor (Cliente y Administrador).
+2. **Diagrama de Clases (Isabella):** Finalizar el diagrama formal de clases que vincule las entidades con la capa de servicios.
+3. **Términos y Condiciones Legales (Celeste):** Redacción del documento HTML formal de políticas de compra y uso del sistema.
+4. **Panel `/admin` con emisión de Remitos (Juanma & Enzo):** Vista de inspección de comprobantes bancarios, aprobación manual y despacho automático del remito formal PDF/HTML por Resend.
+5. **Cron de Liberación de Stock (Viernes):** Rutina programada para devolver a stock disponible las compras no convalidadas.
+
+---
+
+## 🚀 Quickstart Local
 
 ```bash
+# 1. Instalar dependencias
 npm install
+
+# 2. Configurar variables de entorno en .env.local
+# NEXT_PUBLIC_SUPABASE_URL=...
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+# RESEND_API_KEY=...
+
+# 3. Iniciar servidor de desarrollo
 npm run dev
 ```
 
-El Hub principal se abre en [`index.html`](./index.html) y el panel privado en [`tasks.html`](./tasks.html).
+- **Web App:** [http://localhost:3000](http://localhost:3000)
+- **Centro Teams:** [http://localhost:3000/tasks.html](http://localhost:3000/tasks.html) o apertura directa de `tasks.html`.
+- **Hub de Documentación:** `index.html`.
