@@ -8,12 +8,12 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://uchyattzuha
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Correos de fallback si no están configurados en Supabase team_members
+// Correos oficiales del equipo sincronizados con Supabase team_members
 const DEFAULT_FALLBACK_EMAILS: Record<string, string> = {
   Juanma: 'juanmamerodio@gmail.com',
-  Isabella: 'isabellainfante@gmail.com',
-  Celeste: 'celestecaceres@gmail.com',
-  Enzo: 'enzoqueipo@gmail.com'
+  Enzo: 'enzo.queipo23@gmail.com',
+  Celeste: 'celestecaceres100@gmail.com',
+  Isabella: 'isainfante.zapata@gmail.com'
 };
 
 export type NotificationEventType =
