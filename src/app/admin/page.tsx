@@ -15,7 +15,8 @@ import {
   AlertCircle,
   Package,
   Eye,
-  LucideIcon
+  LucideIcon,
+  AlertTriangle //{/* paarte agregada enzo: Icono para las alertas
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase'; // Usando la instancia exportada
 import { type Pedido } from '@/lib/supabase';
@@ -29,6 +30,9 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
+  // {/* paarte agregada enzo: Estado para el conteo de stock bajo
+  const [lowStockCount, setLowStockCount] = useState<number>(0);
+
   const fetchOrders = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -37,6 +41,17 @@ export default function AdminDashboard() {
       .order('created_at', { ascending: false });
 
     if (!error && data) setOrders(data);
+
+    // {/* paarte agregada enzo: Consulta de verificación de stock bajo
+    const { data: stockData, error: stockError } = await supabase
+      .from('stock')
+      .select('*');
+
+    if (!stockError && stockData) {
+      const criticalItems = stockData.filter((item: any) => (item.cantidad ?? item.stock ?? 0) <= 5);
+      setLowStockCount(criticalItems.length);
+    }
+
     setLoading(false);
   };
 
@@ -72,6 +87,9 @@ export default function AdminDashboard() {
     toVerify: orders.filter(o => o.estado === 'comprobante_subido').length,
     shipped: orders.filter(o => o.estado === 'enviado').length,
   };
+
+  // {/* parte agregada enzo: Condición de alertas al ingresar
+  const hayAlertas = stats.toVerify > 0 || lowStockCount > 0;
 
   const statusConfig: Record<string, { color: string; icon: LucideIcon; label: string }> = {
     'pendiente': { color: 'bg-gray-lt text-gray-600 border-gray-200', icon: Clock, label: 'Pendiente' },
@@ -113,6 +131,35 @@ export default function AdminDashboard() {
           </button>
         </div>
       </header>
+
+      {/* paarte agregada enzo: Banner de alerta visual al ingresar */}
+      <AnimatePresence>
+        {hayAlertas && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="p-6 rounded-[30px] bg-amber-50 border border-amber-200 shadow-soft flex items-start gap-4"
+          >
+            <div className="p-3 rounded-2xl bg-amber-500 text-white mt-0.5">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-bold text-amber-900 text-base">Avisos del Sistema al Ingresar</h3>
+              {stats.toVerify > 0 && (
+                <p className="text-sm text-amber-700">
+                  • Tienes <strong>{stats.toVerify}</strong> comprobante(s) nuevo(s) esperando verificación.
+                </p>
+              )}
+              {lowStockCount > 0 && (
+                <p className="text-sm text-amber-700">
+                  • Hay <strong>{lowStockCount}</strong> producto(s) con stock crítico o agotado.
+                </p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* KPI GRID: Información rápida y didáctica */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
