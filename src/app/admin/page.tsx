@@ -16,7 +16,7 @@ import {
   Package,
   Eye,
   LucideIcon,
-  AlertTriangle //{/* paarte agregada enzo: Icono para las alertas
+  AlertTriangle 
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase'; // Usando la instancia exportada
 import { type Pedido } from '@/lib/supabase';
@@ -30,7 +30,7 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  // {/* paarte agregada enzo: Estado para el conteo de stock bajo
+  // parte agregada enzo: Estado para el conteo de stock bajo
   const [lowStockCount, setLowStockCount] = useState<number>(0);
 
   const fetchOrders = async () => {
@@ -42,13 +42,13 @@ export default function AdminDashboard() {
 
     if (!error && data) setOrders(data);
 
-    // {/* paarte agregada enzo: Consulta de verificación de stock bajo
+    // parte agregada enzo: Consulta de verificación de stock bajo
     const { data: stockData, error: stockError } = await supabase
       .from('stock')
       .select('*');
 
- if (!stockError && stockData) {
-      const criticalItems = stockData.filter((item: Record<string, unknown>) => {
+    if (!stockError && stockData) {
+      const criticalItems = stockData.filter((item: { cantidad?: number; stock?: number }) => {
         const cantidad = Number(item.cantidad ?? item.stock ?? 0);
         return cantidad <= 5;
       });
@@ -91,7 +91,7 @@ export default function AdminDashboard() {
     shipped: orders.filter(o => o.estado === 'enviado').length,
   };
 
-  // {/* parte agregada enzo: Condición de alertas al ingresar
+  // parte agregada enzo: Condición de alertas al ingresar
   const hayAlertas = stats.toVerify > 0 || lowStockCount > 0;
 
   const statusConfig: Record<string, { color: string; icon: LucideIcon; label: string }> = {
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      {/* paarte agregada enzo: Banner de alerta visual al ingresar */}
+      {/* parte agregada enzo: Banner de alerta visual al ingresar */}
       <AnimatePresence>
         {hayAlertas && (
           <motion.div
@@ -307,7 +307,7 @@ export default function AdminDashboard() {
                                   <button
                                     onClick={() => updateStatus(order.id, 'rechazado')}
                                     className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-surface transition-all shadow-sm"
-                                    title="Rechazar"
+                                    title="Rechazado"
                                   >
                                     <XCircle className="w-4 h-4" />
                                   </button>
