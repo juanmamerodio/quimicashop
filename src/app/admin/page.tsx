@@ -47,8 +47,11 @@ export default function AdminDashboard() {
       .from('stock')
       .select('*');
 
-    if (!stockError && stockData) {
-      const criticalItems = stockData.filter((item: any) => (item.cantidad ?? item.stock ?? 0) <= 5);
+ if (!stockError && stockData) {
+      const criticalItems = stockData.filter((item: Record<string, unknown>) => {
+        const cantidad = Number(item.cantidad ?? item.stock ?? 0);
+        return cantidad <= 5;
+      });
       setLowStockCount(criticalItems.length);
     }
 
