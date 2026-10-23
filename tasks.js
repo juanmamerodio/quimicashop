@@ -4,11 +4,15 @@
 // gobernanza de reuniones, roles y minutas.
 // ==========================================
 
-// CREDENCIALES DE SUPABASE DEL PROYECTO
-const SUPABASE_URL = "https://uchyattzuhaltsaxazce.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjaHlhdHR6dWhhbHRzYXhhemNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0Njg1MzgsImV4cCI6MjA5MTA0NDUzOH0.uEDBFqcqMcUaI_QdcMj0HsvF4ZUvWntFu_CcTMTdY-I";
+// CONFIGURACIÓN PÚBLICA DEL PROYECTO (config.js)
+// Solo contiene la anon key. La service role key y las claves de Resend NO van acá.
+const APP_CONFIG = window.QUIMICASHOP_CONFIG || {};
+const SUPABASE_URL = APP_CONFIG.supabaseUrl || "";
+const SUPABASE_ANON_KEY = APP_CONFIG.supabaseAnonKey || "";
 
-const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+const supabaseClient = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
 
 // BASE DE DATOS INICIAL DEL EQUIPO (Fallback / Seed)
 const INITIAL_TASKS = [
@@ -2913,12 +2917,17 @@ async function handleEmptyDiscussionsTrash() {
 // ==========================================
 // SERVICIO DE NOTIFICACIONES POR EMAIL (RESEND)
 function getNotificationsApiUrl() {
-  // Si está corriendo en GitHub Pages o bajo una subruta de ascender.uno (/quimicashop/)
+  // 1. URL configurada explícitamente en config.js (recomendado).
+  if (APP_CONFIG.notificationsApi) {
+    return APP_CONFIG.notificationsApi;
+  }
+
+  // 2. Fallback: GitHub Pages o subruta /quimicashop/ apuntan al deploy del ecomm.
   if (window.location.hostname.includes("github.io") || window.location.pathname.startsWith("/quimicashop")) {
-    // Si el backend de Next.js está alojado en Vercel, pegarle a Vercel
     return "https://quimicashop.vercel.app/api/notifications";
   }
-  // En Vercel o localhost directo
+
+  // 3. Vercel o localhost directo.
   return "/api/notifications";
 }
 

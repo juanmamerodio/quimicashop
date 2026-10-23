@@ -1246,13 +1246,16 @@
   </footer>
 
   <!-- SUPABASE JS CDN & SINCRONIZACIÓN DE CAMBIOS, PROGRESO Y ACTAS/MINUTAS -->
+  <script src="./config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     (async function syncHubData() {
-      const SUPABASE_URL = "https://uchyattzuhaltsaxazce.supabase.co";
-      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjaHlhdHR6dWhhbHRzYXhhemNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0Njg1MzgsImV4cCI6MjA5MTA0NDUzOH0.uEDBFqcqMcUaI_QdcMj0HsvF4ZUvWntFu_CcTMTdY-I";
+      // Configuración pública centralizada (config.js). Solo anon key.
+      const HUB_CONFIG = window.QUIMICASHOP_CONFIG || {};
+      const SUPABASE_URL = HUB_CONFIG.supabaseUrl || "";
+      const SUPABASE_ANON_KEY = HUB_CONFIG.supabaseAnonKey || "";
 
-      if (!window.supabase) return;
+      if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) return;
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       if (!client) return;
 
