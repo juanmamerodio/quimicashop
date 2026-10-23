@@ -154,55 +154,9 @@ let selectedDiscussionId = null;
 let currentDiscussionFilter = "ALL"; // ALL | UNREAD | BLOQUEO | AYUDA | AVANCE | DEBATE
 let discussionSearchQuery = "";
 
-const INITIAL_DISCUSSIONS = [
-  {
-    id: "disc-seed-1",
-    title: "Traba con las claves foráneas de Comprobante y Estados_comprobante",
-    content: "Hola equipo! Al revisar el DER-quimica.csv noté que Comprobante y Estados_comprobante comparten id_pedido como relación fuerte. ¿Les parece si id_estado en Estados_comprobante es un id propio y dejamos id_pedido como FK? Necesito que Isabella y Enzo me confirmen esto antes de cerrar el script SQL.",
-    author_key: "Juanma",
-    author_name: "Juan Manuel Merodio",
-    category: "BLOQUEO",
-    task_id: "task-1",
-    read_by: ["Juanma"],
-    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 4).toISOString()
-  },
-  {
-    id: "disc-seed-2",
-    title: "Avance: Pantalla de checkout y previsualización de imagen",
-    content: "Ya dejé listo el dropzone para arrastrar el comprobante de transferencia y la compresión previa a enviar a Supabase Storage. Solo falta definir si aceptamos únicamente JPG/PNG o también PDF.",
-    author_key: "Isabella",
-    author_name: "Isabella Infante",
-    category: "AVANCE",
-    task_id: "task-2",
-    read_by: ["Isabella"],
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 2).toISOString()
-  },
-  {
-    id: "disc-seed-3",
-    title: "Debate: Política de horario para la liberación de stock semanal",
-    content: "El informe de cátedra fija la liberación de stock reservado los días viernes. Propongo que se ejecute a las 18:00 hs al finalizar el horario lectivo del taller de Química para no interferir con las compras del mediodía. ¿Opiniones?",
-    author_key: "Celeste",
-    author_name: "Celeste Cáceres",
-    category: "DEBATE",
-    task_id: "task-3",
-    read_by: ["Celeste"],
-    created_at: new Date(Date.now() - 3600000 * 1).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 1).toISOString()
-  }
-];
-
-const INITIAL_COMMENTS = [
-  {
-    id: "comm-seed-1",
-    discussion_id: "disc-seed-1",
-    author_key: "Isabella",
-    author_name: "Isabella Infante",
-    comment: "Coincido totalmente Juanma. En el DDL puse id_estado como PK serial y id_pedido como FK para que podamos registrar el historial de estados de un mismo comprobante sin colisión.",
-    created_at: new Date(Date.now() - 3600000 * 3).toISOString()
-  }
-];
+// Sin datos mock: la bandeja se alimenta solo de `team_discussions` en Supabase.
+// Si la tabla está vacía o no responde, la vista muestra su estado vacío real.
+const SEED_ID_PREFIX = "disc-seed";
 
 async function init() {
   // 1. Carga local inmediata
@@ -225,17 +179,20 @@ async function init() {
 
   const storedDiscussions = localStorage.getItem(DISCUSSIONS_STORAGE_KEY);
   if (storedDiscussions) {
-    try { teamDiscussions = JSON.parse(storedDiscussions); } catch (e) { teamDiscussions = INITIAL_DISCUSSIONS; }
+    try { teamDiscussions = JSON.parse(storedDiscussions); } catch (e) { teamDiscussions = []; }
   } else {
-    teamDiscussions = INITIAL_DISCUSSIONS;
+    teamDiscussions = [];
   }
+  // Purga de mocks históricos (disc-seed-*) que quedaron cacheados en localStorage.
+  teamDiscussions = teamDiscussions.filter(d => !String(d.id).startsWith(SEED_ID_PREFIX));
 
   const storedComments = localStorage.getItem(DISCUSSION_COMMENTS_STORAGE_KEY);
   if (storedComments) {
-    try { discussionComments = JSON.parse(storedComments); } catch (e) { discussionComments = INITIAL_COMMENTS; }
+    try { discussionComments = JSON.parse(storedComments); } catch (e) { discussionComments = []; }
   } else {
-    discussionComments = INITIAL_COMMENTS;
+    discussionComments = [];
   }
+  discussionComments = discussionComments.filter(c => !String(c.discussion_id).startsWith(SEED_ID_PREFIX));
 
   const storedTrashDiscussions = localStorage.getItem(TRASH_DISCUSSIONS_STORAGE_KEY);
   if (storedTrashDiscussions) {
@@ -343,7 +300,8 @@ async function init() {
           .select("*")
           .order("created_at", { ascending: false });
 
-        if (!discError && discData && discData.length > 0) {
+        // La base manda: si responde, reemplaza el cache local aunque venga vacía.
+        if (!discError && discData) {
           teamDiscussions = discData.map(d => ({
             id: d.id.toString(),
             title: d.title,
@@ -364,7 +322,7 @@ async function init() {
           .select("*")
           .order("created_at", { ascending: true });
 
-        if (!commError && commData && commData.length > 0) {
+        if (!commError && commData) {
           discussionComments = commData.map(c => ({
             id: c.id.toString(),
             discussion_id: c.discussion_id.toString(),
@@ -2585,12 +2543,12 @@ function openNewDiscussionModal() {
   }
 
   const modal = document.getElementById("newDiscussionModal");
-  if (modal) modal.classList.add("active");
+  if (modal) modal.classList.add("open");
 }
 
 function closeNewDiscussionModal() {
   const modal = document.getElementById("newDiscussionModal");
-  if (modal) modal.classList.remove("active");
+  if (modal) modal.classList.remove("open");
   const form = document.getElementById("newDiscussionForm");
   if (form) form.reset();
 }
