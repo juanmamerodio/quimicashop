@@ -47,6 +47,19 @@
         </svg>
         Teams
       </a>
+      <a href="#diagramas" class="nav-pill" id="nav-btn-diagramas"
+        style="text-decoration:none;display:inline-flex;align-items:center;gap:5px;background:rgba(61,140,110,.12);color:var(--accent);font-weight:700">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="5" r="2" />
+          <circle cx="5" cy="19" r="2" />
+          <circle cx="19" cy="19" r="2" />
+          <path d="M12 7v4" />
+          <path d="M10.8 10.8 5.7 17" />
+          <path d="M13.2 10.8l5.1 6.2" />
+        </svg>
+        Diagramas
+      </a>
       <a href="#sec-cambios" class="nav-pill"
         style="text-decoration:none;display:inline-flex;align-items:center;gap:5px">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -62,6 +75,55 @@
   </nav>
 
   <div class="shell">
+
+    <!-- NAVEGACIÓN PRINCIPAL POR PESTAÑAS (TABS) -->
+    <div class="hub-tabs-wrap">
+      <div class="hub-tabs" role="tablist" aria-label="Navegación principal del Hub Esencia Técnica">
+        <button
+          type="button"
+          role="tab"
+          id="tab-centro"
+          aria-selected="true"
+          aria-controls="panel-centro"
+          tabindex="0"
+          class="hub-tab active"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="7" x="3" y="3" rx="1" />
+            <rect width="7" height="7" x="14" y="3" rx="1" />
+            <rect width="7" height="7" x="14" y="14" rx="1" />
+            <rect width="7" height="7" x="3" y="14" rx="1" />
+          </svg>
+          <span>Centro de Control</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-diagramas"
+          aria-selected="false"
+          aria-controls="panel-diagramas"
+          tabindex="-1"
+          class="hub-tab"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="5" r="2" />
+            <circle cx="5" cy="19" r="2" />
+            <circle cx="19" cy="19" r="2" />
+            <path d="M12 7v4" />
+            <path d="M10.8 10.8 5.7 17" />
+            <path d="M13.2 10.8l5.1 6.2" />
+          </svg>
+          <span>Diagramas del Sistema</span>
+          <span class="hub-tab-badge">7 Diagramas</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANEL 1: CENTRO DE CONTROL -->
+    <div role="tabpanel" id="panel-centro" aria-labelledby="tab-centro" class="hub-tabpanel active">
 
     <!-- HERO -->
     <header class="hero sec">
@@ -192,6 +254,40 @@
         <span class="sec-cnt">4 niveles (N0–N3)</span>
       </div>
       <div class="g3">
+
+        <a id="dfd-n0" class="card cg" href="#card-dfd-n0">
+          <div class="card-top">
+            <div class="ci ig">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                <path d="M2 12h20" />
+              </svg>
+            </div>
+            <span class="cbadge">N0</span>
+          </div>
+          <div>
+            <div class="ct">DFD Nivel 0 · Contexto</div>
+            <p class="cd">Frontera del sistema. Interacciones con Cliente, Administrador y Temporizador semanal, sin almacenes internos.</p>
+          </div>
+          <div class="cf">
+            <span class="csrc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
+              </svg>
+              Visor Mermaid
+            </span>
+            <span class="btn bg">Ver en Visor <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg></span>
+          </div>
+        </a>
 
         <a id="dfd-n1" class="card cg" target="_blank" rel="noopener noreferrer"
           href="https://lucid.app/lucidchart/b61b3f10-e0cd-4a1f-a708-4d9914ac57d1/edit?invitationId=inv_79464b55-f369-4661-807a-1b98e1c1df5d&page=0_0#">
@@ -1010,6 +1106,37 @@
 
       <div class="timeline" id="changelog-timeline">
 
+        <!-- CAMBIO: REFORMA INTEGRAL DEL HUB - VISOR INTERACTIVO MERMAID -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#3d8c6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Reforma Integral del Hub: Visor Interactivo de Diagramas Mermaid</span>
+              <div class="tl-meta">
+                <span class="tl-who">Equipo (Juanma, Celeste, Isabella, Enzo)</span>
+                <span>30 Oct 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Implementación del sistema de navegación por pestañas en el Hub (Centro de Control vs Diagramas del Sistema) y visor académico desacoplado (<code>diagramas-visor.js</code>). Renderizado SVG vectorial nativo para los 7 modelos técnicos canónicos (DFD niveles 0 a 3, DER en 3FN, Clases UML y DCU) con herramientas de Zoom &amp; Pan interactivo, copia de código Mermaid, descarga SVG/PNG y proyección en Pantalla Completa para la EXPO TEC1 2026.</p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Facilitar la defensa ágil ante los docentes (Nieva, Ariel, Cecilia) y la inspección en pantalla durante la exposición técnica sin requerir logins en plataformas de terceros.</div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Navegación accesible con ARIA (role="tab", role="tabpanel"), hash <code>#diagramas</code>, suite automatizada en Vitest elevada a 507 tests y cero dependencias pesadas.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- CAMBIO: CIERRE BETA Y FORMALIZACIÓN ACADÉMICA -->
         <div class="tl-item">
           <div class="tl-dot">
@@ -1374,8 +1501,58 @@
 
       </div>
     </section>
+    </div> <!-- /#panel-centro -->
 
-  </div>
+    <!-- PANEL 2: DIAGRAMAS DEL SISTEMA (VISOR ACADÉMICO) -->
+    <div role="tabpanel" id="panel-diagramas" aria-labelledby="tab-diagramas" class="hub-tabpanel" hidden>
+
+      <!-- HERO DIAGRAMAS -->
+      <header class="hero sec diagramas-hero">
+        <div class="eyebrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+          Modelos formales en Mermaid · Cátedras Leibouski, Maldonado, Nieva
+        </div>
+        <h1>Visor Académico de<br /><em>Diagramas del Sistema</em></h1>
+        <p class="hero-sub">
+          Inspección interactiva de los 7 modelos técnicos formalizados para la defensa docente y la EXPO TEC1 2026.
+          Renderizado vectorial SVG en tiempo real, zoom & pan dinámico, exportación y copia de código.
+        </p>
+
+        <!-- SUB-ÍNDICE RÁPIDO DE DIAGRAMAS -->
+        <nav class="diagramas-nav-index" aria-label="Índice de diagramas del sistema">
+          <a href="#card-dfd-n0" class="spill">DFD N0 · Contexto</a>
+          <a href="#card-dfd-n1" class="spill">DFD N1 · Almacenes D1–D7</a>
+          <a href="#card-dfd-n2" class="spill">DFD N2 · Subsistemas</a>
+          <a href="#card-dfd-n3" class="spill">DFD N3 · Transaccional</a>
+          <a href="#card-der" class="spill">DER · Modelo 3FN</a>
+          <a href="#card-clases-uml" class="spill">Clases UML · Dominio & Servicios</a>
+          <a href="#card-dcu" class="spill">DCU · Casos de Uso</a>
+        </nav>
+      </header>
+
+      <!-- BARRA INFORMATIVA DE DOMINIO Y ALCANCE -->
+      <div class="ibar sec">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4" />
+          <path d="M12 8h.01" />
+        </svg>
+        Modelado formal sin dependencias externas: validación manual sin IA (ADR 0002), cancelación semanal los viernes 23:59 ART y 10 entidades canónicas sincronizadas con Supabase (otjph…).
+      </div>
+
+      <!-- CONTENEDOR DE TARJETAS DE DIAGRAMAS -->
+      <div id="diagramas-grid-container" class="diagramas-grid">
+        <!-- Renderizado dinámico vía diagramas-visor.js -->
+      </div>
+
+    </div> <!-- /#panel-diagramas -->
+
+  </div> <!-- /.shell -->
 
   <div class="fdiv"></div>
   <footer class="foot">
@@ -1633,6 +1810,86 @@
       }
     })();
   </script>
+
+  <!-- MODAL DE PANTALLA COMPLETA (FULLSCREEN) -->
+  <div id="diagram-fullscreen-modal" class="fullscreen-modal" role="dialog" aria-modal="true"
+    aria-labelledby="modal-diagram-title" hidden>
+    <div class="fullscreen-modal-content">
+      <header class="fullscreen-modal-header">
+        <div class="modal-title-group">
+          <span id="modal-diagram-badge" class="cbadge">DIAGRAMA</span>
+          <h2 id="modal-diagram-title" class="modal-title">Título del Diagrama</h2>
+        </div>
+        <div class="fullscreen-toolbar">
+          <button type="button" id="modal-btn-zoom-out" class="btn-tool" title="Reducir Zoom (-)"
+            aria-label="Reducir Zoom">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              <line x1="8" y1="11" x2="14" y2="11" />
+            </svg>
+          </button>
+          <button type="button" id="modal-btn-reset" class="btn-tool" title="Restablecer (1:1)"
+            aria-label="Restablecer">1:1</button>
+          <button type="button" id="modal-btn-zoom-in" class="btn-tool" title="Aumentar Zoom (+)"
+            aria-label="Aumentar Zoom">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              <line x1="11" y1="8" x2="11" y2="14" />
+              <line x1="8" y1="11" x2="14" y2="11" />
+            </svg>
+          </button>
+          <button type="button" id="modal-btn-copy" class="btn-tool" title="Copiar código Mermaid"
+            aria-label="Copiar código Mermaid">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+            </svg>
+            <span>Copiar</span>
+          </button>
+          <button type="button" id="modal-btn-download-svg" class="btn-tool" title="Descargar SVG"
+            aria-label="Descargar SVG">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>SVG</span>
+          </button>
+          <button type="button" id="modal-btn-download-png" class="btn-tool" title="Descargar PNG"
+            aria-label="Descargar PNG">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+              <circle cx="9" cy="9" r="2" />
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+            </svg>
+            <span>PNG</span>
+          </button>
+          <button type="button" id="modal-btn-close" class="btn-tool btn-close" title="Cerrar (Esc)"
+            aria-label="Cerrar modal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+      </header>
+      <div id="modal-svg-stage" class="modal-stage" tabindex="0" aria-label="Lienzo maximizado">
+        <!-- SVG clonado se inyecta acá -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MERMAID JS & VISOR MODULAR ACADÉMICO -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="./diagramas-visor.js"></script>
 
 </body>
 
