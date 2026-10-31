@@ -27,11 +27,21 @@
       desc: 'Frontera del sistema de Esencia Técnica frente a sus entidades externas (Cliente, Administrador de Química y Temporizador Cron). Metodología estricta de análisis de sistemas: no contiene almacenes internos.',
       pills: ['Sin almacenes en N0', 'Viernes 23:59 ART', 'Basic Auth'],
       code: `flowchart TD
-    E1["Cliente (Comprador Invitado)"]
-    E2["Administrador de Química"]
-    E3["Temporizador Semanal (Vercel Cron)"]
+    %% Entidades Externas
+    subgraph EXT_CLI ["Entorno Cliente"]
+        direction TB
+        E1["Cliente (Comprador Invitado)"]
+    end
 
-    P0(("0. Sistema de Gestión y Venta de Cosmética Esencia Técnica"))
+    subgraph SISTEMA ["Frontera del Sistema · Esencia Técnica"]
+        P0(("0. Sistema de Gestión y Venta de Cosmética Esencia Técnica"))
+    end
+
+    subgraph EXT_GESTION ["Entorno Gestión y Control"]
+        direction TB
+        E2["Administrador de Química"]
+        E3["Temporizador Semanal (Vercel Cron)"]
+    end
 
     %% Flujos de Cliente
     E1 -->|"Solicitud de catálogo y productos"| P0
@@ -61,28 +71,37 @@
       title: 'DFD Nivel 1 · Descomposición General (Almacenes D1–D7)',
       desc: 'Descomposición en 6 procesos principales e identificación de los 7 almacenes canónicos (D1 a D7). Se explicita que el carrito reside en el navegador del cliente sin persistencia en base de datos.',
       pills: ['D1: CLIENTE', 'D2: PRODUCTO', 'D3: STOCK', 'D4: PEDIDO', 'D5: COMPROBANTE', 'D6: REMITO_VENTA', 'D7: ALERTA_STOCK'],
-      code: `flowchart TD
-    %% Entidades Externas
-    CLI["Cliente (Comprador Invitado)"]
-    ADM["Administrador de Química"]
-    CRON["Temporizador Semanal (Vercel Cron)"]
+      code: `flowchart LR
+    %% Carril 1: Entidades Externas
+    subgraph ENTIDADES ["Entidades Externas"]
+        direction TB
+        CLI["Cliente (Comprador Invitado)"]
+        ADM["Administrador de Química"]
+        CRON["Temporizador Semanal (Vercel Cron)"]
+    end
 
-    %% Almacenes Canónicos
-    D1[("D1: CLIENTE")]
-    D2[("D2: PRODUCTO")]
-    D3[("D3: STOCK")]
-    D4[("D4: PEDIDO")]
-    D5[("D5: COMPROBANTE")]
-    D6[("D6: REMITO_VENTA")]
-    D7[("D7: ALERTA_STOCK")]
+    %% Carril 2: Procesos Principales
+    subgraph PROCESOS ["Procesos Principales"]
+        direction TB
+        P1(("1.0 Consultar Catálogo y Disponibilidad"))
+        P2(("2.0 Registrar Pedido y Reservar Stock"))
+        P3(("3.0 Gestionar Comprobante y Validación Manual"))
+        P4(("4.0 Administrar Catálogo y Stock Físico"))
+        P5(("5.0 Controlar Umbrales y Alertas de Stock"))
+        P6(("6.0 Cancelar Pedidos Vencidos (Cron)"))
+    end
 
-    %% Procesos Principales
-    P1(("1.0 Consultar Catálogo y Disponibilidad"))
-    P2(("2.0 Registrar Pedido y Reservar Stock"))
-    P3(("3.0 Gestionar Comprobante y Validación Manual"))
-    P4(("4.0 Administrar Catálogo y Stock Físico"))
-    P5(("5.0 Controlar Umbrales y Alertas de Stock"))
-    P6(("6.0 Cancelar Pedidos Vencidos (Cron)"))
+    %% Carril 3: Almacenes Canónicos
+    subgraph ALMACENES ["Almacenes de Datos (D1–D7)"]
+        direction TB
+        D1[("D1: CLIENTE")]
+        D2[("D2: PRODUCTO")]
+        D3[("D3: STOCK")]
+        D4[("D4: PEDIDO")]
+        D5[("D5: COMPROBANTE")]
+        D6[("D6: REMITO_VENTA")]
+        D7[("D7: ALERTA_STOCK")]
+    end
 
     %% Flujos Proceso 1.0
     CLI -->|"Consulta de cosmética e higiene"| P1
@@ -138,22 +157,42 @@
       desc: 'Descomposición del subsistema de pedidos, comprobantes en storage privado y validación manual sin IA con emisión de remito y despacho por correo electrónico.',
       pills: ['Subida a Storage', 'Cotejo Manual', 'Remito Correlativo', 'Reserva Atómica'],
       code: `flowchart TD
-    CLI["Cliente (Comprador Invitado)"]
-    ADM["Administrador de Química"]
+    %% Actores Externos
+    subgraph ACTORES ["Actores Externos"]
+        direction LR
+        CLI["Cliente (Comprador Invitado)"]
+        ADM["Administrador de Química"]
+    end
 
-    D1[("D1: CLIENTE")]
-    D3[("D3: STOCK")]
-    D4[("D4: PEDIDO")]
-    D5[("D5: COMPROBANTE")]
-    D6[("D6: REMITO_VENTA")]
+    %% Subsistemas de Procesos
+    subgraph SUB_PEDIDO ["Subsistema 2.0: Pedido y Reserva"]
+        direction TB
+        P21(("2.1 Validar Disponibilidad y Crear Pedido"))
+        P22(("2.2 Registrar Reserva de Stock"))
+    end
 
-    P21(("2.1 Validar Disponibilidad y Crear Pedido"))
-    P22(("2.2 Registrar Reserva de Stock"))
-    P31(("3.1 Subir Comprobante a Storage y BD"))
-    P32(("3.2 Cotejo Manual de Imagen y Monto"))
-    P33(("3.3 Ejecutar Aprobación y Venta"))
-    P34(("3.4 Ejecutar Rechazo"))
-    P35(("3.5 Despachar Remito de Venta por Email"))
+    subgraph SUB_COMPROBANTE ["Subsistema 3.0: Comprobante y Cotejo"]
+        direction TB
+        P31(("3.1 Subir Comprobante a Storage y BD"))
+        P32(("3.2 Cotejo Manual de Imagen y Monto"))
+    end
+
+    subgraph SUB_RESOLUCION ["Subsistema 3.0: Resolución y Remito"]
+        direction TB
+        P33(("3.3 Ejecutar Aprobación y Venta"))
+        P34(("3.4 Ejecutar Rechazo"))
+        P35(("3.5 Despachar Remito de Venta por Email"))
+    end
+
+    %% Almacenes Involucrados
+    subgraph ALMACENES ["Almacenes de Persistencia"]
+        direction TB
+        D1[("D1: CLIENTE")]
+        D3[("D3: STOCK")]
+        D4[("D4: PEDIDO")]
+        D5[("D5: COMPROBANTE")]
+        D6[("D6: REMITO_VENTA")]
+    end
 
     %% Flujos de Creación de Pedido
     CLI -->|"Envío de pedido (items desde carrito del cliente + contacto)"| P21
@@ -201,16 +240,27 @@
       desc: 'Detalle transaccional atómico de crear_pedido (reserva de stock sin sobreventa) y aprobar_comprobante (descuento físico, remito R-YYYY-NNNNNN y actualización concurrente de historial).',
       pills: ['RPC crear_pedido', 'RPC aprobar_comprobante', 'Descuento Físico', 'Liberación de Reserva'],
       code: `flowchart TD
-    CLI["Cliente (Navegador)"]
-    ADM["Administrador de Química"]
-    D1[("D1: CLIENTE")]
-    D2[("D2: PRODUCTO")]
-    D3[("D3: STOCK")]
-    D4[("D4: PEDIDO")]
-    D5[("D5: COMPROBANTE")]
-    D6[("D6: REMITO_VENTA")]
+    %% Actores Externos
+    subgraph ACTORES ["Actores del Sistema"]
+        direction LR
+        CLI["Cliente (Navegador)"]
+        ADM["Administrador de Química"]
+    end
 
+    %% Almacenes Involucrados
+    subgraph ALMACENES ["Almacenes de Persistencia"]
+        direction TB
+        D1[("D1: CLIENTE")]
+        D2[("D2: PRODUCTO")]
+        D3[("D3: STOCK")]
+        D4[("D4: PEDIDO")]
+        D5[("D5: COMPROBANTE")]
+        D6[("D6: REMITO_VENTA")]
+    end
+
+    %% Transacciones Atómicas
     subgraph TX1 ["Transacción crear_pedido (Reserva de Stock)"]
+        direction TB
         P211(("2.1.1 Recibir Carrito y Contacto"))
         P212(("2.1.2 Upsert Cliente por Email"))
         P213(("2.1.3 Validar Actividad y Stock Disponible"))
@@ -220,6 +270,7 @@
     end
 
     subgraph TX2 ["Transacción aprobar_comprobante (Venta y Remito)"]
+        direction TB
         P331(("3.3.1 Cotejar Monto Comprobante vs Total"))
         P332(("3.3.2 Transición Atómica de Estados"))
         P333(("3.3.3 Descontar Stock Físico y Liberar Reserva"))
@@ -944,18 +995,25 @@
             primaryColor: '#e8f3ef',
             primaryTextColor: '#1c1c1e',
             primaryBorderColor: '#3d8c6e',
-            lineColor: '#3d8c6e',
+            lineColor: '#2d6a4f',
             secondaryColor: '#f5f5f3',
             tertiaryColor: '#ffffff',
             background: '#ffffff',
             mainBkg: '#f9fbf9',
             nodeBorder: '#3d8c6e',
             clusterBkg: '#f8faf9',
+            clusterBorder: '#cce3d8',
             titleColor: '#1c1c1e',
             fontFamily: '"DM Sans", -apple-system, BlinkMacSystemFont, sans-serif'
           },
           securityLevel: 'loose',
-          flowchart: { useMaxWidth: false, htmlLabels: true, curve: 'basis' },
+          flowchart: {
+            useMaxWidth: false,
+            htmlLabels: true,
+            curve: 'linear',
+            nodeSpacing: 40,
+            rankSpacing: 45
+          },
           er: { useMaxWidth: false },
           class: { useMaxWidth: false }
         });
