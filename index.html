@@ -83,7 +83,7 @@
             <path
               d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
           </svg>
-          3 DFD
+          4 Niveles DFD
         </span>
         <span class="spill">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
@@ -93,6 +93,16 @@
             <path d="M3 12A9 3 0 0 0 21 12" />
           </svg>
           1 DER
+        </span>
+        <span class="spill">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="18" x="5" y="3" rx="2" />
+            <line x1="9" x2="15" y1="8" y2="8" />
+            <line x1="9" x2="15" y1="12" y2="12" />
+            <line x1="9" x2="13" y1="16" y2="16" />
+          </svg>
+          1 Clases UML
         </span>
         <span class="spill">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
@@ -142,7 +152,7 @@
             <polyline points="12 8 12 12 14 14" />
             <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
           </svg>
-          9 Hitos · Cambios
+          10 Hitos · Cambios
         </a>
         <span class="spill">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
@@ -150,7 +160,7 @@
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
-          Sep 2026
+          Oct 2026
         </span>
       </div>
     </header>
@@ -179,7 +189,7 @@
           Diagramas de Flujo de Datos
         </div>
         <div class="sec-line"></div>
-        <span class="sec-cnt">3 niveles</span>
+        <span class="sec-cnt">4 niveles (N0–N3)</span>
       </div>
       <div class="g3">
 
@@ -339,12 +349,18 @@
           </div>
           <div>
             <div class="ct">Diagrama Entidad-Relacion</div>
-            <p class="cd">Modelo relacional de la BD en Supabase/PostgreSQL. Tablas <code
-                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">productos</code>,
+            <p class="cd">Modelo relacional normalizado en Supabase/PostgreSQL. Entidades canónicas (<code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">PRODUCTO</code>,
               <code
-                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">pedidos</code>
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">STOCK</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">PEDIDO</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">COMPROBANTE</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">REMITO_VENTA</code>
               y <code
-                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">verificaciones</code>
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">ALERTA_STOCK</code>)
               con sus relaciones e integridad referencial.
             </p>
           </div>
@@ -371,7 +387,88 @@
       </div>
     </section>
 
-    <!-- SEC 3 — DCU (CASOS DE USO) -->
+    <!-- SEC 3 — DIAGRAMA DE CLASES UML (CÁTEDRA NIEVA) -->
+    <section class="sec" aria-labelledby="s-clases">
+      <div class="sec-head">
+        <div class="sec-chip cv" id="s-clases">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+            <path d="M7 7h10" />
+            <path d="M7 12h10" />
+            <path d="M7 17h6" />
+          </svg>
+          Arquitectura Orientada a Objetos
+        </div>
+        <div class="sec-line"></div>
+        <span class="sec-cnt">1 diagrama UML</span>
+      </div>
+      <div class="ga">
+
+        <a id="clases-uml" class="card cv" target="_blank" rel="noopener noreferrer"
+          href="https://github.com/juanmamerodio/esenciatecnica/blob/main/docs/academico/CLASES.md">
+          <div class="card-top">
+            <div class="ci iv">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="14" height="18" x="5" y="3" rx="2" />
+                <line x1="9" x2="15" y1="8" y2="8" />
+                <line x1="9" x2="15" y1="12" y2="12" />
+                <line x1="9" x2="13" y1="16" y2="16" />
+              </svg>
+            </div>
+            <span class="cbadge">UML NIEVA</span>
+          </div>
+          <div>
+            <div class="ct">Diagrama de Clases UML</div>
+            <p class="cd">Modelo de objetos integral para la cátedra Nieva. Modela las entidades canónicas (<code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">Cliente</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">Producto</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">Stock</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">Pedido</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">Comprobante</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">RemitoVenta</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">AlertaStock</code>)
+              y los servicios de dominio (<code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">ServicioCheckout</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">ServicioAdmin</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">ServicioRemito</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">ServicioCron</code>).
+            </p>
+          </div>
+          <div class="cf">
+            <span class="csrc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M9 9h6" />
+                <path d="M9 12h6" />
+                <path d="M9 15h4" />
+              </svg>
+              Mermaid / GitHub
+            </span>
+            <span class="btn bv">Abrir <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M7 17L17 7" />
+                <path d="M7 7h10v10" />
+              </svg></span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- SEC 4 — DCU (CASOS DE USO) -->
     <section class="sec" aria-labelledby="s-dcu">
       <div class="sec-head">
         <div class="sec-chip cb" id="s-dcu">
@@ -404,8 +501,9 @@
           <div>
             <div class="ct">Diagrama de Casos de Uso</div>
             <p class="cd">Interacciones y límites del sistema. Define los actores <strong
-                style="color:var(--text-2)">Cliente</strong> y <strong style="color:var(--text-2)">Admin</strong>,
-              flujos de carrito, confirmación, subida y validación IA de comprobantes, gestión de stock, alertas y
+                style="color:var(--text-2)">Cliente</strong>, <strong style="color:var(--text-2)">Admin</strong> y
+              <strong style="color:var(--text-2)">Cron</strong>, flujos de carrito en cliente, confirmación con reserva,
+              subida y validación manual de comprobantes (sin IA), gestión de stock, alertas en panel y
               remito de entrega con relaciones <code
                 style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">&lt;&lt;incluye&gt;&gt;</code>
               y <code
@@ -666,7 +764,7 @@
               <span class="stag">Resend</span>
             </div>
             <div class="mega-links">
-              <a class="mlink" href="https://quimicashop.vercel.app" target="_blank" rel="noopener noreferrer">
+              <a class="mlink" href="https://esenciatecnica.vercel.app" target="_blank" rel="noopener noreferrer">
                 <div class="mlink-ic" style="background:var(--accent-lt)">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="#3d8c6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -677,7 +775,7 @@
                   </svg>
                 </div>
                 <div>
-                  <span class="mlink-lbl">quimicashop.vercel.app</span>
+                  <span class="mlink-lbl">esenciatecnica.vercel.app</span>
                   <span class="mlink-sub">Produccion Â· Vercel Hobby Â· CI/CD via GitHub</span>
                 </div>
                 <span class="mlink-arr"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
@@ -911,6 +1009,46 @@
       </div>
 
       <div class="timeline" id="changelog-timeline">
+
+        <!-- CAMBIO: CIERRE BETA Y FORMALIZACIÓN ACADÉMICA -->
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+          <div class="tl-card">
+            <div class="tl-hd">
+              <span class="tl-title">Cierre Beta: Robustez Técnica, DDL 00–06 y 479 Tests en Verde</span>
+              <div class="tl-meta">
+                <span class="tl-who">Equipo (Juanma, Isabella, Celeste, Enzo)</span>
+                <span>30 Oct 2026</span>
+              </div>
+            </div>
+            <p class="tl-body">Consolidación integral de la versión Beta (MVP) de Esencia Técnica (#53). La suite de
+              pruebas automatizadas alcanzó 479 tests en Vitest cubriendo reglas de negocio, transacciones atómicas
+              y superficie viva en Supabase (otjph…). Se completó la migración del esquema DDL 00–06, la siembra de la
+              demo institucional con productos reales del taller y el despliegue en producción en
+              <code>esenciatecnica.vercel.app</code>. Se formalizaron en formato Mermaid los entregables de cátedra:
+              DFD niveles 0 a 3 (Ariel), Diagrama de Clases UML con entidades y servicios (Nieva), DCU con validación
+              manual sin IA (Celeste) y DER normalizado en 3FN.</p>
+            <div class="tl-grid">
+              <div class="tl-box">
+                <div class="tl-box-t">Motivo</div>
+                <div>Alinear el software a los requerimientos formales de cátedra, garantizando control docente sobre
+                  comprobantes, calidad de código verificada y estabilidad para la EXPO TEC1 2026.</div>
+              </div>
+              <div class="tl-box">
+                <div class="tl-box-t">Impacto</div>
+                <div>Producción viva en <code>esenciatecnica.vercel.app</code>, CI/CD en verde en GitHub Actions, RLS
+                  estricta con respuestas 401/403 en tablas protegidas, y artefactos Mermaid documentados en
+                  <code>docs/academico/</code>.</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- CAMBIO: MÓDULO DE MEETINGS CON VOTACIÓN UNÁNIME & FIX UUID -->
         <div class="tl-item">

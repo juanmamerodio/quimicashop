@@ -14,5 +14,5 @@ window.QUIMICASHOP_CONFIG = {
 
   // Endpoint de notificaciones por email. Vive temporalmente en el deploy del ecomm.
   // Si el ecomm cambia de dominio, actualizá esta URL.
-  notificationsApi: "https://quimicashop.vercel.app/api/notifications",
+  notificationsApi: "https://esenciatecnica.vercel.app/api/notifications",
 };
