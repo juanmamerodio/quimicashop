@@ -450,20 +450,38 @@
             <span class="cbadge">DER 3FN</span>
           </div>
           <div>
-            <div class="ct">Diagrama Entidad-Relación · 3FN</div>
-            <p class="cd">Modelo relacional normalizado en 3FN en Supabase/PostgreSQL. 10 entidades canónicas (<code
-                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">PRODUCTO</code>,
+            <div class="ct">Diagrama Entidad-Relación · Esquema Físico</div>
+            <p class="cd">Esquema físico real de la base viva: <strong>13 objetos</strong> con los nombres exactos
+              de las tablas. Las 10 tablas del MVP (<code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">cliente</code>,
               <code
-                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">STOCK</code>,
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">producto</code>,
               <code
-                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">PEDIDO</code>,
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">stock</code>,
               <code
-                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">COMPROBANTE</code>,
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">pedido</code>,
               <code
-                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">REMITO_VENTA</code>
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">detalle_del_pedido</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">estados_pedidos</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">comprobante</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">estados_comprobante</code>,
+              <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">remitos_de_venta</code>
               y <code
-                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">ALERTA_STOCK</code>)
-              con tipos monetarios NUMERIC(12,2) y delimitación de Fase 2.
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">alerta_de_estado</code>),
+              la vista <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">vista_catalogo</code>
+              con el <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">disponible</code>
+              calculado, y el residuo de Fase 2 (<code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">admin</code>
+              y <code
+                style="font-family:DM Mono,monospace;font-size:.78em;background:rgba(0,0,0,.05);border-radius:4px;padding:1px 5px">roll</code>)
+              que sigue vivo y cerrado por RLS. Tipos monetarios NUMERIC(12,2) y paridad verificada contra el DDL
+              por tests.
             </p>
           </div>
           <div class="cf">

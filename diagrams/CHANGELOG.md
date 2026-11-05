@@ -24,6 +24,21 @@ Cada cambio registrado sigue esta estructura:
 
 ## 🕒 Registro de Cambios Cronológicos
 
+### [2026-11-05] DER contra la base viva y restauración de los enlaces de Lucidchart
+- **Autor / Responsable:** Juan Manuel Merodio (Arquitectura & Frontend) · Isabella Infante (SQL / DDL)
+- **Artefactos Modificados:** `index.html`, `diagramas-visor.js`, `diagrams/CHANGELOG.md`; en `esenciatecnica`: `docs/academico/DER.md`, `docs/MODELO.md`, `memory.md`, `tests/front/der-paridad-esquema.test.ts`, `tests/front/diagramas-academicos.test.ts`
+- **¿Por qué se hizo? (Motivo):**
+  - **El DER no coincidía con la base.** El diagrama mostraba 10 entidades con nombres lógicos (`CLIENTE`, `ESTADO_PEDIDO`, `REMITO_VENTA`…) y omitía columnas que sí existen. Un diagrama que no coincide con la base hace creer que el esquema es otro: es el riesgo que había que cerrar.
+  - **Faltaban los enlaces de Lucidchart.** El commit `b8f19c9` reemplazó los `href` de Lucidchart por anclas al visor Mermaid, dejando los tableros editables inaccesibles desde las tarjetas. Lucidchart requiere sesión con la cuenta del proyecto para editar, así que el enlace no es decorativo.
+- **¿Qué hizo el cambio? (Impacto Técnico):**
+  - **Auditoría de la base viva `otjphjnrwihqzzhbfnmh`** por la especificación OpenAPI de PostgREST: **13 objetos** = 10 tablas del MVP (`cliente`, `producto`, `stock`, `pedido`, `detalle_del_pedido`, `estados_pedidos`, `comprobante`, `estados_comprobante`, `remitos_de_venta`, `alerta_de_estado`), la vista `vista_catalogo` (12 columnas, con `disponible` calculado) y el residuo de Fase 2 (`admin`, `roll`) que sigue vivo y cerrado por RLS (migración 03, `AUDITORIA_BD.md` §11.4).
+  - **DER reescrito con nombres físicos**, todas las columnas, el tipo SQL real en el comentario de cada atributo y las reglas de cada tabla (`ET007`, `NUMERIC(12,2)`, `subtotal` generado, `numero` correlativo, índices únicos parciales).
+  - **El DER del visor es idéntico al de `docs/academico/DER.md`**: hay una sola definición y un script de sincronización, para que no vuelvan a divergir.
+  - **Verificación por TDD:** `tests/front/der-paridad-esquema.test.ts` levanta las migraciones en PGlite y compara el diagrama contra el DDL tabla por tabla, columna por columna, tipo por tipo, clave foránea por clave foránea —con la cardinalidad validada contra la unicidad real de cada columna— y `NUMERIC(12,2)` en cada columna monetaria. Los 7 diagramas del visor se validaron además con **Mermaid v10 real**, la misma versión que carga el Hub.
+  - **Enlaces de Lucidchart restaurados:** N1 `b61b3f10`, N2 `afb9b366`, N3 `d94e24c2`, DER `d8c27501` y DCU `de071bba`. Las tarjetas pasaron de `<a>` único a un contenedor con dos enlaces reales —visor Mermaid local y tablero externo— porque un `<a>` dentro de otro `<a>` es HTML inválido. Clases UML vuelve a `CLASES.md` en GitHub y DFD N0 queda solo con visor: es frontera del sistema y no tiene tablero.
+  - **Textos de las tarjetas actualizados** a 13 objetos reales, nombres físicos, vista y residuo de Fase 2 cerrado.
+- **Efectos Secundarios / Verificación:** `npm test` en `esenciatecnica` con **534 tests en 40 archivos en verde** (7 nuevos), más `typecheck`, `lint`, `docs:links` y `build`. `npm run bd:viva` sigue **VERDE** contra el proyecto vivo: las 10 tablas cerradas responden `401`/`403`. Los dos repositorios quedan sincronizados.
+
 ### [2026-09-23] Fase 2 Mobile: Erradicación de Desbordes (iPhone SE / Pixel), Renombrado a "Esencia Técnica" y Módulo Completo de Minutas
 - **Autor / Responsable:** Juan Manuel Merodio (Frontend & JS Lead) & Equipo de Programación
 - **Artefactos Modificados:** `style.css`, `tasks.html`, `tasks.js`, `index.html`, `diagrams/CHANGELOG.md`

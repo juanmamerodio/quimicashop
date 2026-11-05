@@ -324,109 +324,155 @@
       id: 'der',
       badge: 'DER 3FN',
       catedra: 'Cátedra Isabella Infante · BD',
-      title: 'DER · Modelo Relacional Normalizado en 3FN',
-      desc: 'Modelo relacional normalizado en 3FN del MVP. 10 entidades canónicas en la base viva otjph…, tipos monetarios NUMERIC(12,2) con precio > 0 y monto > 0, y delimitación de Fase 2.',
-      pills: ['10 Entidades Canónicas', '3ra Forma Normal', 'Monto > 0', 'Precio > 0', 'Fase 2 Delimitada'],
+      title: 'DER · Esquema Físico de la Base Viva',
+      desc: 'Esquema físico real de otjphjnrwihqzzhbfnmh: 13 objetos y los nombres exactos de las tablas de public. 10 tablas del MVP, la vista vista_catalogo con el disponible calculado y el residuo de Fase 2 (admin, roll) que sigue vivo y cerrado por RLS. Auditado el 2026-11-05 contra la base y verificado por tests/front/der-paridad-esquema.test.ts.',
+      pills: [
+        '13 Objetos Reales',
+        'Nombres Físicos',
+        'NUMERIC(12,2)',
+        'Vista + Disponible',
+        'Residuo Fase 2 Cerrado',
+      ],
       code: `erDiagram
-    CLIENTE ||--o{ PEDIDO : realiza
-    CLIENTE ||--o{ REMITO_VENTA : recibe
+        %% Nombres físicos exactos del esquema public en la base viva otjphjnrwihqzzhbfnmh.
+        %% Auditado el 2026-11-05 por la especificación OpenAPI de PostgREST.
 
-    PRODUCTO ||--|| STOCK : tiene
-    PRODUCTO ||--o{ DETALLE_PEDIDO : aparece
+        cliente ||--o{ pedido : "realiza"
+        cliente ||--o{ remitos_de_venta : "recibe"
 
-    PEDIDO ||--o{ DETALLE_PEDIDO : contiene
-    PEDIDO ||--o{ ESTADO_PEDIDO : registra
-    PEDIDO ||--o{ COMPROBANTE : presenta
+        producto ||--|| stock : "tiene"
+        producto ||--o{ detalle_del_pedido : "aparece en"
 
-    COMPROBANTE ||--o{ ESTADO_COMPROBANTE : registra
-    COMPROBANTE ||--o| REMITO_VENTA : genera
+        pedido ||--o{ detalle_del_pedido : "contiene"
+        pedido ||--o{ estados_pedidos : "registra"
+        pedido ||--o{ comprobante : "presenta"
 
-    STOCK ||--o{ ALERTA_STOCK : dispara
+        comprobante ||--o{ estados_comprobante : "registra"
+        comprobante ||--o| remitos_de_venta : "genera"
 
-    CLIENTE {
-        int id_cliente PK
-        string dni
-        string nombre
-        string email
-        string telefono
-    }
+        stock ||--o{ alerta_de_estado : "dispara"
 
-    PRODUCTO {
-        int id_producto PK
-        string nombre
-        string categoria
-        string tipo
-        string descripcion
-        decimal precio
-        int tiempo_produccion
-        boolean activo
-        string imagen_url
-    }
+        cliente {
+            int id_cliente PK "INTEGER IDENTITY"
+            string dni "TEXT NOT NULL · CHECK (dni ~ '^[0-9]{7,8}$')"
+            string nombre "TEXT NOT NULL · CHECK (btrim(nombre) <> '')"
+            string email "TEXT NOT NULL · UNIQUE (lower(email))"
+            string telefono "TEXT NULL"
+            timestamp creado_en "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        }
 
-    STOCK {
-        int id_stock PK
-        int id_producto FK
-        int cantidad_actual
-        int cantidad_reservada
-        int cantidad_warning
-    }
+        producto {
+            int id_producto PK "INTEGER IDENTITY"
+            string nombre "TEXT NOT NULL · UNIQUE (lower(nombre)) WHERE activo"
+            string categoria "TEXT NOT NULL"
+            string tipo "TEXT NOT NULL"
+            string descripcion "TEXT NOT NULL DEFAULT ''"
+            numeric precio "NUMERIC(12,2) NOT NULL · CHECK (precio > 0)"
+            int tiempo_produccion "INTEGER NOT NULL DEFAULT 0 · CHECK (>= 0)"
+            boolean activo "BOOLEAN NOT NULL DEFAULT true · baja logica"
+            string imagen_url "TEXT NULL · bucket publico productos"
+            timestamp creado_en "TIMESTAMPTZ NOT NULL DEFAULT now()"
+            timestamp actualizado_en "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        }
 
-    PEDIDO {
-        int id_pedido PK
-        int id_cliente FK
-        date fecha
-        decimal total
-        string estado_actual
-    }
+        stock {
+            int id_stock PK "INTEGER IDENTITY"
+            int id_producto FK "INTEGER NOT NULL UNIQUE · 1:1 con producto"
+            int cantidad_actual "INTEGER NOT NULL DEFAULT 0 · CHECK (>= 0)"
+            int cantidad_reservada "INTEGER NOT NULL DEFAULT 0 · ET007 <= cantidad_actual"
+            int cantidad_warning "INTEGER NOT NULL DEFAULT 0 · 0 = sin umbral"
+            timestamp actualizado_en "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        }
 
-    DETALLE_PEDIDO {
-        int id_detalle_pedido PK
-        int id_pedido FK
-        int id_producto FK
-        int cantidad
-        decimal precio_unitario
-        decimal subtotal
-    }
+        pedido {
+            int id_pedido PK "INTEGER IDENTITY"
+            int id_cliente FK "INTEGER NOT NULL"
+            date fecha "DATE NOT NULL DEFAULT current_date"
+            numeric total "NUMERIC(12,2) NOT NULL · = SUM(detalle.subtotal)"
+            string estado_actual "TEXT NOT NULL · 4 estados canonicos"
+            timestamp creado_en "TIMESTAMPTZ NOT NULL DEFAULT now()"
+            timestamp actualizado_en "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        }
 
-    ESTADO_PEDIDO {
-        int id_estado_pedido PK
-        int id_pedido FK
-        string estado
-        date fecha
-    }
+        detalle_del_pedido {
+            int id_detalle_pedido PK "INTEGER IDENTITY"
+            int id_pedido FK "INTEGER NOT NULL · UNIQUE (id_pedido, id_producto)"
+            int id_producto FK "INTEGER NOT NULL"
+            int cantidad "INTEGER NOT NULL · CHECK (cantidad > 0)"
+            numeric precio_unitario "NUMERIC(12,2) NOT NULL · CHECK (>= 0)"
+            numeric subtotal "NUMERIC(12,2) GENERATED ALWAYS AS (cantidad * precio_unitario) STORED"
+        }
 
-    COMPROBANTE {
-        int id_comprobante PK
-        int id_pedido FK
-        string foto_url
-        date fecha
-        decimal monto
-        string estado_actual
-    }
+        estados_pedidos {
+            int id_estado_pedido PK "INTEGER IDENTITY"
+            int id_pedido FK "INTEGER NOT NULL"
+            string estado "TEXT NOT NULL · 4 estados canonicos"
+            timestamp fecha "TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()"
+        }
 
-    ESTADO_COMPROBANTE {
-        int id_estado_comprobante PK
-        int id_comprobante FK
-        string estado
-        date fecha
-    }
+        comprobante {
+            int id_comprobante PK "INTEGER IDENTITY"
+            int id_pedido FK "INTEGER NOT NULL · UNIQUE WHERE pendiente"
+            string foto_url "TEXT NOT NULL · bucket privado comprobantes"
+            date fecha "DATE NOT NULL DEFAULT current_date"
+            numeric monto "NUMERIC(12,2) NOT NULL · CHECK (monto > 0)"
+            string estado_actual "TEXT NOT NULL · 3 estados canonicos"
+            timestamp subido_en "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        }
 
-    REMITO_VENTA {
-        int id_remito PK
-        int id_comprobante FK
-        int id_cliente FK
-        date fecha
-        decimal total
-        string numero
-    }
+        estados_comprobante {
+            int id_estado_comprobante PK "INTEGER IDENTITY"
+            int id_comprobante FK "INTEGER NOT NULL"
+            string estado "TEXT NOT NULL · 3 estados canonicos"
+            timestamp fecha "TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()"
+        }
 
-    ALERTA_STOCK {
-        int id_alerta PK
-        int id_stock FK
-        date fecha
-        string mensaje
-        boolean atendida
-    }`
+        remitos_de_venta {
+            int id_remito PK "INTEGER IDENTITY"
+            int id_comprobante FK "INTEGER NOT NULL UNIQUE · un remito por comprobante"
+            int id_cliente FK "INTEGER NOT NULL"
+            date fecha "DATE NOT NULL DEFAULT current_date"
+            numeric total "NUMERIC(12,2) NOT NULL · CHECK (>= 0)"
+            string numero "TEXT NOT NULL UNIQUE · R-YYYY-NNNNNN"
+        }
+
+        alerta_de_estado {
+            int id_alerta PK "INTEGER IDENTITY"
+            int id_stock FK "INTEGER NOT NULL · UNIQUE WHERE NOT atendida"
+            timestamp fecha "TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()"
+            string mensaje "TEXT NOT NULL"
+            boolean atendida "BOOLEAN NOT NULL DEFAULT false"
+        }
+
+        %% Fase 2 residual: existen en la base viva, ninguna migración las crea y quedan cerradas.
+        admin {
+            int id_admin PK "INTEGER IDENTITY"
+            string nombre "VARCHAR(100) NOT NULL"
+            string email "VARCHAR(100) NOT NULL"
+            string password_hash "VARCHAR(255) NOT NULL · hash, nunca texto plano"
+        }
+
+        roll {
+            int id_rol PK "INTEGER IDENTITY"
+            string descripcion_rol "VARCHAR(50) NOT NULL"
+        }
+
+        %% VISTA (no tabla) con security_invoker: una sola forma de leer el catalogo y el disponible.
+        %% No tiene claves ni relaciones: se calcula sobre producto y stock.
+        vista_catalogo {
+            int id_producto "producto.id_producto"
+            string nombre "producto.nombre"
+            string categoria "producto.categoria"
+            string tipo "producto.tipo"
+            string descripcion "producto.descripcion"
+            numeric precio "producto.precio"
+            int tiempo_produccion "producto.tiempo_produccion"
+            string imagen_url "producto.imagen_url"
+            int cantidad_actual "coalesce(stock.cantidad_actual, 0)"
+            int cantidad_reservada "coalesce(stock.cantidad_reservada, 0)"
+            int disponible "greatest(cantidad_actual - cantidad_reservada, 0)"
+            int cantidad_warning "coalesce(stock.cantidad_warning, 0)"
+        }`
     },
     {
       id: 'clases-uml',
